@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+dist/
+build/
+out/
+.turbo/
+storybook-static/
+*.tsbuildinfo
+
+# env: only .env.example is committed (ADR-0013)
+.env
+.env.*
+!.env.example
+
+# tests
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# local stack
+.data/
+*.pem
+
+# Claude Code: personal settings stay local
+.claude/settings.local.json
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
