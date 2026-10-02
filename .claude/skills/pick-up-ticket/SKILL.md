@@ -13,7 +13,7 @@ Input: a Linear issue ID such as `CHK-123`.
 2. Stop and report back instead of coding if any of these is true:
    - it lacks the `agent-ready` label
    - the acceptance criteria are missing or not testable
-   - it is labelled `needs-decision` or `blocked`
+   - it is labelled `needs-decision`, `blocked` or `you`, or a blocking issue is not Done
 3. Read what it links: spec decisions (Dn in `docs/messenger-app-spec.md` §9), ADRs, design docs. Read `CONTEXT.md` terms for the area.
 4. If the ticket conflicts with the spec or an ADR, stop and describe the conflict. Do not pick a side silently.
 

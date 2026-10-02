@@ -27,9 +27,9 @@ Chaku is built by one person with coding agents. Linear holds the work, the repo
 - **Milestones:** Wave 1 (end of phase 4), Wave 2 (phase 5), Wave 3 (phase 6).
 - **Workflow states:** Triage → Backlog → Todo → In Progress → In Review → Done, plus Canceled and Duplicate.
 - **Labels:**
-  - type: `feature`, `bug`, `chore`, `spike`, `docs`
-  - module: `identity`, `chat`, `feed`, `games`, `results`, `notifications`, `moderation`, `search`, `web`, `realtime`, `worker`, `ui`, `infra`
-  - flow: `agent-ready`, `needs-decision`, `blocked`
+  - **Type** group, exactly one: `Feature`, `Bug`, `Improvement`, `Chore`, `Spike`, `Docs`
+  - **Area**, any number (plain labels, because this Linear plan has no multi-select groups): `identity`, `chat`, `feed`, `games`, `results`, `notifications`, `moderation`, `search`, `web`, `realtime`, `worker`, `ui`, `infra`
+  - **Flow:** `agent-ready`, `needs-decision`, `blocked`, and `you` (needs a human: accounts, payments, legal, brand or product calls; agents never pick these up)
 - **Integrations:** GitHub (branch names, PR links, auto-close on merge), Sentry (create issues from errors), the in-app feedback button (creates Triage issues, D19).
 
 ## Ticket template
@@ -54,7 +54,7 @@ A ticket gets `agent-ready` only when:
 - the acceptance criteria are written and testable
 - it links the spec decisions or ADRs it implements
 - it names the modules it touches
-- it needs no product decision (otherwise label it `needs-decision`)
+- it needs no product decision (otherwise label it `needs-decision`) and no human-only step (otherwise `you`)
 - it fits in one PR
 
 ## The loop
