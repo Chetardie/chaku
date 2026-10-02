@@ -1,6 +1,6 @@
 # Chaku: Product Spec v0.4
 
-Status: product decisions complete (see §9 Decisions log, D1–D55). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. Not yet designed: data model, realtime protocol, `game-sdk` contract details.
+Status: product decisions complete (see §9 Decisions log, D1–D56). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. Not yet designed: data model, realtime protocol, `game-sdk` contract details.
 Goal: a real product. The first iteration is an invite-only beta, released to friends in waves, to see how it feels.
 Glossary: [`/CONTEXT.md`](../CONTEXT.md). Architecture decisions: [`docs/adr/`](adr/).
 
@@ -78,7 +78,7 @@ A web-only messenger (installable as a PWA) with Direct and Group Chats, a platf
 ### 3.6 Moderation and safety
 - **Reports** on Messages, Posts, Comments and people. For a Message, the Report snapshots about 10 earlier messages. Admins work a report queue. Snapshots are deleted 90 days after the Report is resolved (D2, D9). Logged-out visitors can report public Posts and Comments (D37).
 - **Admins** remove content (a Message only through its Report), ban and suspend people, and see the invite tree. They cannot browse Chats (D2, D47). Ban effects are in D37 and D47. Admin tools need a passkey login, and every Admin action is in the audit log (D47).
-- **Security baseline** (D9) and **rate limits** on messages, Invites, login, email codes, Challenges, Reports and uploads, plus storage quotas (D46).
+- **Security baseline** (D9) and **rate limits** on messages, Invites, login, email codes, Challenges, Reports and uploads, plus storage quotas (D46). Values in D56.
 - **Bot checks:** Cloudflare Turnstile on the logged-out report form and email login (D44).
 
 ### 3.7 Search
@@ -191,9 +191,6 @@ CLAUDE.md
 ## 7. Open items
 - **Domains:** the app domain (e.g. `chaku.app`) and a separate games domain (e.g. `chakugames.app`). Needed before the first production deploy in phase 4 (D55), because passkeys are bound to the app domain (D41).
 - **Data controller:** the person or company named in the legal pages (D53).
-- The exact list of about 24 Reactions.
-- **Rate limit and storage quota values.**
-- **Targets** for the beta metrics in D24.
 - **Centrifugo spike outcome** (start of phase 2).
 
 ## 8. Next design docs
@@ -204,7 +201,7 @@ CLAUDE.md
 - Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50)
 
 ## 9. Decisions log
-Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 was made on 2026-10-02. Terms are defined in `/CONTEXT.md`.
+Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. Terms are defined in `/CONTEXT.md`.
 - D1: "Invite" is signup-only; a game request is a **Game Challenge**. A Game Challenge expires after 15 minutes if not accepted. (Revised by D15: Challenges no longer appear as cards in Chats.)
 - D2: Site-wide roles are Member and Admin only (the role field should leave room for Moderator later). Admins manage topics, remove posts and comments ("[removed by admin]"), suspend or ban users, handle the report queue, and create unlimited Invites. Admins cannot browse private chats; a Report snapshots the reported message plus about 10 messages before it.
 - D3: People in a chat are **Participants**. Group Chat: the creator is the Group Owner, who can promote Group Admins. Owners and Group Admins can rename, change the avatar and remove Participants. Any Participant can add people (blocks apply). Limit of 50 Participants. Anyone can leave; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant. New Participants see the full history. A Direct Chat always has exactly 2 Participants and there is only one per pair; adding a third person creates a new Group Chat.
@@ -385,3 +382,31 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
 - D53: Legal readiness before wave 1: a named data controller (person or company) and contact address in the privacy policy, the terms and the notice-and-action contact; a list of sub-processors (Railway, Cloudflare, Resend, Sentry, PostHog, Google) with signed data processing agreements. Who the data controller is remains open.
 - D54: The repository is public on GitHub (ADR-0013). No secrets in git, secret scanning in CI, fork PRs run without secrets, and agent automation on GitHub responds only to collaborators.
 - D55: Local first. Phases 1–3 are built and tested only locally and in CI; nothing is deployed until the app works end to end on the local stack (D23). Production setup moves to the start of phase 4, before wave 1: domains (D41), email sending (D52), Railway with opt-in PR previews and backups (D36, D51), and Sentry, PostHog and Resend accounts. Until then the vendor adapters run their local or no-op versions, and `pnpm stack:prod` (D23) runs the production Dockerfiles locally so deploy problems surface early. Things only production can check (Railway preview hostnames as separate sites, ADR-0010; Google login smoke test; email deliverability) are checked in phase 4. Revises D41 and the build order in §6.
+- D56: Limits, the Reaction set and beta targets. Values are config, not code, so they can be tuned without a release.
+  - **Rate limits** (per Member unless noted; `rate-limiter-flexible` on Redis):
+    | Action | Limit |
+    |---|---|
+    | Messages | 20 per 10 s, 600 per hour |
+    | Starting Chats (Direct or Group) | 20 per hour |
+    | Adding Participants | 50 per hour |
+    | Email login codes | 3 per address per 10 min, 10 per address per day, 20 per IP per hour |
+    | Wrong code attempts | 5 per code, then the code is void |
+    | Game Challenges | 10 per 10 min; at most 1 pending per invitee |
+    | Reports | 10 per hour; logged-out visitors 3 per hour per IP, plus Turnstile (D44) |
+    | Image uploads | 60 per hour |
+    | Posts / Comments | 10 per day / 30 per 10 min |
+    | Reactions and Votes | 120 per minute |
+    | People search | 60 per minute |
+  - **Storage quota:** 1 GB of processed images per Member in the beta (D46).
+  - **Reaction set** (24, in this order; the first 6 are the quick picks from D14): 👍 ❤️ 😂 😮 😢 🔥 👎 🙏 👏 🎉 😍 🥰 😁 🤣 😅 🤔 🤯 😱 😡 💯 👀 🤝 🏆 💔. No flags or political symbols, because Reactions also appear on public Posts. Lives in `packages/content` config.
+  - **Beta metric targets** (D24), for 15–30 invited friends:
+    | Metric | Target |
+    |---|---|
+    | Weekly active Members ÷ invited, at week 4 | ≥ 60% |
+    | Messages per active Member per day | ≥ 10 |
+    | Chats with activity in the last 7 days | ≥ 2 per active Member |
+    | Still active after 7 / 30 days | ≥ 50% / ≥ 35% |
+    | Wave 2: active Members who finish a Game Session each week | ≥ 30% |
+    | Wave 3: Posts per week / active Members who comment each week | ≥ 5 / ≥ 20% |
+
+    If week 4 lands below about half of these, talk to the friends before building more.
