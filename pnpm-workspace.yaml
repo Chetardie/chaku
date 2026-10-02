@@ -1,0 +1,41 @@
+packages:
+  - apps/*
+  - apps/games/*
+  - packages/*
+  - packages/modules/*
+
+# The catalog is the only place dependency versions are written (ADR-0011).
+# Workspace package.json files refer to it as "catalog:".
+catalogMode: strict
+
+catalog:
+  # Build and workspace
+  turbo: ^2.11.6
+  '@types/node': ^24.19.0
+
+  # TypeScript 7 does the type check; tools that load `typescript` get 6 until 7.1 ships its API (ADR-0011)
+  typescript: npm:@typescript/typescript6@^6.0.2
+  '@typescript/native': npm:typescript@^7.0.2
+
+  # Lint and format
+  eslint: ^10.11.0
+  '@eslint/js': ^10.0.1
+  typescript-eslint: ^8.71.0
+  eslint-plugin-react-hooks: ^7.1.1
+  eslint-plugin-jsx-a11y-x: ^0.2.0
+  '@next/eslint-plugin-next': ^16.3.8
+  eslint-config-prettier: ^10.1.8
+  globals: ^17.13.0
+  prettier: ^3.9.9
+
+  # Tests
+  vitest: ^5.0.3
+
+# Supply chain. pnpm 12 already waits a day before installing a new release
+# and refuses unapproved install scripts; these make the rules explicit.
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # 2023 ReDoS security patch, published by hand without the provenance later 7.x releases have
+  - semver@6.3.1
+strictDepBuilds: true

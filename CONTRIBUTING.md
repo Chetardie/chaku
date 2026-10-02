@@ -15,7 +15,14 @@ Thanks for looking. Chaku is built by a small team with coding agents. This page
 
 ## Setup
 
-The local development guide arrives with the Foundation phase (CHK-14). Until then there is no application code to run.
+You need Node.js 24 (see `.nvmrc`) and pnpm 12. Install pnpm with its [standalone script](https://pnpm.io/installation) or `npx get-pnpm`; corepack isn't used. Then, from the repo root:
+
+```bash
+pnpm install
+pnpm lint && pnpm typecheck && pnpm test
+```
+
+The commands are listed in [CLAUDE.md](CLAUDE.md#commands). The local stack (databases, mail, storage) arrives with CHK-14.
 
 ## The loop
 
