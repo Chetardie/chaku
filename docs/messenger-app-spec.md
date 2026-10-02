@@ -1,6 +1,6 @@
 # Chaku: Product Spec v0.4
 
-Status: product decisions complete (see §9 Decisions log, D1–D54). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. Not yet designed: data model, realtime protocol, `game-sdk` contract details.
+Status: product decisions complete (see §9 Decisions log, D1–D55). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. Not yet designed: data model, realtime protocol, `game-sdk` contract details.
 Goal: a real product. The first iteration is an invite-only beta, released to friends in waves, to see how it feels.
 Glossary: [`/CONTEXT.md`](../CONTEXT.md). Architecture decisions: [`docs/adr/`](adr/).
 
@@ -180,16 +180,16 @@ CLAUDE.md
 ```
 
 ## 6. Build order and beta waves (D24)
-1. **Foundation:** domains bought and email sending set up before the first production deploy (D41, D52); one-command local stack (D23), monorepo, CI, boundaries, DB and migrations, worker, auth (Google, email codes and links, passkeys), Invites, profiles, i18n, `ui` tokens, logs and Sentry, deploy to Railway with PR previews and backups
+1. **Foundation (local only, D55):** one-command local stack (D23), monorepo, CI, boundaries, DB and migrations, worker, auth (Google, email codes and links, passkeys), Invites, profiles, i18n, `ui` tokens, logs, and the Sentry adapter (no-op until production)
 2. **Realtime gateway and Direct Chat** (the riskiest infrastructure first): starts with the one-day Centrifugo spike (ADR-0009); Chat Sequence and catch-up; images and Link Previews
 3. **Group Chats, Message Replies, mentions, Reactions, Notifications, Push, Read Positions, Presence, Blocks, people search**
-4. **Beta wave 1 readiness:** Reports and Admin tools for Chats and people, bans, the Admin audit log, rate limits, bot checks, legal pages with age and terms at signup, a named data controller and signed processing agreements (D53), data export script, onboarding and install prompt, feedback button, restore test, realtime load test, accessibility check of the chat screens. **Then invite friends (wave 1).**
+4. **Beta wave 1 readiness:** production setup first (D55): domains (D41), email sending (D52), Railway deploy with opt-in PR previews and backups (D36, D51), Sentry and PostHog accounts. Then Reports and Admin tools for Chats and people, bans, the Admin audit log, rate limits, bot checks, legal pages with age and terms at signup, a named data controller and signed processing agreements (D53), data export script, onboarding and install prompt, feedback button, restore test, realtime load test, accessibility check of the chat screens. **Then invite friends (wave 1).**
 5. **Games platform:** `game-sdk` contract, Four in a Row, Catalog, Sessions, Challenges, layout, Mini Player. **Released to the beta behind a feature flag (wave 2).**
 6. **Feed, Topics and Post search:** public Post page, logged-out reporting. **Released behind a feature flag (wave 3).**
 7. **Beta hardening:** full accessibility audit, fixes from beta feedback.
 
 ## 7. Open items
-- **Domains:** the app domain (e.g. `chaku.app`) and a separate games domain (e.g. `chakugames.app`). Blocking: needed before the first production deploy, because passkeys are bound to the app domain (D41).
+- **Domains:** the app domain (e.g. `chaku.app`) and a separate games domain (e.g. `chakugames.app`). Needed before the first production deploy in phase 4 (D55), because passkeys are bound to the app domain (D41).
 - **Data controller:** the person or company named in the legal pages (D53).
 - **License** for the public repository (ADR-0013).
 - **Brand direction** for the design system.
@@ -206,7 +206,7 @@ CLAUDE.md
 - Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50)
 
 ## 9. Decisions log
-Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. Terms are defined in `/CONTEXT.md`.
+Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 was made on 2026-10-02. Terms are defined in `/CONTEXT.md`.
 - D1: "Invite" is signup-only; a game request is a **Game Challenge**. A Game Challenge expires after 15 minutes if not accepted. (Revised by D15: Challenges no longer appear as cards in Chats.)
 - D2: Site-wide roles are Member and Admin only (the role field should leave room for Moderator later). Admins manage topics, remove posts and comments ("[removed by admin]"), suspend or ban users, handle the report queue, and create unlimited Invites. Admins cannot browse private chats; a Report snapshots the reported message plus about 10 messages before it.
 - D3: People in a chat are **Participants**. Group Chat: the creator is the Group Owner, who can promote Group Admins. Owners and Group Admins can rename, change the avatar and remove Participants. Any Participant can add people (blocks apply). Limit of 50 Participants. Anyone can leave; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant. New Participants see the full history. A Direct Chat always has exactly 2 Participants and there is only one per pair; adding a third person creates a new Group Chat.
@@ -365,7 +365,7 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
   - **Changed by verification:** shadcn on Base UI instead of Radix (shadcn's default since July 2026); TypeScript 6 for tools next to TypeScript 7 for type checking (7.0 has no API for typescript-eslint yet); `@serwist/turbopack` instead of `@serwist/next`; SeaweedFS instead of MinIO for local storage (MinIO's free edition is gone); no react-virtuoso (its chat mode is commercial).
   - **Temporary:** Drizzle 1.0 RC pinned until 1.0 stable; Node 24 until Node 26 becomes LTS; the TypeScript 6/7 pair until 7.1.
 - D40: Sync check (ADR-0012). On every (re)connect, when the page becomes visible, and every 60 seconds while it is visible, the client makes one sync check call. It returns the latest Chat Sequence of every Chat the Member is in, the unread Notification count and newest Notification ID, and pending Game Challenges. The client catches up on any Chat that is behind, adds Chats it didn't know (for example, added to a Group Chat while offline), drops Chats it has left, and refetches Notifications if they changed. A lost realtime event is noticed within 60 seconds even if nothing else happens in that Chat. The call is composed from the owning modules (`chat`, `notifications`, `games`); no module owns a cross-module log.
-- D41: The app and games domains are bought and set up in Cloudflare before the first production deploy in Foundation. Passkeys are bound to the app domain (the relying party ID is the apex app domain), so changing it later would invalidate every passkey.
+- D41: The app and games domains are bought and set up in Cloudflare before the first production deploy (revised by D55: that deploy moves to phase 4). Passkeys are bound to the app domain (the relying party ID is the apex app domain), so changing it later would invalidate every passkey.
 - D42: Media access. Every image is shown through a stable app link, `/media/{id}/{size}`.
   - **Private images** (Message images, Group Chat avatars, Link Preview images): the route checks `canView` and redirects to a signed R2 link valid for 5 minutes; the redirect may be cached privately for 4 minutes. Clients and the service worker cache by the stable link, so expiring signatures never break an open Chat.
   - **Public images** (feed images, and Member avatars, which logged-out visitors see next to Posts): served from the public bucket.
@@ -386,3 +386,4 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
 - D52: Email sending. Email goes out from a mail subdomain of the app domain with SPF, DKIM (through Resend) and DMARC, starting at `p=none` with reports and moving to `quarantine` after a clean first month. Resend bounce and complaint webhooks stop sending to that address and raise an alert. Failed login emails alert in Sentry.
 - D53: Legal readiness before wave 1: a named data controller (person or company) and contact address in the privacy policy, the terms and the notice-and-action contact; a list of sub-processors (Railway, Cloudflare, Resend, Sentry, PostHog, Google) with signed data processing agreements. Who the data controller is remains open.
 - D54: The repository is public on GitHub (ADR-0013). No secrets in git, secret scanning in CI, fork PRs run without secrets, and agent automation on GitHub responds only to collaborators.
+- D55: Local first. Phases 1–3 are built and tested only locally and in CI; nothing is deployed until the app works end to end on the local stack (D23). Production setup moves to the start of phase 4, before wave 1: domains (D41), email sending (D52), Railway with opt-in PR previews and backups (D36, D51), and Sentry, PostHog and Resend accounts. Until then the vendor adapters run their local or no-op versions, and `pnpm stack:prod` (D23) runs the production Dockerfiles locally so deploy problems surface early. Things only production can check (Railway preview hostnames as separate sites, ADR-0010; Google login smoke test; email deliverability) are checked in phase 4. Revises D41 and the build order in §6.
