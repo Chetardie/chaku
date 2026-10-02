@@ -7,12 +7,15 @@ Stage: spec and architecture. No application code yet; Foundation (spec §6, pha
 
 | What | Where |
 |---|---|
-| Product spec, binding decisions D1–D54 in §9 | [docs/messenger-app-spec.md](docs/messenger-app-spec.md) |
+| Product spec, binding decisions D1–D56 in §9 | [docs/messenger-app-spec.md](docs/messenger-app-spec.md) |
 | Domain language: use these terms exactly in code, UI copy, tickets and commits | [CONTEXT.md](CONTEXT.md) |
 | Architecture decisions | [docs/adr/](docs/adr/) |
 | System and module map, key flows | [docs/architecture/overview.md](docs/architecture/overview.md) |
 | How work moves from Linear to merged code | [docs/process/workflow.md](docs/process/workflow.md) |
 | Index of all docs, planned and written | [docs/README.md](docs/README.md) |
+| Engineering contract: Definition of Done, commits, decisions | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| UI copy in EN and UK | [docs/design-system/voice-and-tone.md](docs/design-system/voice-and-tone.md) |
+| Team handbook (Linear, private): Start here, How we work, Accounts & access, Support & moderation | Linear team Chaku → Documents (read with the Linear connector) |
 
 ## Rules
 
@@ -28,6 +31,7 @@ Stage: spec and architecture. No application code yet; Foundation (spec §6, pha
 - **Module boundaries** (ADR-0003, ADR-0007): import another module only through its public entry point. No joins across module schemas. Side effects are jobs added in the same transaction (ADR-0008). Every module storing Member data handles `member.erasure_requested`.
 - **Security** (D9, ADR-0013): never log or put Message or Comment bodies into analytics, errors or job payloads. Never connect to production data; only local or preview databases with seed data. The repo is public: no secrets, real people or real emails anywhere in git.
 - **Tests:** every acceptance criterion in a ticket is covered by a test. Module tests run against real Postgres, never database mocks (D19).
+- **Where docs go:** in the repo if code, agents or the public depend on it, or it changes with code. In Linear (team documents) if it's about people, process or operations. Never put secrets, Member content or Report details in either.
 - **Words:** say Member, Participant, Chat, Message, Game Challenge, and so on, as defined in CONTEXT.md. Never "user", "conversation", "room", "DM" in code or copy.
 
 ## Commands

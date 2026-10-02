@@ -8,7 +8,9 @@ Chaku is built by one person with coding agents. Linear holds the work, the repo
 |---|---|
 | Product decisions, architecture, guides | this repo (`docs/`, `CONTEXT.md`) |
 | Epics, tickets, bugs, triage, roadmap | Linear, team **CHK** |
-| Code review and CI | GitHub pull requests |
+| Code review and CI | GitHub pull requests (GitHub Issues are off; work is tracked in Linear) |
+| Team chat and notification feeds | Discord (channels in the Linear handbook, How we work) |
+| Team handbook: onboarding, rituals, accounts, support and moderation | Linear team documents |
 | Errors and product analytics | Sentry and PostHog, both linked to Linear |
 
 ## Linear structure
@@ -30,7 +32,7 @@ Chaku is built by one person with coding agents. Linear holds the work, the repo
   - **Type** group, exactly one: `Feature`, `Bug`, `Improvement`, `Chore`, `Spike`, `Docs`
   - **Area**, any number (plain labels, because this Linear plan has no multi-select groups): `identity`, `chat`, `feed`, `games`, `results`, `notifications`, `moderation`, `search`, `web`, `realtime`, `worker`, `ui`, `infra`
   - **Flow:** `agent-ready`, `needs-decision`, `blocked`, and `you` (needs a human: accounts, payments, legal, brand or product calls; agents never pick these up)
-- **Integrations:** GitHub (branch names, PR links, auto-close on merge), Sentry (create issues from errors), the in-app feedback button (creates Triage issues, D19).
+- **Integrations:** GitHub (branch names, PR links, auto-close on merge), Discord (`/linear` commands and daily wraps), Sentry (create issues from errors), the in-app feedback button (creates Triage issues, D19).
 
 ## Ticket template
 

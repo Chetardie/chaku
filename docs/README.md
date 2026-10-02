@@ -1,38 +1,72 @@
 # Chaku docs
 
-Docs live in this repo as Markdown and are read on GitHub; diagrams are Mermaid. Linear holds tickets and project briefs that link back here. When code and docs disagree, fix whichever is wrong in the same PR.
+**New here?** Start with the team handbook in Linear: [Start here](https://linear.app/chetardie/document/handbook-start-here-1b96217e5cec) (team members only). It has an onboarding path for each role and links back to these docs.
 
-## Product
+## Where docs live
 
+> A doc lives in this **repo** if code, agents or the public depend on it, or it changes together with code. Docs about people, process and operations live in **Linear** (team documents, private).
+
+| Repo (this folder) | Linear |
+|---|---|
+| Spec and decisions, architecture, ADRs, guides, design system, voice and tone, data retention, runbooks, legal pages | [Start here](https://linear.app/chetardie/document/handbook-start-here-1b96217e5cec), [How we work](https://linear.app/chetardie/document/handbook-how-we-work-66a8d4a09c6d), [Accounts & access](https://linear.app/chetardie/document/handbook-accounts-and-access-23ccec26c517), [Support & moderation](https://linear.app/chetardie/document/handbook-support-and-moderation-f80b7ce5ba48), [Product overview](https://linear.app/chetardie/document/product-overview-e0e6e0d1947b), project briefs, incident log |
+
+Docs change in the same PR as the behaviour, decision or process they describe. A stale doc is a bug.
+
+## By role
+
+| If you are… | Read first |
+|---|---|
+| Anyone | [Glossary (CONTEXT.md)](../CONTEXT.md), [Product spec](messenger-app-spec.md) §1–4 |
+| Engineering | [CONTRIBUTING](../CONTRIBUTING.md), [Architecture overview](architecture/overview.md), [ADRs](adr/), [Workflow](process/workflow.md) |
+| Design | [Design system foundations](design-system/foundations.md), [Voice and tone](design-system/voice-and-tone.md) |
+| Product | [Spec](messenger-app-spec.md) (§9 is every decision and why) |
+| QA | [CONTRIBUTING → Definition of Done](../CONTRIBUTING.md#definition-of-done), spec D7, D18, D19 |
+| Support and moderation | spec §3.6, [Data retention](operations/data-retention.md) |
+
+## All repo docs
+
+### Product
 | Doc | Status |
 |---|---|
-| [Product spec](messenger-app-spec.md) | v0.4 |
+| [Product spec](messenger-app-spec.md), decisions D1–D56 | v0.4 |
 | [Glossary (CONTEXT.md)](../CONTEXT.md) | current |
 
-## Architecture
-
+### Architecture
 | Doc | Status |
 |---|---|
 | [Architecture overview](architecture/overview.md) | current |
 | [ADRs](adr/) | 0001–0013 |
-| Data model: Postgres schema per module, Chat events, counters, Hot constants | planned, before phase 1 migrations |
-| Realtime protocol: event types, catch-up limits, sync check, log retention, Presence | planned, before phase 2 |
-| `game-sdk` contract: messages, versioning, heartbeat, results | planned, before phase 5 |
-| Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50) | planned, before phase 1 UI work |
-| Security and threat model: D9 as a checklist, authorization test matrix | planned, phase 1 |
-| [Design system foundations](design-system/foundations.md) | brand direction chosen (Warm); token scales next |
+| Data model: Postgres schema per module, Chat events, counters, Hot constants | CHK-15, before phase 1 migrations |
+| Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50) | CHK-16, before phase 1 UI work |
+| Security: D9 as a checklist, authorization test matrix | Foundation |
+| Realtime protocol: event types, catch-up limits, sync check, log retention, Presence | before phase 2 |
+| `game-sdk` contract: messages, versioning, heartbeat, results | before phase 5 |
 
-## Guides
-
+### Guides
 | Doc | Status |
 |---|---|
-| Local development: stack, certificates, seed logins, tunnel | planned, phase 1 |
-| Testing: layers, fixtures, Playwright with Mailpit, the two-browser realtime test | planned, phase 1 |
-| Conventions: IDs (`uuidv7`), errors, pagination, naming, i18n keys | planned, phase 1 |
+| Local development: stack, certificates, seed logins, tunnel | CHK-14 |
+| Conventions: IDs (`uuidv7`), errors, pagination, naming | Foundation |
+| Testing: layers, fixtures, Playwright with Mailpit, the two-browser realtime test | Foundation |
+| i18n: adding strings, EN and UK, plurals, review | Foundation |
+| Accessibility checklist | Foundation |
+| Releases and feature flags | phase 4 |
 
-## Process and operations
+### Design system
+| Doc | Status |
+|---|---|
+| [Foundations](design-system/foundations.md) | Warm direction; token scales next |
+| [Voice and tone](design-system/voice-and-tone.md) | current |
+| Design workflow: Figma structure, handoff, Code Connect | Design System project |
 
+### Process and operations
 | Doc | Status |
 |---|---|
 | [Workflow: Linear → branch → PR → merge](process/workflow.md) | current |
-| Runbooks: deploy, rollback, restore, incident, secret rotation | planned, before wave 1 |
+| [Data retention](operations/data-retention.md) | current; rows marked _to decide_ before wave 1 |
+| Runbooks: deploy, rollback, restore, incident, secret rotation | phase 4 |
+
+### Legal
+| Doc | Status |
+|---|---|
+| Privacy policy, terms, sub-processors | phase 4 (D53) |
