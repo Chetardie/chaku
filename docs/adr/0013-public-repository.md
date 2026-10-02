@@ -24,6 +24,6 @@ Nothing in our security model depends on hiding the code. D9 protects data throu
 
 ## Consequences
 
-- A license must be chosen. Until then the code is public but all rights are reserved. This is an open item in the spec.
+- The code is licensed under the Functional Source License 1.1 with an Apache 2.0 future license (FSL-1.1-ALv2, `LICENSE.md`): anyone may use, change and share it for any purpose except a competing service, and each version becomes Apache 2.0 two years after it is published. Contributions are accepted under the same license.
 - Renovate PRs and agent PRs come from branches in the main repo, so they get full CI with secrets; fork PRs get a reduced CI.
 - Anything sensitive about operations (incident notes with personal data, abuse cases, Report contents) stays out of the repo and goes into Linear or private storage.
