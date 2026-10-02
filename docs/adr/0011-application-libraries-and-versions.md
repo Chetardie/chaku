@@ -20,7 +20,7 @@ ADRs 0002–0010 fixed the platform: Next.js, Postgres with Drizzle, Redis, Bett
 | Area | Choice | Notes |
 |---|---|---|
 | Runtime | Node.js 24 LTS | Move to Node 26 after it becomes LTS (planned for October 2026). |
-| Package manager and builds | pnpm 12 with catalogs, Turborepo 2 | `turbo prune` for Docker builds. |
+| Package manager and builds | pnpm 12 with catalogs, Turborepo 2 | `turbo prune` for Docker builds. pnpm 12 is pinned in `devEngines.packageManager` and switches itself to that version; no corepack, which Node 25+ no longer ships _(amended in CHK-12)_. |
 | Language | TypeScript 6 as `typescript`, and TypeScript 7's native compiler for type checking | See "TypeScript" below. |
 | Web framework | Next.js 16 (Turbopack, standalone output), React 19, React Compiler on | |
 | Shared packages | Consumed as TypeScript source by Next.js (no build step); `apps/realtime`, `apps/worker` and Game servers are bundled with `tsdown` | |
@@ -42,12 +42,12 @@ ADRs 0002–0010 fixed the platform: Next.js, Postgres with Drizzle, Redis, Bett
 | Local storage emulator | SeaweedFS (Apache 2.0) behind Caddy | MinIO's free edition is archived and its images were removed from Docker Hub in September 2026. The seed script applies the same bucket CORS rules we set on R2. |
 | Logs and monitoring | `pino` 10, `@sentry/nextjs` 11, `posthog-js` / `posthog-node` | |
 | Tests | Vitest 5, Playwright 1.63 with `@axe-core/playwright`, MSW 3, `fast-check` 4, Storybook 10 with the accessibility addon | |
-| Lint and format | ESLint 10 (flat config) with typescript-eslint 8, `eslint-plugin-react-hooks` (includes React Compiler rules), `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y`; Prettier 3; dependency-cruiser | |
+| Lint and format | ESLint 10 (flat config) with typescript-eslint 8, `eslint-plugin-react-hooks` (includes React Compiler rules), `@next/eslint-plugin-next`, `eslint-plugin-jsx-a11y-x`; Prettier 3; dependency-cruiser | `eslint-plugin-jsx-a11y-x` is a fork with the same rules: the original has not been released since October 2024 and does not accept ESLint 10. Move back if it catches up _(amended in CHK-12)_. |
 | Dependency updates | Renovate, grouped weekly, using the pnpm catalogs | |
 
 ## TypeScript
 
-TypeScript 7.0, the native compiler, is released, but it has no programmatic API until 7.1. typescript-eslint, and Next.js's default type-checking path, need that API. Following Microsoft's guidance, we install TypeScript 6 as `typescript`, which tools load, and TypeScript 7 alongside it. CI and editors use TypeScript 7 for the fast type check. When 7.1 ships its API and typescript-eslint supports it, we drop TypeScript 6.
+TypeScript 7.0, the native compiler, is released, but it has no programmatic API until 7.1. typescript-eslint, and Next.js's default type-checking path, need that API. Following Microsoft's guidance, we install TypeScript 6 as `typescript`, which tools load, and TypeScript 7 alongside it. Since `typescript@latest` is now 7, the catalog aliases the names: `typescript` is `npm:@typescript/typescript6` and `@typescript/native` is `npm:typescript@7`, so `tsc` is TypeScript 7 and `tsc6` is TypeScript 6 _(amended in CHK-12)_. CI and editors use TypeScript 7 for the fast type check. When 7.1 ships its API and typescript-eslint supports it, we drop TypeScript 6.
 
 ## Drizzle
 

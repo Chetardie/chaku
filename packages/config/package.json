@@ -1,0 +1,33 @@
+{
+  "name": "@chaku/config",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint": "./eslint.js",
+    "./prettier": "./prettier.js",
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/node.json": "./tsconfig/node.json"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:",
+    "@next/eslint-plugin-next": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-jsx-a11y-x": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "globals": "catalog:",
+    "typescript-eslint": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

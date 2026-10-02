@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "TypeScriptTeam.native-preview",
+    "vitest.explorer",
+    "EditorConfig.EditorConfig"
+  ]
+}

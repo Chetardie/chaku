@@ -1,0 +1,36 @@
+{
+  "name": "chaku",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@chaku/config": "workspace:*",
+    "@typescript/native": "catalog:",
+    "prettier": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24.15.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.8.1",
+      "onFail": "download"
+    }
+  }
+}
