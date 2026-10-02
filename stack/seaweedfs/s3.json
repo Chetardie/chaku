@@ -1,0 +1,13 @@
+{
+  "identities": [
+    {
+      "name": "chaku",
+      "credentials": [{ "accessKey": "chaku-local", "secretKey": "chaku-local-secret" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    },
+    {
+      "name": "anonymous",
+      "actions": ["Read:chaku-public"]
+    }
+  ]
+}

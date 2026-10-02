@@ -28,7 +28,7 @@ pnpm install
 pnpm lint && pnpm typecheck && pnpm test && pnpm boundaries
 ```
 
-The commands are listed in [CLAUDE.md](CLAUDE.md#commands). The local stack (databases, mail, storage) arrives with CHK-14.
+The commands are listed in [CLAUDE.md](CLAUDE.md#commands). To run the app locally, start the stack (databases, mail, storage, HTTPS) with `pnpm stack`. The [local development guide](docs/guides/local-development.md) covers the one-time certificate step.
 
 ## The loop
 

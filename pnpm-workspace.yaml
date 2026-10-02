@@ -3,6 +3,7 @@ packages:
   - apps/games/*
   - packages/*
   - packages/modules/*
+  - stack
 
 # The catalog is the only place dependency versions are written (ADR-0011).
 # Workspace package.json files refer to it as "catalog:".
@@ -31,6 +32,10 @@ catalog:
   # Tests
   vitest: ^5.0.3
   yaml: ^2.9.1
+
+  # Local stack and storage (CHK-14): AWS SDK v3 against SeaweedFS locally and R2 in production
+  '@aws-sdk/client-s3': ^3.1144.0
+  '@aws-sdk/s3-request-presigner': ^3.1144.0
 
   # Boundaries and git hooks (CHK-13)
   dependency-cruiser: ^18.5.0

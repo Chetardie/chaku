@@ -45,7 +45,7 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 ### Guides
 | Doc | Status |
 |---|---|
-| Local development: stack, certificates, seed logins, tunnel | CHK-14 |
+| [Local development](guides/local-development.md): stack, certificates, troubleshooting | current; seed logins with CHK-17, tunnel later |
 | Conventions: IDs (`uuidv7`), errors, pagination, naming | Foundation |
 | Testing: layers, fixtures, Playwright with Mailpit, the two-browser realtime test | Foundation |
 | i18n: adding strings, EN and UK, plurals, review | Foundation |

@@ -11,7 +11,11 @@
     "boundaries": "turbo run depcruise",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "depcruise": "depcruise --config packages/config/dependency-cruiser.js apps packages"
+    "depcruise": "depcruise --config packages/config/dependency-cruiser.js apps packages",
+    "stack": "node stack/src/cli.ts up",
+    "stack:down": "node stack/src/cli.ts down",
+    "stack:reset": "node stack/src/cli.ts reset",
+    "stack:check": "pnpm --filter @chaku/stack check"
   },
   "devDependencies": {
     "@chaku/config": "workspace:*",

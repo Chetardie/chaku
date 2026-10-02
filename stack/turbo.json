@@ -1,0 +1,17 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      // The tests read the stack and docs files at the repo root.
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/docker-compose.yml",
+        "$TURBO_ROOT$/.env.example",
+        "$TURBO_ROOT$/CLAUDE.md",
+        "$TURBO_ROOT$/docs/README.md",
+        "$TURBO_ROOT$/docs/guides/**"
+      ]
+    }
+  }
+}
