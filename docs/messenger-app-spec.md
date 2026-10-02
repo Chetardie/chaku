@@ -172,6 +172,7 @@ packages/
   game-sdk/            # contract types, host and client helpers
   ui/                  # design tokens + components
   config/              # tsconfig, eslint, dependency-cruiser
+stack/                 # local stack (D23): Caddyfile, bucket and CORS setup, stack checks
 docs/
   adr/
   design-system/

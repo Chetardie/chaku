@@ -1,7 +1,7 @@
 # Chaku
 
 Invite-only web messenger (PWA) with Games played beside Chats and a public Feed of Posts in Topics. EN and UK interface.
-Stage: Foundation (spec §6, phase 1). The monorepo and shared tooling exist; no application code yet.
+Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI and the local stack exist; no application code yet.
 
 ## Read before working
 
@@ -11,6 +11,7 @@ Stage: Foundation (spec §6, phase 1). The monorepo and shared tooling exist; no
 | Domain language: use these terms exactly in code, UI copy, tickets and commits | [CONTEXT.md](CONTEXT.md) |
 | Architecture decisions | [docs/adr/](docs/adr/) |
 | System and module map, key flows | [docs/architecture/overview.md](docs/architecture/overview.md) |
+| Running the local stack, trusting its certificate, troubleshooting | [docs/guides/local-development.md](docs/guides/local-development.md) |
 | How work moves from Linear to merged code | [docs/process/workflow.md](docs/process/workflow.md) |
 | Index of all docs, planned and written | [docs/README.md](docs/README.md) |
 | Engineering contract: Definition of Done, commits, decisions | [CONTRIBUTING.md](CONTRIBUTING.md) |
@@ -51,9 +52,11 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | `pnpm build` | Build every app and package that has a build |
 | `pnpm dev` | Run every app in development mode |
 | `pnpm format` / `pnpm format:check` | Prettier on code and config (Markdown is formatted by hand) |
+| `pnpm stack` / `stack:down` / `stack:reset` | Local stack in Docker: Postgres, Redis, SeaweedFS, Mailpit, Caddy on `https://*.localhost`. `reset` wipes data but keeps the trusted certificate |
+| `pnpm stack:check` | Checks the running stack (health, HTTPS, storage CORS, Postgres extensions) |
 
-Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI (`.github/workflows/ci.yml`) runs all of these plus `gitleaks`; its `ci` job is the one required check. `pnpm install` also installs a pre-commit hook (`lefthook.yml`) that runs `gitleaks` on staged changes. Still to come in Foundation: `pnpm stack` (CHK-14), `pnpm db:reset` (CHK-17).
+Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI (`.github/workflows/ci.yml`) runs all of these plus `gitleaks`; its `ci` job is the one required check. `pnpm install` also installs a pre-commit hook (`lefthook.yml`) that runs `gitleaks` on staged changes. Still to come in Foundation: `pnpm db:reset` (CHK-17).
 
 ## Layout
 
-Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,game-sdk,ui,config}`, `docs/`. Only `packages/config` is a package so far; the other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).
+Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,game-sdk,ui,config}`, `docs/`, plus `stack/` (the local stack: Caddyfile, bucket setup, stack checks). Only `packages/config` and `stack` are packages so far; the other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).

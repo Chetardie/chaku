@@ -1,0 +1,39 @@
+# Local HTTPS for every app on its own .localhost site (D23, ADR-0006).
+# Certificates come from Caddy's local CA; trust its root once (docs/guides/local-development.md).
+{
+	local_certs
+	# Caddy can't reach the host's trust store from a container; `pnpm stack` exports the root instead.
+	skip_install_trust
+}
+
+# Apps run on the host (`pnpm dev`). Until an app exists its port is a placeholder, and the
+# site answers 502 with the hint below.
+#   web        apps/web               3000
+#   realtime   apps/realtime          3001
+#   reference  apps/games/reference   4100
+(app) {
+	reverse_proxy host.docker.internal:{args[0]}
+	handle_errors 502 503 {
+		respond "{args[1]} is not running. Start it with pnpm dev (port {args[0]})." 502
+	}
+}
+
+chaku.localhost {
+	import app 3000 "The web app"
+}
+
+rt.chaku.localhost {
+	import app 3001 "The realtime gateway"
+}
+
+reference.chakugames.localhost {
+	import app 4100 "The Reference Game"
+}
+
+mail.chaku.localhost {
+	reverse_proxy mailpit:8025
+}
+
+s3.chaku.localhost {
+	reverse_proxy seaweedfs:8333
+}
