@@ -47,11 +47,12 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | `pnpm lint` | ESLint with type information |
 | `pnpm typecheck` | `tsc` (TypeScript 7) |
 | `pnpm test` | Vitest |
+| `pnpm boundaries` | dependency-cruiser: module boundaries and cycles (ADR-0002, ADR-0003, ADR-0007); rules in `packages/config/dependency-cruiser.js` |
 | `pnpm build` | Build every app and package that has a build |
 | `pnpm dev` | Run every app in development mode |
 | `pnpm format` / `pnpm format:check` | Prettier on code and config (Markdown is formatted by hand) |
 
-Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. Still to come in Foundation: `pnpm stack` (CHK-14), `pnpm db:reset` (CHK-17).
+Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI (`.github/workflows/ci.yml`) runs all of these plus `gitleaks`; its `ci` job is the one required check. `pnpm install` also installs a pre-commit hook (`lefthook.yml`) that runs `gitleaks` on staged changes. Still to come in Foundation: `pnpm stack` (CHK-14), `pnpm db:reset` (CHK-17).
 
 ## Layout
 

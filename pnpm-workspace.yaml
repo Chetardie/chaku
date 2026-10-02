@@ -30,6 +30,12 @@ catalog:
 
   # Tests
   vitest: ^5.0.3
+  yaml: ^2.9.1
+
+  # Boundaries and git hooks (CHK-13)
+  dependency-cruiser: ^18.5.0
+  # Exact: 2.1.15 was published without provenance (trustPolicy refuses it), 2.1.16 is newer than a day
+  lefthook: 2.1.14
 
 # Supply chain. pnpm 12 already waits a day before installing a new release
 # and refuses unapproved install scripts; these make the rules explicit.
@@ -39,3 +45,6 @@ trustPolicyExclude:
   # 2023 ReDoS security patch, published by hand without the provenance later 7.x releases have
   - semver@6.3.1
 strictDepBuilds: true
+allowBuilds:
+  # postinstall installs the git hooks from lefthook.yml (skipped when CI=true)
+  lefthook: true

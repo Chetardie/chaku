@@ -6,7 +6,8 @@
     "./eslint": "./eslint.js",
     "./prettier": "./prettier.js",
     "./tsconfig/base.json": "./tsconfig/base.json",
-    "./tsconfig/node.json": "./tsconfig/node.json"
+    "./tsconfig/node.json": "./tsconfig/node.json",
+    "./dependency-cruiser": "./dependency-cruiser.js"
   },
   "scripts": {
     "lint": "eslint .",
@@ -25,9 +26,11 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
+    "dependency-cruiser": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "yaml": "catalog:"
   }
 }

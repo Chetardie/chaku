@@ -8,12 +8,16 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "boundaries": "turbo run depcruise",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "depcruise": "depcruise --config packages/config/dependency-cruiser.js apps packages"
   },
   "devDependencies": {
     "@chaku/config": "workspace:*",
     "@typescript/native": "catalog:",
+    "dependency-cruiser": "catalog:",
+    "lefthook": "catalog:",
     "prettier": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:"
@@ -29,7 +33,7 @@
     },
     "packageManager": {
       "name": "pnpm",
-      "version": "^12.8.1",
+      "version": "12.8.1",
       "onFail": "download"
     }
   }
