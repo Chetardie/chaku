@@ -7,7 +7,7 @@ Stage: spec and architecture. No application code yet; Foundation (spec §6, pha
 
 | What | Where |
 |---|---|
-| Product spec, binding decisions D1–D54 in §9 | [docs/messenger-app-spec.md](docs/messenger-app-spec.md) |
+| Product spec, binding decisions D1–D56 in §9 | [docs/messenger-app-spec.md](docs/messenger-app-spec.md) |
 | Domain language: use these terms exactly in code, UI copy, tickets and commits | [CONTEXT.md](CONTEXT.md) |
 | Architecture decisions | [docs/adr/](docs/adr/) |
 | System and module map, key flows | [docs/architecture/overview.md](docs/architecture/overview.md) |
