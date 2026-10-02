@@ -11,3 +11,7 @@ An invite-only web messenger where people chat, play Games beside their Chats, a
 - [All docs](docs/README.md)
 
 Security issues: see [SECURITY.md](SECURITY.md).
+
+## License
+
+[FSL-1.1-ALv2](LICENSE.md): use, change and share Chaku for anything except running a competing service. Each version becomes Apache 2.0 two years after release.

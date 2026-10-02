@@ -191,7 +191,6 @@ CLAUDE.md
 ## 7. Open items
 - **Domains:** the app domain (e.g. `chaku.app`) and a separate games domain (e.g. `chakugames.app`). Blocking: needed before the first production deploy, because passkeys are bound to the app domain (D41).
 - **Data controller:** the person or company named in the legal pages (D53).
-- **License** for the public repository (ADR-0013).
 - **Brand direction** for the design system.
 - The exact list of about 24 Reactions.
 - **Rate limit and storage quota values.**
