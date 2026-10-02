@@ -20,7 +20,7 @@ Docs live in this repo as Markdown and are read on GitHub; diagrams are Mermaid.
 | `game-sdk` contract: messages, versioning, heartbeat, results | planned, before phase 5 |
 | Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50) | planned, before phase 1 UI work |
 | Security and threat model: D9 as a checklist, authorization test matrix | planned, phase 1 |
-| Design system foundations | planned, after brand direction |
+| [Design system foundations](design-system/foundations.md) | brand direction chosen (Warm); token scales next |
 
 ## Guides
 
