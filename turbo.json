@@ -22,6 +22,9 @@
     "test": {
       "dependsOn": ["transit"],
       "outputs": []
+    },
+    "//#depcruise": {
+      "outputs": []
     }
   }
 }

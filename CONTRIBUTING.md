@@ -15,11 +15,17 @@ Thanks for looking. Chaku is built by a small team with coding agents. This page
 
 ## Setup
 
-You need Node.js 24 (see `.nvmrc`) and pnpm 12. Install pnpm with its [standalone script](https://pnpm.io/installation) or `npx get-pnpm`; corepack isn't used. Then, from the repo root:
+You need:
+
+- Node.js 24 (see `.nvmrc`)
+- pnpm 12. Install it with its [standalone script](https://pnpm.io/installation) or `npx get-pnpm`; corepack isn't used.
+- [gitleaks](https://github.com/gitleaks/gitleaks#installing): `winget install Gitleaks.Gitleaks`, `brew install gitleaks`, or a release binary. `pnpm install` sets up a pre-commit hook that scans your staged changes with it and stops the commit if gitleaks is missing or finds a secret (ADR-0013).
+
+Then, from the repo root:
 
 ```bash
 pnpm install
-pnpm lint && pnpm typecheck && pnpm test
+pnpm lint && pnpm typecheck && pnpm test && pnpm boundaries
 ```
 
 The commands are listed in [CLAUDE.md](CLAUDE.md#commands). The local stack (databases, mail, storage) arrives with CHK-14.
@@ -34,7 +40,7 @@ The full flow, Linear ticket included, is in [docs/process/workflow.md](docs/pro
 4. **PR:**
    - title `CHK-123: Short title`; Linear links it and moves the ticket for you
    - fill in the PR template: every acceptance criterion with the test that covers it
-5. **Checks:** CI must pass; add the `preview` label if you need a preview (once production exists, D55).
+5. **Checks:** CI must pass (the required check is `ci`); add the `preview` label if you need a preview (once production exists, D55).
 6. **Review:** at least the code owner reviews. A Claude review runs too (CHK-25).
 7. **Merge:** squash merge. Linear moves the ticket to Done.
 

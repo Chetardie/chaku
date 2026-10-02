@@ -1,0 +1,9 @@
+# Git hooks, installed by `pnpm install` through lefthook's postinstall (not in CI).
+# The config is read on every hook run, so edits here need no reinstall.
+pre-commit:
+  jobs:
+    - name: gitleaks
+      # Scans only the staged changes. Secrets never belong in git (ADR-0013); CI scans again.
+      # Needs gitleaks on PATH (CONTRIBUTING.md, Setup). Keep this one plain command: lefthook on
+      # Windows splits it on spaces and ignores shell quoting.
+      run: gitleaks git --pre-commit --staged --redact --no-banner --verbose

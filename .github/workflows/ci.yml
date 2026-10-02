@@ -1,0 +1,102 @@
+# The merge gate (D19). The `main` ruleset requires one check, `ci`, which passes only when every
+# other job here passed. The repo is public and this runs fork code on `pull_request`, so it holds
+# no secrets and only reads the repo (ADR-0013). Every action is pinned to a commit SHA or image
+# digest; Renovate keeps them current.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to a PR cancels its older run; every push to main gets its own run.
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: '1'
+
+jobs:
+  checks:
+    name: lint, typecheck, test, boundaries
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # pnpm from devEngines.packageManager, Node.js from .nvmrc, then `pnpm install --frozen-lockfile`.
+      - uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: true
+          require-lockfile: true
+
+      - name: Lint, type check, test and check boundaries
+        run: pnpm exec turbo run lint typecheck test depcruise --continue
+
+      - name: Check formatting
+        run: pnpm format:check
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Pick the commits to scan
+        id: commits
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif [ -z "${PUSH_BEFORE//0/}" ]; then
+            range="$PUSH_AFTER" # a new branch: all of its history
+          else
+            range="$PUSH_BEFORE..$PUSH_AFTER"
+          fi
+          echo "Scanning $range"
+          echo "range=$range" >> "$GITHUB_OUTPUT"
+
+      - name: Scan for secrets
+        uses: docker://ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f # v8.30.1
+        env:
+          # Docker actions run with HOME=/github/home, so the image's own `safe.directory` setting
+          # is not read, and git refuses a workspace owned by another user without it.
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: safe.directory
+          GIT_CONFIG_VALUE_0: /github/workspace
+        with:
+          args: git --log-opts=${{ steps.commits.outputs.range }} --redact --verbose --no-banner /github/workspace
+
+  ci:
+    name: ci
+    if: ${{ always() }}
+    needs: [checks, gitleaks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every job to pass
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          failed=$(jq -r 'to_entries[] | select(.value.result != "success") | "\(.key): \(.value.result)"' <<< "$NEEDS")
+          if [ -n "$failed" ]; then
+            echo "::error::These jobs did not pass: $(echo $failed)"
+            exit 1
+          fi
+          echo "Every job passed."
