@@ -9,7 +9,8 @@
       "Bash(gh pr view:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh pr diff:*)",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "Bash(gh pr merge:*)"
     ],
     "deny": [
       "Read(./.env)",
