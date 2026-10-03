@@ -1,19 +1,22 @@
 // CHK-14: `psql` shows `pg_trgm` and `unaccent` available (spec D33: people search and Post search).
 // Migrations create them (CHK-17), as they will on Railway, so here they are only available.
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { compose, loadEnv } from '../src/stack.ts';
 
 loadEnv();
 
-function psql(sql: string): string {
+/** Created and dropped by this check, so it never touches the extensions migrations made in `chaku`. */
+const scratchDatabase = 'chaku_stack_check';
+
+function psql(sql: string, database = 'chaku'): string {
   return compose([
     'exec',
     '-T',
     'postgres',
     'psql',
     '--username=chaku',
-    '--dbname=chaku',
+    `--dbname=${database}`,
     '--no-psqlrc',
     '--tuples-only',
     '--no-align',
@@ -21,6 +24,10 @@ function psql(sql: string): string {
     '--command',
     sql,
   ]).trim();
+}
+
+function dropScratchDatabase(): void {
+  psql(`drop database if exists ${scratchDatabase} with (force)`);
 }
 
 describe('Postgres', () => {
@@ -35,14 +42,24 @@ describe('Postgres', () => {
     expect(available.split(/\r?\n/)).toEqual(['pg_trgm', 'unaccent']);
   });
 
-  it('can create and use both extensions', () => {
-    const result = psql(`
-      begin;
-      create extension pg_trgm;
-      create extension unaccent;
-      select similarity('chaku', 'chaky') > 0.3, unaccent('Café');
-      rollback;
-    `);
-    expect(result).toContain('t|Cafe');
+  describe('in a fresh database', () => {
+    // A database of its own, because `chaku` already has both extensions once `pnpm db:reset` ran.
+    beforeAll(() => {
+      dropScratchDatabase();
+      psql(`create database ${scratchDatabase}`);
+    });
+    afterAll(dropScratchDatabase);
+
+    it('can create and use both extensions', () => {
+      const result = psql(
+        `
+          create extension pg_trgm;
+          create extension unaccent;
+          select similarity('chaku', 'chaky') > 0.3, unaccent('Café');
+        `,
+        scratchDatabase,
+      );
+      expect(result).toContain('t|Cafe');
+    });
   });
 });
