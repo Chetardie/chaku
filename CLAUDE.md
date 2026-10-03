@@ -39,6 +39,7 @@ Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI, the loc
   - Vendors (email, storage, push, analytics, errors, bot checks) and the logger only through `@chaku/adapters`; never import `nodemailer`, an S3 client or `pino` in an app
 - **Module boundaries** (ADR-0003, ADR-0007): import another module only through its public entry point. No joins across module schemas. Side effects are jobs added in the same transaction (ADR-0008). Every module storing Member data handles `member.erasure_requested`.
 - **Security** (D9, ADR-0013): never log or put Message or Comment bodies into analytics, errors or job payloads. Never connect to production data; only local or preview databases with seed data. The repo is public: no secrets, real people or real emails anywhere in git.
+- **Agent tools** (`docs/process/workflow.md`, Agent tools): the `postgres` MCP in `.mcp.json` reads the local database only, as the read-only role `chaku_readonly`. New modules come from the `new-module` skill and schema changes follow `new-migration`; don't write either by hand. Hooks format each edited file with Prettier and type check its package.
 - **Tests:** every acceptance criterion in a ticket is covered by a test. Module tests run against real Postgres, never database mocks (D19).
 - **Where docs go:** in the repo if code, agents or the public depend on it, or it changes with code. In Linear (team documents) if it's about people, process or operations. Never put secrets, Member content or Report details in either.
 - **Words:** say Member, Participant, Chat, Message, Game Challenge, and so on, as defined in CONTEXT.md. Never "user", "conversation", "room", "DM" in code or copy.
@@ -72,7 +73,8 @@ Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,d
 - `apps/web`: Next.js. `app/` routes, `proxy.ts` (CSP nonce), `instrumentation.ts` (env check, server oRPC client, error reports), `src/server/rpc/` (router, context, `/rpc` handler), `src/lib/` (`orpc`, query client), `src/i18n/`, `messages/{en,uk}.json`, `e2e/` (Playwright)
 - `apps/worker`: Graphile Worker jobs (ADR-0008). `src/modules.ts` lists the modules whose jobs it runs; `src/runner.ts` wires them up; bundled with tsdown
 - `packages/adapters`: the logger and vendor adapters, one entry point each (`@chaku/adapters/email`, …)
-- `packages/db`: `@chaku/db` (pool, transactions, `defineJob`/`addJob`/`handle`; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations` plus the `graphile_worker` schema, reset, local env), the test harness `@chaku/db/testing` (`queuedJobs`, `runJob`)
-- `packages/config`, `packages/modules/identity` and `stack`
+- `packages/db`: `@chaku/db` (pool, transactions, `defineJob`/`addJob`/`handle`; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations` plus the `graphile_worker` schema, reset, local env), the test harness `@chaku/db/testing` (`queuedJobs`, `runJob`, `describeDataModelSchema`)
+- `packages/config`: shared ESLint, TypeScript, Prettier and dependency-cruiser config, and the agent scripts in `src/agent/` (edit hooks, the `new-module` scaffold)
+- `packages/modules/identity` and `stack` (also the Postgres MCP guard and its read-only role)
 
 The other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).

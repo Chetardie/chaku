@@ -17,6 +17,7 @@
     "@chaku/identity": "workspace:*"
   },
   "devDependencies": {
+    "@bytebase/dbhub": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
     "@chaku/config": "workspace:*",
     "@types/node": "catalog:",

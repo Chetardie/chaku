@@ -66,6 +66,14 @@ The seed has fake Members only, with `example.com` addresses, never real people 
 
 Daryna has one open Invite. Its code is `seed-open-invite`, for trying signup once Invites have a page (CHK-21).
 
+### Postgres MCP
+
+Agents read the local database through the `postgres` MCP in [`.mcp.json`](../../.mcp.json) (CHK-24, D9). Claude Code asks once to approve it. It runs [DBHub](https://github.com/bytebase/dbhub) with two tools, `search_objects` (schemas, tables, columns, indexes) and `execute_sql`.
+
+- It connects to the stack's `chaku` database on 127.0.0.1, at `CHAKU_POSTGRES_PORT`, as the role `chaku_readonly`. [`stack/src/mcp-postgres.ts`](../../stack/src/mcp-postgres.ts) refuses to start for any other host or role, and `.mcp.json` holds no URL. `CHAKU_MCP_DATABASE_URL` in `.env` can pick another local database.
+- `chaku_readonly` reads every table (`pg_read_all_data`) and can't write: inserts, updates and `create table` fail with a permission error. Its password is a fixed local value. `pnpm stack` and `pnpm db:reset` create it; no migration does, so it never exists in production.
+- If the MCP can't sign in, run `pnpm stack` again: it adds the role to a running stack without restarting anything.
+
 ### Tests
 
 Module tests run against the stack's Postgres, never database mocks (D19), so start `pnpm stack` before `pnpm test`. The harness in `@chaku/db/testing` builds a template database from the migrations once, gives each test worker its own copy named `chaku_test_<package>_<worker>`, and empties every table before each test. It never touches the `chaku` database you use with `pnpm dev`. CI runs the same tests against a Postgres service with the same image.

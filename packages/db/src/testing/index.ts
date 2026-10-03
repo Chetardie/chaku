@@ -21,6 +21,13 @@ import {
 import './context.ts';
 import { databaseUrlFor, ensureClone } from './databases.ts';
 
+export {
+  type DataModelColumn,
+  dataModelFile,
+  type DataModelTable,
+  dataModelTables,
+  describeDataModelSchema,
+} from './data-model.ts';
 export { cloneTemplate, databaseUrlFor, dropDatabases } from './databases.ts';
 export type { TestDatabaseContext } from './context.ts';
 

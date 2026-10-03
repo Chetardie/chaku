@@ -92,7 +92,9 @@ Conventional Commits (`feat(chat): …`, `fix(identity): …`, `docs(adr): …`)
 | Figma MCP | design system and screens |
 | Playwright MCP / built-in browser | driving the running app |
 | `gh` CLI | GitHub: PRs, checks, releases |
-| Postgres MCP (Foundation) | **local database only** (D9) |
+| Postgres MCP (`postgres` in `.mcp.json`, DBHub) | reading the **local** database only, as the read-only role `chaku_readonly` (D9): [local development guide](../guides/local-development.md#postgres-mcp) |
 | Sentry, PostHog, Railway MCPs | added when those accounts exist |
 
-Project skills in `.claude/skills/`: `pick-up-ticket` and `new-adr`. Foundation adds `new-module` and `new-migration`. The user-level skills `triage`, `grill-with-docs` and `improve-codebase-architecture` fit this loop too.
+Project skills in `.claude/skills/`: `pick-up-ticket`, `new-adr`, `new-module` (scaffolds a module package like `identity` and registers it) and `new-migration` (doc, schema, `pnpm db:generate`, seed and tests together; expand, then contract). The user-level skills `triage`, `grill-with-docs` and `improve-codebase-architecture` fit this loop too.
+
+Hooks in `.claude/settings.json` run after every Edit and Write: Prettier formats the edited file (Markdown is formatted by hand), then `tsc` checks the file's package in the background and reports errors to the agent without blocking the edit (`packages/config/src/agent/after-edit.ts`).
