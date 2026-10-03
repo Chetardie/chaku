@@ -11,7 +11,16 @@ const root = path.resolve(import.meta.dirname, '../../..');
 interface Workflow {
   on: Record<string, unknown>;
   permissions?: unknown;
-  jobs: Record<string, { name?: string; if?: string; needs?: string[]; permissions?: unknown }>;
+  jobs: Record<
+    string,
+    {
+      name?: string;
+      if?: string;
+      needs?: string[];
+      permissions?: unknown;
+      services?: Record<string, { image: string; env?: Record<string, string>; ports?: string[] }>;
+    }
+  >;
 }
 
 const ciFile = path.join(root, '.github/workflows/ci.yml');
@@ -49,6 +58,20 @@ describe('CI workflow', () => {
   it('runs lint, typecheck, test and boundaries through Turborepo, and gitleaks', () => {
     expect(ciText).toMatch(/turbo run lint typecheck test depcruise/);
     expect(ciText).toMatch(/docker:\/\/ghcr\.io\/gitleaks\/gitleaks:/);
+  });
+
+  it('runs the tests against the same Postgres as the local stack (D19, CHK-17)', () => {
+    const compose = parse(readFileSync(path.join(root, 'docker-compose.yml'), 'utf8')) as {
+      services: { postgres: { image: string; environment: Record<string, string> } };
+    };
+    const postgres = ci.jobs['checks']?.services?.['postgres'];
+    expect(postgres?.image).toBe(compose.services.postgres.image);
+    expect(postgres?.image).toMatch(/@sha256:[0-9a-f]{64}$/);
+    expect(postgres?.env).toEqual(compose.services.postgres.environment);
+    // .env.example's DATABASE_URL, which the test harness falls back to, reaches this port.
+    const env = readFileSync(path.join(root, '.env.example'), 'utf8');
+    expect(env).toMatch(/^DATABASE_URL=postgres:\/\/chaku:chaku@127\.0\.0\.1:5432\/chaku$/m);
+    expect(postgres?.ports).toContain('127.0.0.1:5432:5432');
   });
 });
 

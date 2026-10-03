@@ -1,11 +1,12 @@
 // Guards the workspace rules from CHK-12 and ADR-0011: one source of versions, and TypeScript 7 for
-// type checking while tools still load TypeScript 6.
+// type checking while tools still load TypeScript 6. CHK-17 adds the exact Drizzle 1.0 RC pin.
 import { execSync } from 'node:child_process';
 import { globSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
+import { parse } from 'yaml';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 
@@ -62,6 +63,15 @@ describe('workspace', () => {
       }
     }
     expect(inline).toEqual([]);
+  });
+
+  it('pins Drizzle ORM and drizzle-kit to the same exact 1.0 release candidate (ADR-0011)', () => {
+    const workspace = parse(readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')) as {
+      catalog: Record<string, string>;
+    };
+    const orm = workspace.catalog['drizzle-orm'];
+    expect(orm).toMatch(/^1\.0\.0-rc\.\d+$/);
+    expect(workspace.catalog['drizzle-kit']).toBe(orm);
   });
 
   it('type checks with TypeScript 7', () => {

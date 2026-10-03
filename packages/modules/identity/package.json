@@ -1,29 +1,25 @@
 {
-  "name": "@chaku/stack",
+  "name": "@chaku/identity",
   "private": true,
   "type": "module",
   "exports": {
-    "./storage": "./src/storage.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc",
-    "test": "vitest run --dir test",
-    "check": "vitest run --dir live"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "catalog:",
     "@chaku/db": "workspace:*",
-    "@chaku/identity": "workspace:*"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@aws-sdk/s3-request-presigner": "catalog:",
     "@chaku/config": "workspace:*",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "yaml": "catalog:"
+    "vitest": "catalog:"
   }
 }

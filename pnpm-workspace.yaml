@@ -37,6 +37,13 @@ catalog:
   '@aws-sdk/client-s3': ^3.1144.0
   '@aws-sdk/s3-request-presigner': ^3.1144.0
 
+  # Database (CHK-17). Drizzle is pinned to an exact 1.0 RC, the same for the ORM and the kit
+  # (ADR-0011); `pg` is the driver Graphile Worker shares, so jobs join Drizzle transactions.
+  drizzle-orm: 1.0.0-rc.4
+  drizzle-kit: 1.0.0-rc.4
+  pg: ^8.23.1
+  '@types/pg': ^8.23.1
+
   # Boundaries and git hooks (CHK-13)
   dependency-cruiser: ^18.5.0
   # Exact: 2.1.15 was published without provenance (trustPolicy refuses it), 2.1.16 is newer than a day
@@ -53,3 +60,5 @@ strictDepBuilds: true
 allowBuilds:
   # postinstall installs the git hooks from lefthook.yml (skipped when CI=true)
   lefthook: true
+  # drizzle-kit's esbuild: its postinstall only checks the platform binary, which comes as an optional dependency
+  esbuild: false

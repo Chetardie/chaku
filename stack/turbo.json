@@ -3,9 +3,10 @@
   "extends": ["//"],
   "tasks": {
     "test": {
-      // The tests read the stack and docs files at the repo root.
+      // The tests read the stack and docs files at the repo root, and its package.json scripts.
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/docker-compose.yml",
         "$TURBO_ROOT$/.env.example",
         "$TURBO_ROOT$/CLAUDE.md",

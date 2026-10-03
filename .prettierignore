@@ -2,3 +2,6 @@ pnpm-lock.yaml
 
 # Docs are formatted by hand: Prettier re-pads tables, which turns small doc changes into large diffs.
 *.md
+
+# Written by drizzle-kit; a migration that has run must stay byte for byte the same.
+packages/db/migrations/

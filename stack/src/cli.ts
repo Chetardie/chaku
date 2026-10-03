@@ -1,7 +1,11 @@
-// `pnpm stack`, `pnpm stack:down` and `pnpm stack:reset` (D23). Guide: docs/guides/local-development.md
+// `pnpm stack`, `pnpm stack:down`, `pnpm stack:reset` and `pnpm db:reset` (D23).
+// Guide: docs/guides/local-development.md
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { closeDatabase, createDatabase, databaseUrl } from '@chaku/db';
+
+import { resetLocalDatabase } from './database.ts';
 import {
   caddyVolume,
   compose,
@@ -15,7 +19,12 @@ import {
 } from './stack.ts';
 import { applyBuckets, storageConfig } from './storage.ts';
 
-const commands: Record<string, () => Promise<void> | void> = { up, down, reset };
+const commands: Record<string, () => Promise<void> | void> = {
+  up,
+  down,
+  reset,
+  'db:reset': dbReset,
+};
 
 async function up(): Promise<void> {
   console.log('Starting the local stack and waiting until every service is healthy…');
@@ -58,6 +67,18 @@ function reset(): void {
     if (existing.has(name)) docker(['volume', 'rm', name]);
   }
   console.log(`Wiped ${wiped.join(', ')}. Run pnpm stack to start again.`);
+}
+
+/** Drops every module schema in DATABASE_URL, migrates from scratch and loads the fixed seed. */
+async function dbReset(): Promise<void> {
+  const url = new URL(databaseUrl());
+  const db = createDatabase(url.toString());
+  try {
+    await resetLocalDatabase(db);
+  } finally {
+    await closeDatabase(db);
+  }
+  console.log(`Database ${url.pathname.slice(1)} on ${url.host} is reset and seeded.`);
 }
 
 /** Copies Caddy's root certificate to `.data/` and says whether it differs from the last copy. */

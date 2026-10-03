@@ -31,6 +31,7 @@ This doc lists, for every module, its Postgres tables with their columns, keys, 
 - `<table>_<what>_key` for unique indexes and constraints
 - `<table>_<what>_idx` for other indexes
 - `<table>_<what>_fkey` for composite foreign keys
+- `<table>_<what>_check` for check constraints, listed with the table's keys and indexes
 
 **Content and removal.**
 - Message, Post and Comment rows stay when they are Deleted or Removed. Their content columns become `null` and `deleted_at` or `removed_at` is set. A `check` keeps them from both being set (CONTEXT.md: Deleted or Removed, never both).
@@ -153,6 +154,13 @@ Keys and indexes:
 - `members_username_trgm_idx`: GIN (`username gin_trgm_ops`): people search (D33)
 - `members_display_name_trgm_idx`: GIN (`identity.unaccent_lower(display_name) gin_trgm_ops`): people search. `identity.unaccent_lower` is an `immutable` wrapper around `unaccent` and `lower`, because `unaccent` alone can't be used in an index.
 - `members_invited_by_idx`: (`invited_by_id`): invite tree
+- `members_email_check`: `email = lower(email)`
+- `members_display_name_check`: at most 50 characters, and not `''` unless `status` is `onboarding` or `erased`
+- `members_username_check`: `username ~ '^[a-z0-9_]{3,20}$'`
+- `members_role_check`: `role in ('member', 'admin')`
+- `members_status_check`: `status in ('onboarding', 'active', 'deletion_requested', 'erased')`
+- `members_locale_check`: `locale in ('en', 'uk')`
+- `members_invites_left_check`: `invites_left >= 0`
 
 #### `identity.sessions`
 
@@ -177,6 +185,7 @@ Keys and indexes:
 - `sessions_token_key`: unique (`token`)
 - `sessions_member_idx`: (`member_id`): sessions page, revoking all sessions on ban
 - `sessions_expires_idx`: (`expires_at`): cleanup of expired sessions (ADR-0008)
+- `sessions_auth_method_check`: `auth_method in ('google', 'email_code', 'email_link', 'passkey')`
 
 #### `identity.accounts`
 
@@ -191,7 +200,7 @@ Better Auth login connections: one per Google account. Email codes and passkeys 
 | `access_token`, `refresh_token`, `id_token` | `text null` | written by Better Auth; we don't call Google APIs, so the auth ticket checks whether these can stay empty |
 | `access_token_expires_at`, `refresh_token_expires_at` | `timestamptz null` | |
 | `scope` | `text null` | |
-| `password` | `text null` | always `null`: `check (password is null)`, there are no passwords (ADR-0004) |
+| `password` | `text null` | always `null`: there are no passwords (ADR-0004) |
 | `created_at` | `timestamptz` | |
 | `updated_at` | `timestamptz` | |
 
@@ -199,6 +208,7 @@ Keys and indexes:
 - `accounts_pkey`: primary key (`id`)
 - `accounts_provider_account_key`: unique (`provider_id`, `account_id`)
 - `accounts_member_idx`: (`member_id`)
+- `accounts_password_check`: `password is null`
 
 #### `identity.verifications`
 
@@ -284,7 +294,7 @@ Keys and indexes:
 | `code_hash` | `bytea` | SHA-256 of the code in the Invite link; the code itself is never stored |
 | `created_by_id` | `uuid` | FK → `identity.members.id` |
 | `kind` | `text` | `single` or `multi` (multi-use only by Admins, D12) |
-| `max_uses` | `integer` | 1 for `single`; `check (use_count <= max_uses)` |
+| `max_uses` | `integer` | 1 for `single` |
 | `use_count` | `integer` | default 0; counter, raised in the signup transaction |
 | `expires_at` | `timestamptz` | 7 days for Member Invites (D12) |
 | `revoked_at` | `timestamptz null` | cancelled by the creator, or by a ban (D37) |
@@ -294,18 +304,22 @@ Keys and indexes:
 - `invites_pkey`: primary key (`id`)
 - `invites_code_key`: unique (`code_hash`)
 - `invites_created_by_idx`: (`created_by_id`): my Invites, cancelling a banned Member's unused Invites
+- `invites_kind_check`: `kind in ('single', 'multi')`
+- `invites_max_uses_check`: `max_uses >= 1`, and 1 for `single`
+- `invites_use_count_check`: `use_count between 0 and max_uses`
 
 #### `identity.blocks`
 
 | Column | Type | Notes |
 |---|---|---|
 | `blocker_id` | `uuid` | FK → `identity.members.id` |
-| `blocked_id` | `uuid` | FK → `identity.members.id`; `check (blocker_id <> blocked_id)` |
+| `blocked_id` | `uuid` | FK → `identity.members.id` |
 | `created_at` | `timestamptz` | |
 
 Keys and indexes:
 - `blocks_pkey`: primary key (`blocker_id`, `blocked_id`): my block list, and one direction of `getBlockRelations`
 - `blocks_blocked_idx`: (`blocked_id`): the other direction. `identity.getBlockRelations(viewerId)` is one query over both indexes (ADR-0007).
+- `blocks_self_check`: `blocker_id <> blocked_id`
 
 #### `identity.export_requests`
 

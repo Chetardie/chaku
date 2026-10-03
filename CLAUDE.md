@@ -23,7 +23,7 @@ Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI and the 
 
 - **The spec and ADRs are the source of truth.** If a task conflicts with them, stop and say so; never diverge silently. A new architectural decision gets a new ADR (`/new-adr`). When amending an ADR, add an inline note to the changed paragraph (D45).
 - **Library versions are newer than your training data** (ADR-0011). Look up current docs with Context7 before writing code against a library. Known traps:
-  - Drizzle **1.0 RC**: new migration folder format and relational query API, not 0.x
+  - Drizzle **1.0 RC**: new migration folder format and relational query API, not 0.x. Casing is set per schema (`snakeCase.schema('identity')`), not in `drizzle()` or the kit config. drizzle-kit ships its own current docs as skills in `node_modules/drizzle-kit/skills`
   - shadcn/ui on **Base UI**, not Radix
   - Tailwind **4**: CSS-first config, no `tailwind.config.js`
   - **oRPC**, not tRPC. **No Server Actions.** Server Components call oRPC procedures in-process (D50)
@@ -48,16 +48,19 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | `pnpm install` | Install dependencies (pnpm 12, Node 24) |
 | `pnpm lint` | ESLint with type information |
 | `pnpm typecheck` | `tsc` (TypeScript 7) |
-| `pnpm test` | Vitest |
+| `pnpm test` | Vitest. Module tests need Postgres from `pnpm stack`; each test worker gets its own database |
 | `pnpm boundaries` | dependency-cruiser: module boundaries and cycles (ADR-0002, ADR-0003, ADR-0007); rules in `packages/config/dependency-cruiser.js` |
 | `pnpm build` | Build every app and package that has a build |
 | `pnpm dev` | Run every app in development mode |
 | `pnpm format` / `pnpm format:check` | Prettier on code and config (Markdown is formatted by hand) |
 | `pnpm stack` / `stack:down` / `stack:reset` | Local stack in Docker: Postgres, Redis, SeaweedFS, Mailpit, Caddy on `https://*.localhost`. `reset` wipes data but keeps the trusted certificate |
 | `pnpm stack:check` | Checks the running stack (health, HTTPS, storage CORS, Postgres extensions) |
+| `pnpm db:migrate` | Applies pending migrations to `DATABASE_URL` |
+| `pnpm db:reset` | Drops every module schema, migrates and loads the fixed seed of fake Members (local only) |
+| `pnpm db:generate` | drizzle-kit writes a migration for schema changes in `packages/modules/*/src/schema.ts` |
 
-Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI (`.github/workflows/ci.yml`) runs all of these plus `gitleaks`; its `ci` job is the one required check. `pnpm install` also installs a pre-commit hook (`lefthook.yml`) that runs `gitleaks` on staged changes. Still to come in Foundation: `pnpm db:reset` (CHK-17).
+Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI (`.github/workflows/ci.yml`) runs all of these plus `gitleaks`; its `ci` job is the one required check. `pnpm install` also installs a pre-commit hook (`lefthook.yml`) that runs `gitleaks` on staged changes.
 
 ## Layout
 
-Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,game-sdk,ui,config}`, `docs/`, plus `stack/` (the local stack: Caddyfile, bucket setup, stack checks). Only `packages/config` and `stack` are packages so far; the other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).
+Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,db,game-sdk,ui,config}`, `docs/`, plus `stack/` (the local stack: Caddyfile, bucket setup, stack checks). Packages so far: `packages/config`, `packages/db` (pool, transactions, migrations in `packages/db/migrations`, the test harness `@chaku/db/testing`), `packages/modules/identity` and `stack`; the other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).
