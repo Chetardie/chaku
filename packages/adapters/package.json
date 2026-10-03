@@ -1,0 +1,35 @@
+{
+  "name": "@chaku/adapters",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./analytics": "./src/analytics.ts",
+    "./bot-check": "./src/bot-check.ts",
+    "./email": "./src/email.ts",
+    "./errors": "./src/errors.ts",
+    "./log": "./src/log.ts",
+    "./push": "./src/push.ts",
+    "./storage": "./src/storage.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run --dir test",
+    "check": "vitest run --dir live"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@aws-sdk/s3-request-presigner": "catalog:",
+    "nodemailer": "catalog:",
+    "pino": "catalog:",
+    "pino-pretty": "catalog:"
+  },
+  "devDependencies": {
+    "@chaku/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

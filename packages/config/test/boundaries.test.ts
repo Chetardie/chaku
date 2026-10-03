@@ -116,15 +116,17 @@ describe('module boundaries', () => {
     ]);
   });
 
-  it('fails content, game-sdk, ui or db importing a module', async () => {
+  it('fails content, game-sdk, ui, db or adapters importing a module', async () => {
     expect(
       await violations({
         'packages/content/src/mentions.ts': "import '@chaku/identity';\n",
         'packages/game-sdk/src/host.ts': "import '@chaku/chat';\n",
         'packages/ui/src/avatar.ts': "import '@chaku/identity';\n",
         'packages/db/src/seed.ts': "import '@chaku/identity';\n",
+        'packages/adapters/src/email.ts': "import '@chaku/identity';\n",
       }),
     ).toEqual([
+      'shared-packages-import-no-module: packages/adapters/src/email.ts → packages/modules/identity/src/index.ts',
       'shared-packages-import-no-module: packages/content/src/mentions.ts → packages/modules/identity/src/index.ts',
       'shared-packages-import-no-module: packages/db/src/seed.ts → packages/modules/identity/src/index.ts',
       'shared-packages-import-no-module: packages/game-sdk/src/host.ts → packages/modules/chat/src/index.ts',

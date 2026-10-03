@@ -5,7 +5,8 @@ import path from 'node:path';
 
 import type { TestProject } from 'vitest/node';
 
-import { databaseUrl, loadLocalEnv } from '../client.ts';
+import { databaseUrl } from '../client.ts';
+import { loadLocalEnv } from '../local-env.ts';
 import './context.ts';
 import { dropDatabases, ensureTemplate } from './databases.ts';
 

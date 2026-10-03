@@ -29,7 +29,7 @@ ADRs 0002–0010 fixed the platform: Next.js, Postgres with Drizzle, Redis, Bett
 | Validation and forms | Zod 4, React Hook Form 7 | Env variables validated with Zod at startup. |
 | UI | Tailwind CSS 4, shadcn/ui on **Base UI 1**, `lucide-react`, Motion (respecting reduce motion), `react-resizable-panels` 4 | Base UI is shadcn's default since July 2026; Radix stays supported but is no longer the default. |
 | Emoji | `frimousse` for the picker in message text, behind our own component; a custom picker for the Reaction set | `emoji-mart` hasn't been released since 2024. `frimousse` is pre-1.0 but actively maintained. |
-| Translations and dates | next-intl 4 (display, plurals, relative time), date-fns 4 (date arithmetic) | No locale prefix in URLs. |
+| Translations and dates | next-intl 4 (display, plurals, relative time), date-fns 4 (date arithmetic) | No locale prefix in URLs. `next.config.ts` sets the `next-intl/config` alias itself rather than loading `next-intl/plugin`, which loads native addons (`@swc/core`, `@parcel/watcher`) for its message extractor; use the plugin if we adopt the extractor _(amended in CHK-19)_. |
 | Database | PostgreSQL 18, Drizzle ORM **1.0 RC** (exact version pinned), `pg` 8 | Postgres 18 gives the built-in `uuidv7()` for time-ordered IDs. See "Drizzle" below. The `pg` driver is shared with Graphile Worker so jobs can be added inside Drizzle transactions. |
 | Jobs | Graphile Worker 0.18 | ADR-0008. |
 | Cache, pub/sub, rate limits | Redis 8, `rate-limiter-flexible` | |
@@ -37,7 +37,7 @@ ADRs 0002–0010 fixed the platform: Next.js, Postgres with Drizzle, Redis, Bett
 | Realtime | `ws` 8 on the server; our own reconnect-and-catch-up client | The client is core logic (ADR-0009), so we own it. |
 | Game servers | Hono 4 and `ws` | |
 | Files and images | AWS SDK v3 S3 client against R2, `sharp` on a Debian-based image | `sharp` is more reliable on Debian than on Alpine. |
-| Email | `react-email` 6 for templates, Resend in production, SMTP to Mailpit locally | Components now come from `react-email`; `@react-email/components` is deprecated. |
+| Email | `react-email` 6 for templates, Resend in production, SMTP to Mailpit locally with Nodemailer 10 | Components now come from `react-email`; `@react-email/components` is deprecated. Every vendor sits behind `@chaku/adapters` _(amended in CHK-19: Nodemailer added as the SMTP client)_. |
 | PWA and Push | `@serwist/turbopack` 9, `web-push` 3 | `@serwist/next` supports webpack only, and Next.js 16 builds with Turbopack. `web-push` sits behind the Push adapter; `@pushforge/builder` is the fallback if it stops being maintained. |
 | Local storage emulator | SeaweedFS (Apache 2.0) behind Caddy | MinIO's free edition is archived and its images were removed from Docker Hub in September 2026. `pnpm stack` applies the same bucket CORS rules we set on R2, from `stack/src/storage.ts` _(amended in CHK-14: the stack sets up the buckets, not the seed script)_. |
 | Logs and monitoring | `pino` 10, `@sentry/nextjs` 11, `posthog-js` / `posthog-node` | |

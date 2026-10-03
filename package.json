@@ -15,7 +15,7 @@
     "stack": "node stack/src/cli.ts up",
     "stack:down": "node stack/src/cli.ts down",
     "stack:reset": "node stack/src/cli.ts reset",
-    "stack:check": "pnpm --filter @chaku/stack check",
+    "stack:check": "pnpm --filter @chaku/stack --filter @chaku/adapters check",
     "db:migrate": "node packages/db/src/cli.ts",
     "db:reset": "node stack/src/cli.ts db:reset",
     "db:generate": "pnpm --filter @chaku/db generate"

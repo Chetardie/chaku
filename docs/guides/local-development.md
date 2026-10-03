@@ -2,7 +2,7 @@
 
 The whole app runs on your machine with one command and no cloud accounts (D23, ADR-0006). Docker runs the services; Caddy serves every app over HTTPS on its own `.localhost` site, so cookies, CSP, service workers and passkeys behave as in production.
 
-Logging in as a seed Member (CHK-20), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them.
+Logging in as a seed Member (CHK-20), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them. The web app is described under [Web app](#web-app).
 
 ## What runs
 
@@ -37,7 +37,7 @@ Until an app exists or while it is stopped, its site answers 502 with a hint. Th
 | `pnpm stack` | Starts everything and waits until every service is healthy. Then it creates the buckets with their CORS rules, writes Caddy's root certificate to `.data/caddy-root.crt` and prints the URLs. Safe to run again at any time. |
 | `pnpm stack:down` | Stops the stack and keeps its data. |
 | `pnpm stack:reset` | Stops the stack and deletes its data: the database and stored files. It keeps Caddy's certificate authority, so you don't have to trust it again. |
-| `pnpm stack:check` | Checks the running stack: every service healthy, trusted HTTPS on every site, pre-signed uploads with CORS, Postgres extensions. CI runs it on a fresh machine for every PR. |
+| `pnpm stack:check` | Checks the running stack: every service healthy, trusted HTTPS on every site, pre-signed uploads with CORS, Postgres extensions, and the email and storage adapters against Mailpit and SeaweedFS. CI runs it on a fresh machine for every PR. |
 
 `pnpm stack` reads `.env` if you have one, and takes everything else from [`.env.example`](../../.env.example). You only need a `.env` to change something.
 
@@ -69,6 +69,23 @@ Daryna has one open Invite. Its code is `seed-open-invite`, for trying signup on
 ### Tests
 
 Module tests run against the stack's Postgres, never database mocks (D19), so start `pnpm stack` before `pnpm test`. The harness in `@chaku/db/testing` builds a template database from the migrations once, gives each test worker its own copy named `chaku_test_<package>_<worker>`, and empties every table before each test. It never touches the `chaku` database you use with `pnpm dev`. CI runs the same tests against a Postgres service with the same image.
+
+## Web app
+
+`apps/web` is the Next.js app at <https://chaku.localhost>. Start the stack first: the home page asks Postgres whether it is up.
+
+| Command | Does |
+|---|---|
+| `pnpm dev` | Runs every app in development mode; the web app listens on port 3000. |
+| `pnpm --filter @chaku/web build` | The production build: Next.js standalone output, the same server production runs. |
+| `pnpm --filter @chaku/web start` | Starts that build on port 3000, with the environment from `.env` and `.env.example`. |
+| `pnpm --filter @chaku/web test:e2e` | Playwright against the production build through Caddy: hydration, CSP, languages, accessibility. Run the build first. It starts the server unless one already runs on port 3000. The first time, run `pnpm --filter @chaku/web exec playwright install chromium`. |
+
+The environment is checked with Zod when the server starts ([`apps/web/src/env.ts`](../../apps/web/src/env.ts)). A missing or wrong variable stops it with the variable's name. Locally the values come from `.env`, then `.env.example`; deployed, the platform sets them.
+
+The interface language follows the `NEXT_LOCALE` cookie (`en` or `uk`), then the browser's languages, then English. URLs have no language prefix.
+
+Email, storage, push, analytics, error reports and bot checks go through [`@chaku/adapters`](../../packages/adapters/README.md). Until phase 4 they are all local: email lands in Mailpit, files in SeaweedFS, and the rest is logged or does nothing (D55).
 
 ## Trust the local certificate
 
