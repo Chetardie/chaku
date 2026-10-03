@@ -5,3 +5,6 @@
 *.png binary
 *.jpg binary
 *.woff2 binary
+
+# drizzle-kit's schema snapshots: collapsed in GitHub diffs, so reviews read the SQL.
+packages/db/migrations/*/snapshot.json linguist-generated=true

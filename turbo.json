@@ -21,6 +21,8 @@
     },
     "test": {
       "dependsOn": ["transit"],
+      // Module tests connect to Postgres (D19); without it they use .env, then .env.example.
+      "env": ["DATABASE_URL"],
       "outputs": []
     },
     "//#depcruise": {

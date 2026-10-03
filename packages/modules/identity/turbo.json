@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      // schema.test.ts compares the migrated schema with the data model doc.
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/architecture/data-model.md"]
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 The whole app runs on your machine with one command and no cloud accounts (D23, ADR-0006). Docker runs the services; Caddy serves every app over HTTPS on its own `.localhost` site, so cookies, CSP, service workers and passkeys behave as in production.
 
-Seed logins (CHK-17), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them.
+Logging in as a seed Member (CHK-20), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them.
 
 ## What runs
 
@@ -42,6 +42,33 @@ Until an app exists or while it is stopped, its site answers 502 with a hint. Th
 `pnpm stack` reads `.env` if you have one, and takes everything else from [`.env.example`](../../.env.example). You only need a `.env` to change something.
 
 Use `pnpm stack` rather than `docker compose up`: compose alone starts the services but doesn't set up the buckets.
+
+## Database
+
+Every module keeps its tables in its own Postgres schema (ADR-0007), declared in `packages/modules/<name>/src/schema.ts`. All of them share one migration history in [`packages/db/migrations`](../../packages/db/migrations) (D36).
+
+| Command | Does |
+|---|---|
+| `pnpm db:migrate` | Applies the migrations `DATABASE_URL` doesn't have yet. |
+| `pnpm db:reset` | Drops every module schema, migrates from scratch and loads the fixed seed. Running it twice gives the same data. Local only. |
+| `pnpm db:generate` | After you change a `schema.ts`: drizzle-kit writes the next migration. Read the SQL before you commit it. |
+
+Run `pnpm db:reset` once after `pnpm stack` on a new machine, and whenever you want the seed back.
+
+The seed has fake Members only, with `example.com` addresses, never real people or emails (ADR-0013):
+
+| Member | Role | Invited by |
+|---|---|---|
+| `admin@example.com` | Admin | nobody (seeded) |
+| `alice@example.com`, `bohdan@example.com` | Member | Admin |
+| `chen@example.com` | Member | Alice |
+| `daryna@example.com` | Member | Bohdan |
+
+Daryna has one open Invite. Its code is `seed-open-invite`, for trying signup once Invites have a page (CHK-21).
+
+### Tests
+
+Module tests run against the stack's Postgres, never database mocks (D19), so start `pnpm stack` before `pnpm test`. The harness in `@chaku/db/testing` builds a template database from the migrations once, gives each test worker its own copy named `chaku_test_<package>_<worker>`, and empties every table before each test. It never touches the `chaku` database you use with `pnpm dev`. CI runs the same tests against a Postgres service with the same image.
 
 ## Trust the local certificate
 
@@ -122,5 +149,7 @@ If server code does call one of the HTTPS sites, Node.js needs Caddy's root too:
 **curl on Windows fails with "the revocation status is unknown".** Windows curl tries to check whether the local root was revoked, and it can't. Add `--ssl-no-revoke`.
 
 **A site answers "is not running. Start it with pnpm dev".** The stack is fine; the app behind that site isn't running. On Linux, also check that your firewall lets Docker reach ports 3000, 3001 and 4100 on the host.
+
+**Tests fail with `ECONNREFUSED 127.0.0.1:5432`.** Postgres isn't running. Start it with `pnpm stack`.
 
 **Something is in a strange state.** `pnpm stack:reset`, then `pnpm stack`. You start again with empty data, and the certificate stays trusted.

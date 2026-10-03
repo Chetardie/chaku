@@ -114,6 +114,8 @@ flowchart LR
 
 Each module's tables, keys, indexes and counters, and how each handles erasure, are in the [data model](data-model.md).
 
+`packages/db` holds the database plumbing every module and app shares: the `pg` pool and Drizzle client, the transaction helper that also hands over the `pg` client for adding jobs (ADR-0008), the one migration history for every module schema (D36) and the test harness (D19). It owns no tables and imports no module; each module declares its own tables in `src/schema.ts`.
+
 `apps/web` composes screens across modules with batch lookups (`identity.getProfiles`, `identity.getBlockRelations`) and composes the sync check from `chat`, `notifications` and `games` (ADR-0012). `packages/content` imports no module. Games import only `game-sdk` and `ui`.
 
 ## Key flows

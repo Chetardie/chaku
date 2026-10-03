@@ -1,0 +1,11 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      // drizzle.config.ts collects every module's schema file, and the template database is
+      // migrated from them; the modules aren't dependencies of this package.
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/modules/*/src/schema.ts"]
+    }
+  }
+}

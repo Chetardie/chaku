@@ -170,6 +170,7 @@ apps/
 packages/
   modules/             # identity, chat, games, results, feed, notifications, moderation, search
   content/             # formatting parser, mention parsing, Reaction set (no data)
+  db/                  # pg pool, Drizzle client, transactions, the one migration history, test harness (no data)
   game-sdk/            # contract types, host and client helpers
   ui/                  # design tokens + components
   config/              # tsconfig, eslint, dependency-cruiser
