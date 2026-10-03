@@ -1,6 +1,6 @@
 # Data model
 
-Status: **accepted** (CHK-15, reviewed 2026-10-03). The [review decisions](#review-decisions) at the end record what was settled (D57, D58, ADR-0014). Where this doc and an ADR or spec decision disagree, the ADR or decision wins, and this doc is fixed.
+Status: **accepted** (CHK-15, reviewed 2026-10-03). The [review decisions](#review-decisions) at the end record what was settled (D57, D58, ADR-0014), and the [screen map decisions](#screen-map-decisions) what the screen map added (D60–D66). Where this doc and an ADR or spec decision disagree, the ADR or decision wins, and this doc is fixed.
 
 This doc lists, for every module, its Postgres tables with their columns, keys, indexes and stored counters, and what each table does when a Member is erased. It follows the module data ownership rules in ADR-0007: one schema per module, references to other modules by ID only, counters stored with the item. A test, `packages/config/test/data-model.test.ts`, checks the doc against those rules.
 
@@ -11,7 +11,7 @@ This doc lists, for every module, its Postgres tables with their columns, keys, 
 **Keys and IDs.**
 - Every entity table has `id uuid` primary key with default `uuidv7()` (Postgres 18, ADR-0011), so IDs sort by creation time. Join tables (Participants, Votes, Reactions) use a composite primary key instead.
 - Better Auth is set to `generateId: false` so the database default makes its IDs too.
-- IDs from the client are never primary keys. Sending uses a separate `client_id` for idempotency (§5.3).
+- IDs from the client are never primary keys. Sending uses a separate `client_id` for idempotency (§5.3); System lines, which the server writes, have none (D60).
 
 **References.** In the column tables below:
 - `FK → schema.table.column` is a real foreign key. It always points into the same schema.
@@ -60,9 +60,10 @@ Every term defined in [CONTEXT.md](../../CONTEXT.md), and where it lives.
 | Group Admin | `chat.participants.role` | `role = 'admin'` |
 | Message | `chat.messages` | |
 | Message Reply | `chat.messages.reply_to_id` | same-Chat foreign key |
+| System line | `chat.messages` | `kind = 'system'`, with `system_event` and `system_member_id` (D60) |
 | Post Card | `chat.messages.post_card_post_id` | the Post is read from `feed` when shown |
 | Link Preview | `chat.link_previews`, `feed.link_previews` | one per Message or Post, owned by the module whose item shows it (ADR-0014) |
-| Unread | not stored | derived: Messages with `seq` above my `chat.participants.read_seq` that I didn't write |
+| Unread | not stored | derived: Messages with `seq` above my `chat.participants.read_seq` that I didn't write, not counting System lines |
 | Mute | `chat.participants.muted_until` | `infinity` means indefinitely |
 | Read Position | `chat.participants.read_seq` | outside the Chat Sequence (D49) |
 | Chat Sequence | `chat.chats.last_seq`, `chat.events` | each Message also keeps the `seq` it was created at |
@@ -275,6 +276,8 @@ Keys and indexes:
 
 #### `identity.invites`
 
+**Changing (D61):** the code in the Invite link is stored as `code text` (unique, replacing `code_hash`), so the Invites screen can copy a link again, and an optional `note text null` (1–50 characters, seen only by its creator, for example "For Sasha") is added. The migration and this table change ship together in CHK-21, because the `identity` schema test compares this table with the database. The code is 128 random bits, base64url.
+
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` | PK, default `uuidv7()` |
@@ -335,7 +338,7 @@ Keys and indexes:
 | `identity.verifications` | rows for the Member's email deleted, before the email is overwritten |
 | `identity.passkeys` | deleted |
 | `identity.login_devices` | deleted |
-| `identity.invites` | kept for the invite tree; unused ones get `revoked_at` |
+| `identity.invites` | kept for the invite tree; unused ones get `revoked_at`; the `note` is set to `null` (D61) |
 | `identity.blocks` | deleted in both directions |
 | `identity.export_requests` | deleted |
 
@@ -370,7 +373,7 @@ erDiagram
 | `created_at` | `timestamptz` | |
 | `last_seq` | `bigint` | default 0. **The Chat Sequence:** raised by one, with `update … returning`, in every transaction that records an event. This row is the per-Chat lock (ADR-0009) |
 | `last_message_id` | `uuid null` | FK → `chat.messages.id`: counter for the chat list |
-| `last_message_seq` | `bigint` | default 0: the Chat is Unread when this is above my `read_seq` and the last Message isn't mine |
+| `last_message_seq` | `bigint` | default 0: the Chat is Unread when this is above my `read_seq` and the last Message isn't mine. System lines don't move it (D60) |
 | `activity_at` | `timestamptz` | default `now()`: the newest Message's time, or `created_at`; the chat list order |
 | `participant_count` | `smallint` | counter; `check (participant_count <= 50)` (D3) |
 
@@ -389,6 +392,7 @@ Keys and indexes:
 | `added_by_id` | `uuid null` | ID → `identity.members.id` |
 | `read_seq` | `bigint` | default 0. **The Read Position** (D49): only moves forward (`set read_seq = greatest(read_seq, $1)`) and takes no Chat Sequence number |
 | `muted_until` | `timestamptz null` | Mute; `infinity` for indefinitely (D6) |
+| `hidden_until_seq` | `bigint null` | "Hide chat", Direct Chats only (D66): the chat list skips the Chat while `chats.last_message_seq` is at most this, so a new Message brings it back. Opening the Chat clears it. Like the Read Position, it takes no Chat Sequence number and is published only to the Member's own sessions |
 
 Leaving or being removed deletes the row; the `participant_left` or `participant_removed` event remains.
 
@@ -404,7 +408,10 @@ Keys and indexes:
 | `id` | `uuid` | PK, default `uuidv7()` |
 | `chat_id` | `uuid` | FK → `chat.chats.id` |
 | `seq` | `bigint` | the Chat Sequence at which the Message was created: its order and the base of Unread counts |
-| `client_id` | `uuid` | made by the sender's client; a retry with the same one returns the existing Message (§5.3) |
+| `kind` | `text` | `user` or `system`, default `user`. A System line (D60) records a change in a Group Chat |
+| `system_event` | `text null` | System lines only: `chat_created`, `participant_added`, `participant_left`, `participant_removed`, `owner_changed`, `admin_added`, `admin_removed`, `chat_renamed`, `chat_avatar_changed` |
+| `system_member_id` | `uuid null` | ID → `identity.members.id`: the Participant a System line is about (added, removed, new Owner); `author_id` is who made the change |
+| `client_id` | `uuid null` | made by the sender's client; a retry with the same one returns the existing Message (§5.3). `null` only for System lines |
 | `author_id` | `uuid` | ID → `identity.members.id`; stays after erasure and shows "Deleted user" |
 | `body` | `text null` | source text, 1–4,000 characters (D58); `null` when Deleted or Removed, or when the Message has only images |
 | `reply_to_id` | `uuid null` | the quoted Message (D26), through `messages_reply_fkey` |
@@ -422,6 +429,9 @@ Keys and indexes:
 - `messages_chat_id_key`: unique (`chat_id`, `id`): target of `messages_reply_fkey`
 - `messages_reply_fkey`: FK (`chat_id`, `reply_to_id`) → `chat.messages` (`chat_id`, `id`): a Message Reply always quotes a Message in the same Chat
 - `messages_author_client_key`: unique (`author_id`, `client_id`): idempotent sends; also finds a Member's Messages on erasure
+- `messages_kind_check`: `kind in ('user', 'system')`; for `system`, `system_event` is set and `client_id`, `body`, `reply_to_id`, `post_card_post_id` and `link_preview_id` are `null`; for `user`, `system_event` and `system_member_id` are `null` and `client_id` is set
+
+A System line is written in the same transaction as the change it records and shares its Chat Sequence number: for example, the `participant_added` event's `message_id` points at the line. System lines take no Reactions, Message Replies, edits, deletes or Reports, and they never notify; being added still creates the `group_chat_added` Notification. They update `last_message_id` and `activity_at`, so the chat list shows "Anya added Sasha", but not `last_message_seq`. Direct Chats have none (D60).
 
 #### `chat.message_images`
 
@@ -491,7 +501,7 @@ Keys and indexes:
 - `events_pkey`: primary key (`chat_id`, `seq`): catch-up after a number
 - `events_created_brin_idx`: BRIN (`created_at`): pruning. The table is append-only, so a BRIN index is tiny.
 
-Event types (the realtime protocol doc owns the final list and payloads): `message_created`, `message_edited`, `message_deleted`, `message_removed`, `message_images_ready`, `message_image_rejected`, `reaction_added`, `reaction_removed`, `participant_added`, `participant_left`, `participant_removed`, `participant_role_changed`, `chat_renamed`, `chat_avatar_changed`, `member_erased`. Reaction events don't carry the emoji: catch-up returns the Message's current `reaction_counts` and the viewer's own Reactions.
+Event types (the realtime protocol doc owns the final list and payloads): `message_created`, `message_edited`, `message_deleted`, `message_removed`, `message_images_ready`, `message_image_rejected`, `reaction_added`, `reaction_removed`, `participant_added`, `participant_left`, `participant_removed`, `participant_role_changed`, `chat_created`, `chat_renamed`, `chat_avatar_changed`, `member_erased`. Reaction events don't carry the emoji: catch-up returns the Message's current `reaction_counts` and the viewer's own Reactions.
 
 There are typed ID columns and no `jsonb`, so content can't slip into the log.
 
@@ -505,11 +515,11 @@ Every change that takes a Chat Sequence number runs in one transaction:
 3. Insert the `chat.events` row with that `seq`.
 4. Add the jobs (ADR-0008) and commit. Publishing to Redis follows the commit.
 
-A new Message also sets `last_message_id`, `last_message_seq` and `activity_at` in step 1. Moving a Read Position only updates `chat.participants` (ADR-0012).
+A new Message also sets `last_message_id`, `last_message_seq` and `activity_at` in step 1; a System line sets only `last_message_id` and `activity_at` (D60). Moving a Read Position only updates `chat.participants` (ADR-0012) and adds the `chat.read_position_moved` job (D62). Handing over ownership (D65) is two `participant_role_changed` events in one transaction (the new Owner, then the old one, who becomes a Group Admin), with one `owner_changed` System line sharing the first number.
 
 ### Counters
 
-`chat.chats.last_seq`, `last_message_id`, `last_message_seq`, `activity_at` and `participant_count`; `chat.messages.reaction_counts`. Unread counts are not stored, because a stored count would mean up to 50 row updates per Message. They are counted from `messages_chat_seq_key`, capped at 100 (shown as "99+"): Messages with `seq` above `read_seq`, not by me, not Deleted or Removed.
+`chat.chats.last_seq`, `last_message_id`, `last_message_seq`, `activity_at` and `participant_count`; `chat.messages.reaction_counts`. Unread counts are not stored, because a stored count would mean up to 50 row updates per Message. They are counted from `messages_chat_seq_key`, capped at 100 (shown as "99+"): Messages with `seq` above `read_seq`, not by me, not System lines, not Deleted or Removed.
 
 ### Erasure
 
@@ -517,7 +527,7 @@ A new Message also sets `last_message_id`, `last_message_seq` and `activity_at` 
 |---|---|
 | `chat.chats` | `created_by_id` and the Direct Chat pair kept (IDs only). One `member_erased` event in each Chat the Member wrote in or belonged to, so clients reload those Chats instead of catching up on thousands of edits |
 | `chat.participants` | removed from Group Chats as if they had left, with ownership passing on (D3). Kept in Direct Chats, so the other person keeps the history; nobody can send to a Deleted user |
-| `chat.messages` | their Messages become Deleted: `body`, `post_card_post_id` and `link_preview_id` set to `null`, `deleted_at` set |
+| `chat.messages` | their Messages become Deleted: `body`, `post_card_post_id` and `link_preview_id` set to `null`, `deleted_at` set. System lines they made or are about stay (IDs only) and show "Deleted user" |
 | `chat.message_images` | rows of their Messages deleted (`media` deletes the files) |
 | `chat.message_reactions` | deleted, and the `reaction_counts` of those Messages recounted |
 | `chat.link_previews` | the Member's previews deleted |
@@ -775,7 +785,7 @@ Keys and indexes (all list indexes are partial: `where deleted_at is null and re
 - `posts_top_idx`: (`score desc`, `id desc`): Top of all time
 - `posts_topic_top_idx`: (`topic_id`, `score desc`, `id desc`): Top of all time in a Topic
 - `posts_search_idx`: GIN (`search_vector`): Post search, optionally filtered by Topic (D17)
-- `posts_author_idx`: (`author_id`): erasure
+- `posts_author_created_idx`: (`author_id`, `created_at desc`, `id desc`): a Member's Posts on their profile, newest first (D64), and erasure. Not partial, so erasure finds Deleted Posts too; the profile query skips them
 
 #### `feed.post_images`
 
@@ -940,10 +950,11 @@ The three tables are all keyed by Member and don't reference each other.
 |---|---|---|
 | `id` | `uuid` | PK, default `uuidv7()` |
 | `recipient_id` | `uuid` | ID → `identity.members.id` |
-| `type` | `text` | `message_mention`, `message_reply`, `group_chat_added`, `game_challenge`, `post_comment`, `comment_reply`, `post_mention`, `comment_mention` (D6, D26) |
+| `type` | `text` | `message_mention`, `message_reply`, `group_chat_added`, `game_challenge`, `post_comment`, `comment_reply`, `post_mention`, `comment_mention` (D6, D26), `content_removed`, `report_resolved` (D63) |
 | `actor_id` | `uuid null` | ID → `identity.members.id`: who caused it |
-| `subject_id` | `uuid` | the Message, Comment, Game Challenge, Post or Chat it is about, by `type`; no content (D9) |
+| `subject_id` | `uuid` | the Message, Comment, Game Challenge, Post, Chat or Report it is about, by `type`; no content (D9). The reason and outcome of `content_removed` and `report_resolved` are read from `moderation` when the list is shown |
 | `context_id` | `uuid null` | the Chat or Post to open |
+| `context_seq` | `bigint null` | `message_mention` and `message_reply` only: the Message's Chat Sequence number, so reading the Chat up to it marks the Notification read (D62) |
 | `created_at` | `timestamptz` | |
 | `read_at` | `timestamptz null` | |
 
@@ -952,6 +963,7 @@ Keys and indexes:
 - `notifications_recipient_idx`: (`recipient_id`, `created_at desc`, `id desc`): the bell list, and the newest Notification ID for the sync check
 - `notifications_unread_idx`: (`recipient_id`) where `read_at is null`: the unread count for the sync check (ADR-0012)
 - `notifications_subject_key`: unique (`recipient_id`, `type`, `subject_id`): editing a Message to add the same mention again doesn't notify twice
+- `notifications_context_unread_idx`: (`recipient_id`, `context_id`, `context_seq`) where `read_at is null`: marking a Chat's Notifications read, and the "@" badge in the chat list (D62)
 - `notifications_actor_idx`: (`actor_id`): erasure
 - `notifications_created_brin_idx`: BRIN (`created_at`): retention cleanup
 
@@ -984,6 +996,8 @@ Keys and indexes:
 
 Keys and indexes:
 - `preferences_pkey`: primary key (`member_id`)
+
+**Read with the Chat (D62).** When a Read Position moves forward, `chat` adds a `chat.read_position_moved` job (Chat, Member, new `read_seq`) in the same transaction, with a Graphile job key per Member and Chat so a burst of moves leaves one pending job. `notifications` sets `read_at` on that Member's unread Notifications with that `context_id` and a `context_seq` up to the new `read_seq`. The chat list asks `notifications.unreadMentionChats(memberId)` once for the "@" badge (ADR-0007).
 
 Mute is a Participant setting, so it lives in `chat.participants`. A Message job from `chat` carries the IDs of the Participants to alert, with Mute and Blocks already applied, and `notifications` only checks for an active tab (D29).
 
@@ -1019,7 +1033,7 @@ erDiagram
 | `chat_id` | `uuid null` | ID → `chat.chats.id`: for a Message |
 | `post_id` | `uuid null` | ID → `feed.posts.id`: for a Comment |
 | `reporter_id` | `uuid null` | ID → `identity.members.id`; `null` for a logged-out visitor |
-| `reporter_email` | `text null` | logged-out visitors only (D37); `check`: exactly one of `reporter_id` and `reporter_email`. Retention still to decide in [data retention](../operations/data-retention.md); suggested: cleared with the snapshot |
+| `reporter_email` | `text null` | logged-out visitors only (D37); `check`: exactly one of `reporter_id` and `reporter_email`. Gets a transactional email when the Report is received and when it is resolved (D63); cleared with the snapshot, 90 days after resolution |
 | `reason` | `text` | `spam`, `harassment`, `hate`, `sexual`, `violence`, `self_harm`, `illegal`, `other` |
 | `details` | `text null` | up to 1,000 characters; never logged (D9) |
 | `status` | `text` | `open`, `resolved`, `dismissed` |
@@ -1088,14 +1102,16 @@ Every Admin action: removal, ban, suspension, Invite change, snapshot view, Topi
 | `target_kind` | `text` | `message`, `post`, `comment`, `member`, `invite`, `topic`, `report`, `game` |
 | `target_id` | `uuid null` | |
 | `report_id` | `uuid null` | the Report it came from. A plain ID with no FK, so the entry outlives the Report |
+| `reason` | `text null` | a reason code from the `reports.reason` list; required for removals, bans and suspensions, with or without a Report. It is the reason in the notice to the author (D63) |
 | `created_at` | `timestamptz` | |
 
-There is no free-text or `jsonb` column, so no content can reach the log.
+There is no free-text or `jsonb` column, so no content can reach the log. Removals, bans and suspensions also add the notice jobs (D63): a `content_removed` Notification to the author; a `report_resolved` Notification to each reporting Member, or an email to a logged-out reporter; and a transactional email with the reason to a banned or suspended Member, whose sessions are closed.
 
 Keys and indexes:
 - `audit_log_pkey`: primary key (`id`)
 - `audit_log_created_idx`: (`created_at desc`): the Admins' log view and the 2-year cleanup
 - `audit_log_target_idx`: (`target_kind`, `target_id`): the history of one item or Member
+- `audit_log_reason_check`: `reason` is `null` or one of the `reports.reason` codes, and is set for removals, bans and suspensions
 
 ### Erasure
 
@@ -1231,7 +1247,8 @@ Each list in the spec is one module's query on that module's indexes, with a fix
 
 | Screen | Module | Query | Indexes |
 |---|---|---|---|
-| Chat list | chat | my `participants` rows joined to `chats` (same schema), ordered by `activity_at`; Unread from `last_message_seq` against `read_seq`; Unread counts capped at 100 in the same query | `participants_member_idx`, `chats_pkey`, `messages_chat_seq_key` |
+| Chat list | chat | my `participants` rows joined to `chats` (same schema), ordered by `activity_at`, skipping hidden Direct Chats (D66); Unread from `last_message_seq` against `read_seq`; Unread counts capped at 100 in the same query | `participants_member_idx`, `chats_pkey`, `messages_chat_seq_key` |
+| "@" badge in the chat list | notifications | Chats with unread `message_mention` Notifications (D62) | `notifications_context_unread_idx` |
 | Sync check: latest Chat Sequence per Chat | chat | `chat.heads(memberId)` (ADR-0012) | `participants_member_idx`, `chats_pkey` |
 | Message window and jump to first unread | chat | Messages by `seq` around a point, about 200 on the page (ADR-0011) | `messages_chat_seq_key` |
 | Catch-up | chat | events after `afterSeq`, then the current state of what they reference, and every Participant's `read_seq` | `events_pkey`, `messages_pkey`, `participants_pkey` |
@@ -1241,6 +1258,8 @@ Each list in the spec is one module's query on that module's indexes, with a fix
 | Comments Best | feed | a page of top-level Comments by `best_rank`, then all answers under them by `root_id`, sorted per level | `comments_post_best_idx`, `comments_root_idx` |
 | Comments newest | feed | the same, by `created_at` | `comments_post_new_idx`, `comments_root_idx` |
 | Post search | feed | `search_vector @@ query`, ranked by relevance then recency (D33) | `posts_search_idx` |
+| Profile: Posts | feed | the Member's visible Posts, newest first (D64) | `posts_author_created_idx` |
+| Profile: Game stats | results | `member_stats` rows of one Member (D64) | `member_stats_pkey` |
 | People search | identity | trigram similarity on Username and Display Name (D33), Blocks applied | `members_username_trgm_idx`, `members_display_name_trgm_idx` |
 | Block list | identity | my Blocks | `blocks_pkey` |
 | Sessions page | identity | my sessions | `sessions_member_idx` |
@@ -1267,3 +1286,15 @@ The questions this doc raised, as decided in review on 2026-10-03. Each is recor
 9. **Report snapshots** keep their text and images until their deletion 90 days after resolution, even when the author is erased, through `media.upload_holds` (D58). The privacy policy says so (D53).
 10. **Invites** that expire or are cancelled unused go back to the Member's count (D58).
 11. **Better Auth's own columns** stay; impersonation stays off. The auth ticket (CHK-20) checks them against Better Auth 1.7, including the session hook that sets `auth_method` (D58).
+
+### Screen map decisions
+
+The gaps the [screen map](../design-system/screens.md) found, decided on 2026-10-03 (D60–D66, CHK-37). The sections above follow them.
+
+1. **System lines** (D60): Group Chat changes are Messages of kind `system` in `chat.messages`, sharing the Chat Sequence number of the change they record. They don't count as Unread and don't move `last_message_seq`.
+2. **Invite links** (D61): `identity.invites` stores the code and an optional note. The migration ships in CHK-21, together with the table change.
+3. **Read with the Chat** (D62): `notifications.context_seq` and the `chat.read_position_moved` job mark mention and reply Notifications read when the Chat is read; the same index serves the "@" badge.
+4. **Moderation notices** (D63): `content_removed` and `report_resolved` Notifications, emails to logged-out reporters and to banned or suspended Members, and `moderation.audit_log.reason`.
+5. **Profile** (D64): Game stats from `results.member_stats`, and Posts through `posts_author_created_idx`, which replaces `posts_author_idx`.
+6. **Handing over ownership** (D65): two `participant_role_changed` events and one `owner_changed` System line. No table change.
+7. **Hide chat** (D66): `chat.participants.hidden_until_seq`, Direct Chats only.
