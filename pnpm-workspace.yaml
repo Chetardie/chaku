@@ -44,6 +44,11 @@ catalog:
   pg: ^8.23.1
   '@types/pg': ^8.23.1
 
+  # Jobs and the worker (CHK-18, ADR-0008). `@chaku/db/migrate` installs Graphile Worker's schema
+  # with the module migrations; `apps/worker` runs the jobs and is bundled with tsdown.
+  graphile-worker: ^0.18.0
+  tsdown: ^0.23.0
+
   # Web app (CHK-19, ADR-0011). Checked against the web data flow doc's "Checked against" table.
   next: ^16.3.8
   react: ^19.3.0
@@ -81,6 +86,10 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   # 2023 ReDoS security patch, published by hand without the provenance later 7.x releases have
   - semver@6.3.1
+overrides:
+  # graphile-config (through graphile-worker) asks for @types/node 22, whose undici-types 6.21.0
+  # was published without provenance (trustPolicy refuses it). Types only: use ours.
+  'graphile-config>@types/node': 'catalog:'
 strictDepBuilds: true
 allowBuilds:
   # postinstall installs the git hooks from lefthook.yml (skipped when CI=true)

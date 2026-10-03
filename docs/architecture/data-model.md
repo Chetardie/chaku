@@ -6,7 +6,7 @@ This doc lists, for every module, its Postgres tables with their columns, keys, 
 
 ## Conventions
 
-**Schemas.** Each module owns one Postgres schema with the module's name: `identity`, `chat`, `games`, `results`, `feed`, `notifications`, `moderation`, `media` (ADR-0014). `search` and the sync check own no tables (ADR-0007, ADR-0012). Graphile Worker owns `graphile_worker` and migrates it itself; Drizzle's `schemaFilter` leaves it out. All module schemas share one Drizzle migration history (D36). The first migration creates the `pg_trgm` and `unaccent` extensions in `public`.
+**Schemas.** Each module owns one Postgres schema with the module's name: `identity`, `chat`, `games`, `results`, `feed`, `notifications`, `moderation`, `media` (ADR-0014). `search` and the sync check own no tables (ADR-0007, ADR-0012). Graphile Worker owns `graphile_worker` and migrates it itself, run by `pnpm db:migrate` after the module migrations (CHK-18); Drizzle's `schemaFilter` leaves it out. All module schemas share one Drizzle migration history (D36). The first migration creates the `pg_trgm` and `unaccent` extensions in `public`.
 
 **Keys and IDs.**
 - Every entity table has `id uuid` primary key with default `uuidv7()` (Postgres 18, ADR-0011), so IDs sort by creation time. Join tables (Participants, Votes, Reactions) use a composite primary key instead.

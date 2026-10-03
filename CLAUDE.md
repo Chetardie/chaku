@@ -55,7 +55,7 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | `pnpm test` | Vitest. Module tests need Postgres from `pnpm stack`; each test worker gets its own database |
 | `pnpm boundaries` | dependency-cruiser: module boundaries and cycles (ADR-0002, ADR-0003, ADR-0007); rules in `packages/config/dependency-cruiser.js` |
 | `pnpm build` | Build every app and package that has a build |
-| `pnpm dev` | Run every app in development mode |
+| `pnpm dev` | Run every app in development mode (the web app and the worker) |
 | `pnpm format` / `pnpm format:check` | Prettier on code and config (Markdown is formatted by hand) |
 | `pnpm stack` / `stack:down` / `stack:reset` | Local stack in Docker: Postgres, Redis, SeaweedFS, Mailpit, Caddy on `https://*.localhost`. `reset` wipes data but keeps the trusted certificate |
 | `pnpm stack:check` | Checks the running stack (health, HTTPS, storage CORS, Postgres extensions) and the email and storage adapters against it |
@@ -70,8 +70,9 @@ Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI 
 
 Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,db,adapters,game-sdk,ui,config}`, `docs/`, plus `stack/` (the local stack: Caddyfile, bucket setup, stack checks). Built so far:
 - `apps/web`: Next.js. `app/` routes, `proxy.ts` (CSP nonce), `instrumentation.ts` (env check, server oRPC client, error reports), `src/server/rpc/` (router, context, `/rpc` handler), `src/lib/` (`orpc`, query client), `src/i18n/`, `messages/{en,uk}.json`, `e2e/` (Playwright)
+- `apps/worker`: Graphile Worker jobs (ADR-0008). `src/modules.ts` lists the modules whose jobs it runs; `src/runner.ts` wires them up; bundled with tsdown
 - `packages/adapters`: the logger and vendor adapters, one entry point each (`@chaku/adapters/email`, …)
-- `packages/db`: `@chaku/db` (pool, transactions; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations`, reset, local env), the test harness `@chaku/db/testing`
+- `packages/db`: `@chaku/db` (pool, transactions, `defineJob`/`addJob`/`handle`; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations` plus the `graphile_worker` schema, reset, local env), the test harness `@chaku/db/testing` (`queuedJobs`, `runJob`)
 - `packages/config`, `packages/modules/identity` and `stack`
 
 The other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).

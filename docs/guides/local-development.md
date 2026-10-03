@@ -87,6 +87,18 @@ The interface language follows the `NEXT_LOCALE` cookie (`en` or `uk`), then the
 
 Email, storage, push, analytics, error reports and bot checks go through [`@chaku/adapters`](../../packages/adapters/README.md). Until phase 4 they are all local: email lands in Mailpit, files in SeaweedFS, and the rest is logged or does nothing (D55).
 
+## Worker
+
+`apps/worker` runs the jobs (ADR-0008). `pnpm dev` starts it with the web app and restarts it when its files change. It needs Postgres from `pnpm stack`.
+
+| Command | Does |
+|---|---|
+| `pnpm --filter @chaku/worker dev` | Runs only the worker, from TypeScript, restarting on changes. |
+| `pnpm --filter @chaku/worker build` | Bundles it with tsdown into `apps/worker/dist/main.mjs`. |
+| `pnpm --filter @chaku/worker start` | Runs that bundle with the environment from `.env` and `.env.example`. |
+
+`WORKER_CONCURRENCY` (default 5) sets how many jobs run at once. Ctrl+C or `SIGTERM` stops taking jobs and waits for the running ones; a second signal stops at once. How to add a job: [architecture overview, Jobs](../architecture/overview.md#jobs).
+
 ## Trust the local certificate
 
 Do this once per machine. Caddy signs every site's certificate with its own local root. Until your system trusts that root, browsers show a warning and passkeys and service workers don't work.
