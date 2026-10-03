@@ -118,6 +118,8 @@ Each module's tables, keys, indexes and counters, and how each handles erasure, 
 
 ## Key flows
 
+How pages load data, and how realtime events, catch-up and the sync check keep the browser cache current: [web data flow](web-data-flow.md).
+
 ### Sending a Message
 
 ```mermaid

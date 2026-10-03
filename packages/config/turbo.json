@@ -3,7 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "test": {
-      // The tests read files at the repo root: data-model.test.ts the glossary and docs,
+      // The tests read files at the repo root: data-model.test.ts and web-data-flow.test.ts the glossary and docs,
       // ci.test.ts the workflows, workspace.test.ts every workspace package.json.
       "inputs": [
         "$TURBO_DEFAULT$",

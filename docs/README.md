@@ -37,7 +37,7 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 | [Architecture overview](architecture/overview.md) | current |
 | [ADRs](adr/) | 0001–0014 |
 | [Data model](architecture/data-model.md): Postgres schema per module, Chat events, counters, Hot constants | accepted (CHK-15, D57, D58) |
-| Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50) | CHK-16, before phase 1 UI work |
+| [Web data flow](architecture/web-data-flow.md): in-process oRPC, hydration, query keys, realtime cache updates (D50) | current (CHK-16) |
 | Security: D9 as a checklist, authorization test matrix | Foundation |
 | Realtime protocol: event types, catch-up limits, sync check, log retention, Presence | before phase 2 |
 | `game-sdk` contract: messages, versioning, heartbeat, results | before phase 5 |
