@@ -3,8 +3,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { closeDatabase, createDatabase, databaseUrl } from '@chaku/db';
+import { closeDatabase, createDatabase, type Database, databaseUrl } from '@chaku/db';
 
+import { agentRole, ensureAgentRole } from './agent-role.ts';
 import { resetLocalDatabase } from './database.ts';
 import {
   caddyVolume,
@@ -33,6 +34,9 @@ async function up(): Promise<void> {
   const config = storageConfig();
   await applyBuckets(config);
   console.log(`Buckets ${config.privateBucket} and ${config.publicBucket} ready.`);
+
+  await withDatabase(ensureAgentRole);
+  console.log(`Read-only role ${agentRole} ready for the Postgres MCP.`);
 
   const certificateChanged = exportRootCertificate();
 
@@ -72,13 +76,18 @@ function reset(): void {
 /** Drops every module schema in DATABASE_URL, migrates from scratch and loads the fixed seed. */
 async function dbReset(): Promise<void> {
   const url = new URL(databaseUrl());
-  const db = createDatabase(url.toString());
+  await withDatabase(resetLocalDatabase);
+  console.log(`Database ${url.pathname.slice(1)} on ${url.host} is reset and seeded.`);
+}
+
+/** Runs `work` on DATABASE_URL, then closes the connection. */
+async function withDatabase(work: (db: Database) => Promise<void>): Promise<void> {
+  const db = createDatabase(databaseUrl());
   try {
-    await resetLocalDatabase(db);
+    await work(db);
   } finally {
     await closeDatabase(db);
   }
-  console.log(`Database ${url.pathname.slice(1)} on ${url.host} is reset and seeded.`);
 }
 
 /** Copies Caddy's root certificate to `.data/` and says whether it differs from the last copy. */

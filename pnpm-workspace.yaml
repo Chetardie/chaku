@@ -79,6 +79,10 @@ catalog:
   # Exact: 2.1.15 was published without provenance (trustPolicy refuses it), 2.1.16 is newer than a day
   lefthook: 2.1.14
 
+  # Agent tools (CHK-24): the Postgres MCP server, run by stack/src/mcp-postgres.ts against the local
+  # database only, through a read-only role
+  '@bytebase/dbhub': ^1.4.0
+
 # Supply chain. pnpm 12 already waits a day before installing a new release
 # and refuses unapproved install scripts; these make the rules explicit.
 minimumReleaseAge: 1440
@@ -90,6 +94,16 @@ overrides:
   # graphile-config (through graphile-worker) asks for @types/node 22, whose undici-types 6.21.0
   # was published without provenance (trustPolicy refuses it). Types only: use ours.
   'graphile-config>@types/node': 'catalog:'
+# DBHub (the local Postgres MCP, CHK-24) lists a driver for every database it supports, and cloud
+# sign-in, as optional dependencies. We only connect to the local Postgres, through `pg`.
+ignoredOptionalDependencies:
+  - mariadb
+  - mssql
+  - mysql2
+  - oracledb
+  - '@aws-sdk/credential-providers'
+  - '@aws-sdk/rds-signer'
+  - '@azure/identity'
 strictDepBuilds: true
 allowBuilds:
   # postinstall installs the git hooks from lefthook.yml (skipped when CI=true)
@@ -100,3 +114,7 @@ allowBuilds:
   # scripts only build from source (@parcel/watcher) or fall back to WebAssembly (@swc/core).
   '@parcel/watcher': false
   '@swc/core': false
+  # DBHub's SSH tunnel support (unused: the MCP only reaches the local stack). Both scripts only
+  # compile optional native speed-ups; ssh2 works without them.
+  ssh2: false
+  cpu-features: false

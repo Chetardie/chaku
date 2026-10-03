@@ -2,7 +2,9 @@
   "extends": "./tsconfig/node.json",
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    // The agent scripts in src/ run as TypeScript straight in Node.js, which needs the .ts extension.
+    "allowImportingTsExtensions": true
   },
-  "include": ["*.js", "test/**/*.ts"]
+  "include": ["*.js", "src/**/*.ts", "test/**/*.ts"]
 }
