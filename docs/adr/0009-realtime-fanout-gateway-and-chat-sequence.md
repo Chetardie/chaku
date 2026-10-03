@@ -31,5 +31,5 @@ Keeping the gateway to relaying means one place holds business rules and authori
 ## Consequences
 
 - Changes within one Chat are serialized by updating that Chat's counter row. That is fine at 50 Participants and far beyond our message rates.
-- The event log is pruned by a cron job (ADR-0008). The retention period is set in the realtime protocol doc.
+- The event log is pruned by a cron job (ADR-0008). The retention period is set in the realtime protocol doc. _(Amended by D58: 30 days, set in the data model doc.)_
 - The 300 ms delivery target covers commit, Redis publish and gateway forward. A k6 load test checks it before beta wave 1.

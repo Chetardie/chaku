@@ -37,6 +37,6 @@ Read Positions are the most frequent write in a Chat: every Participant moves th
 ## Consequences
 
 - `chat.heads(memberId)` must be one indexed query: the Chat's counter row holds its latest Chat Sequence.
-- The 60-second interval is a protocol constant in the realtime protocol doc, together with event log retention.
+- The 60-second interval is a protocol constant in the realtime protocol doc, together with event log retention. _(Amended by D58: event log retention is 30 days, set in the data model doc.)_
 - "Seen" and "Seen by" may briefly show stale data after a dropped `read_position` event, until the next catch-up or sync check. That is acceptable.
 - The Centrifugo spike (ADR-0009) keeps this design: Centrifugo's history recovery would replace catch-up within a connection, not the sync check.
