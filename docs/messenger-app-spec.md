@@ -199,7 +199,7 @@ CLAUDE.md
 - Realtime protocol (event types, the Chat Sequence, catch-up limits, event log retention, Presence and active-tab rules)
 - `game-sdk` contract in detail
 - Design system foundations
-- Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50)
+- Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50): [`docs/architecture/web-data-flow.md`](architecture/web-data-flow.md)
 
 ## 9. Decisions log
 Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. Terms are defined in `/CONTEXT.md`.
