@@ -1,6 +1,6 @@
 # Chaku: Product Spec v0.4
 
-Status: product decisions complete (see §9 Decisions log, D1–D56). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. Not yet designed: data model, realtime protocol, `game-sdk` contract details.
+Status: product decisions complete (see §9 Decisions log, D1–D56). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. The data model is proposed in [`docs/architecture/data-model.md`](architecture/data-model.md). Not yet designed: realtime protocol, `game-sdk` contract details.
 Goal: a real product. The first iteration is an invite-only beta, released to friends in waves, to see how it feels.
 Glossary: [`/CONTEXT.md`](../CONTEXT.md). Architecture decisions: [`docs/adr/`](adr/).
 
@@ -195,7 +195,7 @@ CLAUDE.md
 - **Centrifugo spike outcome** (start of phase 2).
 
 ## 8. Next design docs
-- Data model (Postgres schema per module, including Chat events and counters)
+- Data model (Postgres schema per module, including Chat events and counters): [`docs/architecture/data-model.md`](architecture/data-model.md), proposed in CHK-15
 - Realtime protocol (event types, the Chat Sequence, catch-up limits, event log retention, Presence and active-tab rules)
 - `game-sdk` contract in detail
 - Design system foundations

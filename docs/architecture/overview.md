@@ -107,6 +107,8 @@ flowchart LR
   feed --> content
 ```
 
+Each module's tables, keys, indexes and counters, and how each handles erasure, are in the [data model](data-model.md).
+
 `apps/web` composes screens across modules with batch lookups (`identity.getProfiles`, `identity.getBlockRelations`) and composes the sync check from `chat`, `notifications` and `games` (ADR-0012). `packages/content` imports no module. Games import only `game-sdk` and `ui`.
 
 ## Key flows

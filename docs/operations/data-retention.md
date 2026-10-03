@@ -61,7 +61,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 | Data | Kept for | Source | Notes |
 |---|---|---|---|
 | Database backups | 30 days, encrypted | D36 | Railway backups plus a nightly `pg_dump` to R2 with a 30-day expiry. |
-| Chat event log (`chat.events`) | _to decide in the realtime protocol doc_ | ADR-0009 | References only, never content. |
+| Chat event log (`chat.events`) | _to decide in the realtime protocol doc_ | ADR-0009 | References only, never content. Suggested: 30 days ([data model](../architecture/data-model.md#chatevents), Q3). |
 | Background jobs | removed when finished | ADR-0008 | Payloads hold IDs only. |
 | Application logs (`pino`) | _to decide_ | D36 | Never contain Message or Comment bodies. Suggested: 14 days. |
 | Error reports (Sentry) | _to decide_ | D19 | Content scrubbed. Suggested: 30 days. |

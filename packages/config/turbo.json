@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      // data-model.test.ts reads the glossary and docs at the repo root.
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/CONTEXT.md", "$TURBO_ROOT$/docs/**"]
+    }
+  }
+}
