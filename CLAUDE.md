@@ -15,6 +15,7 @@ Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI and the 
 | How work moves from Linear to merged code | [docs/process/workflow.md](docs/process/workflow.md) |
 | Index of all docs, planned and written | [docs/README.md](docs/README.md) |
 | Engineering contract: Definition of Done, commits, decisions | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Every v1 screen, what it shows and its data; theming rules (ADR-0015: semantic tokens only, no colour literals or `dark:`) | [docs/design-system/screens.md](docs/design-system/screens.md), [docs/design-system/foundations.md](docs/design-system/foundations.md) |
 | UI copy in EN and UK | [docs/design-system/voice-and-tone.md](docs/design-system/voice-and-tone.md) |
 | Team handbook (Linear, private): Start here, How we work, Accounts & access, Support & moderation | Linear team Chaku → Documents (read with the Linear connector) |
 
