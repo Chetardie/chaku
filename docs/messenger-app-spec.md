@@ -1,6 +1,6 @@
 # Chaku: Product Spec v0.4
 
-Status: product decisions complete (see §9 Decisions log, D1–D58). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. The data model is in [`docs/architecture/data-model.md`](architecture/data-model.md) (D57, D58). Not yet designed: realtime protocol, `game-sdk` contract details.
+Status: product decisions complete (see §9 Decisions log, D1–D59). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. The data model is in [`docs/architecture/data-model.md`](architecture/data-model.md) (D57, D58). Not yet designed: realtime protocol, `game-sdk` contract details.
 Goal: a real product. The first iteration is an invite-only beta, released to friends in waves, to see how it feels.
 Glossary: [`/CONTEXT.md`](../CONTEXT.md). Architecture decisions: [`docs/adr/`](adr/).
 
@@ -155,7 +155,7 @@ Libraries, versions and the rules for using them are in ADR-0011.
 - **PWA:** `@serwist/turbopack` for the service worker; `web-push` with VAPID keys
 - **Email and DNS:** Resend with `react-email` templates, sent from a mail subdomain with SPF, DKIM and DMARC (D52); Cloudflare for DNS
 - **Bot checks:** Cloudflare Turnstile behind an adapter (D44)
-- **UI and text:** next-intl and date-fns; `packages/ui` (tokens as CSS variables, shadcn/ui on Base UI, Tailwind 4, Storybook) mirrored to Figma
+- **UI and text:** next-intl and date-fns; `packages/ui` (tokens as CSS variables, shadcn/ui on Base UI, Tailwind 4, Storybook) mirrored to Figma. Every colour, font and shape comes from themeable semantic tokens (D59, ADR-0015)
 - **Monitoring and CI:** Sentry (errors, tracing, uptime monitors and alerts) and PostHog (EU); `pino` structured logs; GitHub Actions; k6 for the realtime load test
 - **Tests:** Vitest, Playwright with axe, MSW, `fast-check`, Storybook accessibility checks
 
@@ -203,7 +203,7 @@ CLAUDE.md
 - Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50): [`docs/architecture/web-data-flow.md`](architecture/web-data-flow.md)
 
 ## 9. Decisions log
-Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. D57 and D58 were made on 2026-10-03 in the review of the data model doc. Terms are defined in `/CONTEXT.md`.
+Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. D57 and D58 were made on 2026-10-03 in the review of the data model doc. D59 was made the same day with the screen map. Terms are defined in `/CONTEXT.md`.
 - D1: "Invite" is signup-only; a game request is a **Game Challenge**. A Game Challenge expires after 15 minutes if not accepted. (Revised by D15: Challenges no longer appear as cards in Chats.)
 - D2: Site-wide roles are Member and Admin only (the role field should leave room for Moderator later). Admins manage topics, remove posts and comments ("[removed by admin]"), suspend or ban users, handle the report queue, and create unlimited Invites. Admins cannot browse private chats; a Report snapshots the reported message plus about 10 messages before it.
 - D3: People in a chat are **Participants**. Group Chat: the creator is the Group Owner, who can promote Group Admins. Owners and Group Admins can rename, change the avatar and remove Participants. Any Participant can add people (blocks apply). Limit of 50 Participants. Anyone can leave; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant. New Participants see the full history. A Direct Chat always has exactly 2 Participants and there is only one per pair; adding a third person creates a new Group Chat.
@@ -424,3 +424,4 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
   - **Report snapshots** are kept until their deletion 90 days after the Report is resolved, even if the author's account is erased, including the images they hold. The privacy policy says so (D53).
   - **Invites:** a Member's unused Invite that expires or is cancelled goes back to their count, so "5 Invites" means 5 open at a time (D12).
   - **Better Auth** keeps its own columns (the admin plugin's ban and impersonation fields, Google tokens); impersonation stays turned off, because it would let an Admin read Chats (D2).
+- D59: Themeable design tokens (ADR-0015). Every colour, font and shape comes from tokens in `packages/ui` in three layers: primitives, semantic roles (shadcn/ui's names plus Chaku roles such as `bubble-own` and `challenge`) and the Tailwind mapping. A theme is one TypeScript file with a light and a dark mode; a script writes `tokens.css`, and the same values feed emails, the PWA manifest, the Game `init` theme and Figma. Tailwind's default palette is removed, colour literals and `dark:` classes are rejected by lint outside the token files, and a test checks WCAG AA contrast for every pair in every theme. The Member picks light, dark or system per device (a cookie read by the server, so the first paint is right).

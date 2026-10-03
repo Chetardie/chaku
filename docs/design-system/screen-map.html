@@ -1,0 +1,3613 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Screen map mockups (docs/design-system/screens.md). Exploratory: layout and fit, not pixel specs. Values come from packages/ui (ADR-0015). -->
+    <title>Chaku Screen Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+    <style>
+      /* Layout: a review page in Chaku's own Warm direction. Phone mockups in a wrapping grid, one desktop frame, then the inventory and gaps. */
+      :root {
+        --bg: #fff7ef;
+        --surface: #ffffff;
+        --text: #2b1d14;
+        --muted: #7a604f;
+        --accent: #c8461b;
+        --on-accent: #ffffff;
+        --accent-text: #c2410c;
+        --accent-soft: #ffe4d3;
+        --accent-soft-text: #9a3412;
+        --sun: #ffe08a;
+        --sun-text: #3f2d00;
+        --line: #f0e1d3;
+        --frame: #2b1d14;
+        --online: #15803d;
+        --chat-bg: var(--bg);
+        --own-bg: var(--accent);
+        --own-text: var(--on-accent);
+        --p1: #7c3aed;
+        --p2: #0f766e;
+        --p3: #b45309;
+        --p4: #be185d;
+        --gap: #6d28d9;
+        --gap-soft: #efe7fd;
+        --ok: #166534;
+        --ok-soft: #dcf5e3;
+        --font: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+        --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #1c1512;
+          --surface: #2a201b;
+          --text: #f5ede6;
+          --muted: #b8a598;
+          --accent: #ff8a5c;
+          --on-accent: #1c1512;
+          --accent-text: #ff9b73;
+          --accent-soft: #4a2a1e;
+          --accent-soft-text: #ffd3bf;
+          --sun: #3d3214;
+          --sun-text: #ffe08a;
+          --line: #3a2d26;
+          --frame: #0e0a08;
+          --online: #4ade80;
+          --p1: #c4a5fa;
+          --p2: #5eead4;
+          --p3: #fbbf24;
+          --p4: #f9a8d4;
+          --gap: #c4b5fd;
+          --gap-soft: #2e2545;
+          --ok: #86efac;
+          --ok-soft: #173222;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme='dark'] {
+        --bg: #1c1512;
+        --surface: #2a201b;
+        --text: #f5ede6;
+        --muted: #b8a598;
+        --accent: #ff8a5c;
+        --on-accent: #1c1512;
+        --accent-text: #ff9b73;
+        --accent-soft: #4a2a1e;
+        --accent-soft-text: #ffd3bf;
+        --sun: #3d3214;
+        --sun-text: #ffe08a;
+        --line: #3a2d26;
+        --frame: #0e0a08;
+        --online: #4ade80;
+        --p1: #c4a5fa;
+        --p2: #5eead4;
+        --p3: #fbbf24;
+        --p4: #f9a8d4;
+        --gap: #c4b5fd;
+        --gap-soft: #2e2545;
+        --ok: #86efac;
+        --ok-soft: #173222;
+        color-scheme: dark;
+      }
+      /* Proposed tweaks (design notes 1 and 2) */
+      :root[data-tweaks] {
+        --chat-bg: #f6ebdf;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root[data-tweaks]:not([data-theme='light']) {
+          --chat-bg: #1c1512;
+          --own-bg: #a8472a;
+          --own-text: #fff4ec;
+        }
+      }
+      :root[data-tweaks][data-theme='dark'] {
+        --chat-bg: #1c1512;
+        --own-bg: #a8472a;
+        --own-text: #fff4ec;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 15px;
+        line-height: 1.5;
+        padding-inline: 16px;
+        padding-block: 0 64px;
+      }
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+        margin: 0;
+      }
+      a {
+        color: var(--accent-text);
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+      }
+
+      /* Page header */
+      .top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-block: 40px 20px;
+      }
+      .top h1 {
+        font-size: clamp(28px, 4vw, 40px);
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+      .top p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        max-width: 62ch;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .seg {
+        display: inline-flex;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 3px;
+      }
+      .seg button {
+        border: 0;
+        background: transparent;
+        padding: 6px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .seg button[aria-pressed='true'] {
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .toggle {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .toggle input {
+        accent-color: var(--accent);
+      }
+      .jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-block: 4px 8px;
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        background: var(--bg);
+        z-index: 5;
+        border-bottom: 1px solid var(--line);
+      }
+      .jump a {
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: var(--text);
+      }
+      .jump a:hover {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        font-size: 13px;
+        color: var(--muted);
+        align-items: center;
+      }
+
+      section {
+        padding-block: 40px 8px;
+      }
+      section > h2 {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      section > .lede {
+        color: var(--muted);
+        margin: 6px 0 24px;
+        max-width: 70ch;
+      }
+
+      /* Status chips */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .chip.ok {
+        background: var(--ok-soft);
+        color: var(--ok);
+      }
+      .chip.gap {
+        background: var(--gap-soft);
+        color: var(--gap);
+      }
+      .chip.decide {
+        background: var(--sun);
+        color: var(--sun-text);
+      }
+      .chip.data {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+
+      /* ============ PHONE MOCKUPS ============ */
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 36px 24px;
+        justify-items: center;
+      }
+      figure {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        max-width: 100%;
+      }
+      figcaption {
+        font-size: 14px;
+        color: var(--muted);
+        text-align: center;
+        max-width: 300px;
+      }
+      figcaption b {
+        color: var(--text);
+        display: block;
+        font-size: 15px;
+      }
+      .phone {
+        width: 300px;
+        max-width: 100%;
+        height: 640px;
+        border-radius: 38px;
+        border: 8px solid var(--frame);
+        background: var(--bg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .sb {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 20px 2px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .appbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px 8px;
+        min-height: 48px;
+      }
+      .appbar h3 {
+        font-size: 22px;
+        font-weight: 800;
+        flex: 1;
+      }
+      .appbar .ttl {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.2;
+      }
+      .appbar .ttl b {
+        display: block;
+        font-weight: 700;
+        font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .appbar .ttl small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .ib {
+        border: 0;
+        background: transparent;
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-grid;
+        place-items: center;
+        color: var(--text);
+        flex: none;
+        cursor: default;
+      }
+      .ib.fill {
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .ib.soft {
+        background: var(--surface);
+      }
+      .ib svg,
+      .ic svg {
+        width: 19px;
+        height: 19px;
+        stroke-width: 1.75;
+      }
+      .ic {
+        display: inline-grid;
+        place-items: center;
+      }
+      .content {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+      }
+      .tabbar {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--line);
+        background: var(--surface);
+        padding: 6px 4px 14px;
+      }
+      .tabbar span {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--muted);
+        position: relative;
+      }
+      .tabbar span.on {
+        color: var(--accent-text);
+      }
+      .tabbar svg {
+        width: 21px;
+        height: 21px;
+        stroke-width: 1.75;
+      }
+      .tabbar .nb {
+        position: absolute;
+        top: -3px;
+        left: calc(50% + 5px);
+        background: var(--accent);
+        color: var(--on-accent);
+        font-size: 10px;
+        font-weight: 800;
+        border-radius: 999px;
+        padding: 0 5px;
+        line-height: 15px;
+      }
+
+      /* avatars */
+      .av {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #fff;
+        flex: none;
+        position: relative;
+        font-size: 16px;
+      }
+      .av.s {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+      }
+      .av.xs {
+        width: 18px;
+        height: 18px;
+        font-size: 8px;
+        border: 2px solid var(--chat-bg);
+      }
+      .av.xl {
+        width: 96px;
+        height: 96px;
+        font-size: 36px;
+      }
+      .c1 {
+        background: #c8461b;
+      }
+      .c2 {
+        background: #7c3aed;
+      }
+      .c3 {
+        background: #0f766e;
+      }
+      .c4 {
+        background: #b45309;
+      }
+      .c5 {
+        background: #be185d;
+      }
+      .c6 {
+        background: #8a6a55;
+      }
+      .av.grp {
+        border-radius: 14px;
+      }
+      .av .dot {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: var(--online);
+        border: 2px solid var(--bg);
+      }
+      .av.xl .dot {
+        width: 20px;
+        height: 20px;
+        border-width: 3px;
+        right: 4px;
+        bottom: 4px;
+      }
+
+      /* chat list */
+      .filter {
+        margin: 0 12px 6px;
+        background: var(--surface);
+        border-radius: 999px;
+        padding: 8px 14px;
+        color: var(--muted);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 14px;
+      }
+      .filter svg {
+        width: 16px;
+        height: 16px;
+      }
+      .clist {
+        list-style: none;
+        margin: 0;
+        padding: 0 6px;
+      }
+      .clist li {
+        display: flex;
+        gap: 11px;
+        padding: 9px 8px;
+        border-radius: 16px;
+        align-items: center;
+      }
+      .clist li.sel {
+        background: var(--accent-soft);
+      }
+      .cl-main {
+        flex: 1;
+        min-width: 0;
+      }
+      .cl-top,
+      .cl-bot {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+      }
+      .cl-top b {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cl-top time {
+        font-size: 12px;
+        color: var(--muted);
+        flex: none;
+      }
+      .cl-bot > span:first-child {
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 13.5px;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        min-width: 0;
+      }
+      .unread .cl-top b {
+        font-weight: 800;
+      }
+      .unread .cl-bot > span:first-child {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .unread .cl-top time {
+        color: var(--accent-text);
+        font-weight: 700;
+      }
+      .badge {
+        background: var(--accent);
+        color: var(--on-accent);
+        font-size: 11.5px;
+        font-weight: 800;
+        border-radius: 999px;
+        min-width: 20px;
+        padding: 0 6px;
+        line-height: 20px;
+        text-align: center;
+        flex: none;
+      }
+      .badge.mention {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .badges {
+        display: flex;
+        gap: 4px;
+        flex: none;
+      }
+      .typing {
+        color: var(--accent-text) !important;
+        font-style: italic;
+      }
+      .draft {
+        color: var(--accent-text);
+        font-weight: 700;
+      }
+      .cl-bot svg {
+        width: 14px;
+        height: 14px;
+        flex: none;
+      }
+
+      /* proposed marker */
+      .prop {
+        outline: 1.5px dashed var(--gap);
+        outline-offset: 2px;
+        border-radius: 10px;
+        position: relative;
+      }
+      .ptag {
+        display: inline-block;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--gap);
+        background: var(--gap-soft);
+        border-radius: 6px;
+        padding: 1px 5px;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+      .prop > .ptag.abs {
+        position: absolute;
+        top: -8px;
+        right: 6px;
+      }
+
+      /* chat view */
+      .chat {
+        background: var(--chat-bg);
+        height: 100%;
+        padding: 6px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        overflow: hidden;
+      }
+      .day {
+        align-self: center;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--muted);
+        background: var(--surface);
+        padding: 2px 10px;
+        border-radius: 999px;
+        margin: 4px 0;
+      }
+      .sys {
+        align-self: center;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        padding: 2px 8px;
+      }
+      .row {
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+        max-width: 86%;
+      }
+      .row.me {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+      }
+      .bubble {
+        background: var(--surface);
+        border-radius: 20px 20px 20px 6px;
+        padding: 7px 12px 6px;
+        min-width: 0;
+      }
+      .me .bubble {
+        background: var(--own-bg);
+        color: var(--own-text);
+        border-radius: 20px 20px 6px 20px;
+      }
+      .bubble .who {
+        font-size: 12.5px;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 1px;
+      }
+      .bubble time {
+        font-size: 10.5px;
+        opacity: 0.7;
+        float: right;
+        margin: 6px 0 0 8px;
+      }
+      .bubble code {
+        font-family: var(--mono);
+        font-size: 12px;
+        background: rgba(127, 90, 60, 0.14);
+        padding: 0 4px;
+        border-radius: 5px;
+      }
+      .quote {
+        border-left: 3px solid currentColor;
+        padding: 2px 8px;
+        margin: 2px 0 5px;
+        border-radius: 4px;
+        background: rgba(127, 90, 60, 0.1);
+        font-size: 12.5px;
+      }
+      .me .quote {
+        background: rgba(255, 255, 255, 0.16);
+      }
+      .quote b {
+        display: block;
+        font-size: 12px;
+      }
+      .imgs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px;
+        border-radius: 14px;
+        overflow: hidden;
+        margin: 3px 0 2px;
+        width: 180px;
+      }
+      .imgs i {
+        display: block;
+        aspect-ratio: 1;
+        background: linear-gradient(135deg, #f4a261, #c8461b);
+      }
+      .imgs i:nth-child(2) {
+        background: linear-gradient(160deg, #ffe08a, #e76f51);
+      }
+      .imgs i.ph {
+        background: var(--line);
+        display: grid;
+        place-items: center;
+      }
+      .reacts {
+        display: flex;
+        gap: 4px;
+        margin: 2px 0 0 34px;
+        flex-wrap: wrap;
+      }
+      .me + .reacts {
+        justify-content: flex-end;
+      }
+      .rp {
+        font-size: 12px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0 7px;
+        line-height: 20px;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      .rp.mine {
+        background: var(--accent-soft);
+        border-color: transparent;
+        color: var(--accent-soft-text);
+      }
+      .blocked {
+        align-self: flex-start;
+        font-size: 12.5px;
+        color: var(--muted);
+        background: transparent;
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+        padding: 4px 10px;
+      }
+      .blocked b {
+        color: var(--accent-text);
+      }
+      .newdiv {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11.5px;
+        font-weight: 800;
+        color: var(--accent-text);
+        margin: 2px 0;
+      }
+      .newdiv::before,
+      .newdiv::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--accent);
+        opacity: 0.5;
+      }
+      .lp {
+        display: block;
+        border-left: 3px solid var(--accent);
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 5px 8px;
+        margin-top: 5px;
+        font-size: 12px;
+      }
+      .lp small {
+        color: var(--muted);
+        display: block;
+      }
+      .lp b {
+        display: block;
+      }
+      .seen {
+        align-self: flex-end;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .seen .av {
+        margin-left: -6px;
+      }
+      .typingb {
+        align-self: flex-start;
+        background: var(--surface);
+        border-radius: 20px 20px 20px 6px;
+        padding: 8px 12px;
+        display: flex;
+        gap: 3px;
+      }
+      .typingb i {
+        width: 6px;
+        height: 6px;
+        border-radius: 9px;
+        background: var(--muted);
+        opacity: 0.6;
+      }
+      .composer {
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+        padding: 8px 8px 14px;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+      }
+      .composer .field {
+        flex: 1;
+        background: var(--bg);
+        border-radius: 20px;
+        padding: 8px 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .replybar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 12px;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .replybar div {
+        flex: 1;
+        border-left: 3px solid var(--accent);
+        padding-left: 8px;
+        min-width: 0;
+      }
+      .replybar div b {
+        color: var(--accent-text);
+        display: block;
+      }
+      .replybar div span {
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+      }
+
+      /* feed */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 0 12px 6px;
+      }
+      .tabs span {
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .tabs span.on {
+        background: var(--text);
+        color: var(--bg);
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        padding: 0 12px 8px;
+        overflow: hidden;
+      }
+      .chips span {
+        padding: 4px 11px;
+        border-radius: 999px;
+        background: var(--surface);
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+        border: 1px solid var(--line);
+      }
+      .chips span.on {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+        border-color: transparent;
+      }
+      .cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 10px;
+      }
+      .card {
+        background: var(--surface);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .card .hero {
+        aspect-ratio: 16/8;
+        background: linear-gradient(150deg, #ffb38a 0%, #c8461b 55%, #5b2412 100%);
+      }
+      .card .in {
+        padding: 9px 12px 10px;
+      }
+      .meta {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .meta .topic {
+        color: var(--accent-text);
+        font-weight: 700;
+      }
+      .card h4 {
+        font-size: 16px;
+        font-weight: 800;
+        margin: 3px 0 1px;
+        line-height: 1.25;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .actions {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .vote {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        background: var(--bg);
+        border-radius: 999px;
+        padding: 2px 4px;
+        font-weight: 800;
+        font-size: 13px;
+      }
+      .vote svg {
+        width: 16px;
+        height: 16px;
+      }
+      .vote .ib {
+        width: 26px;
+        height: 26px;
+      }
+      .vote .up {
+        color: var(--accent-text);
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--bg);
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      .pill svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* toast */
+      .toast {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        background: var(--sun);
+        color: var(--sun-text);
+        border-radius: 18px;
+        padding: 10px 12px;
+        box-shadow: 0 8px 24px rgba(43, 29, 20, 0.22);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        z-index: 3;
+      }
+      .toast .t {
+        flex: 1;
+        min-width: 0;
+        font-size: 13px;
+        line-height: 1.3;
+      }
+      .toast .t b {
+        display: block;
+        font-size: 13.5px;
+      }
+      .toast .t small {
+        opacity: 0.8;
+      }
+      .btn {
+        border: 0;
+        border-radius: 999px;
+        padding: 7px 14px;
+        font-weight: 800;
+        font-size: 13px;
+        background: var(--accent);
+        color: var(--on-accent);
+        white-space: nowrap;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: inherit;
+        border: 1.5px solid currentColor;
+        opacity: 0.85;
+      }
+      .btn.soft {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .btn.dark {
+        background: var(--sun-text);
+        color: var(--sun);
+      }
+      .btn.block {
+        width: 100%;
+        padding: 12px;
+      }
+      .btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* post page */
+      .post {
+        padding: 0 14px;
+      }
+      .post h4 {
+        font-size: 19px;
+        font-weight: 800;
+        line-height: 1.25;
+        margin: 4px 0 6px;
+      }
+      .post p {
+        margin: 0 0 8px;
+        font-size: 13.5px;
+      }
+      .cmhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px 6px;
+        border-top: 1px solid var(--line);
+        margin-top: 6px;
+      }
+      .cmhead b {
+        font-size: 14px;
+      }
+      .mini-seg {
+        display: inline-flex;
+        background: var(--surface);
+        border-radius: 999px;
+        padding: 2px;
+        font-size: 11.5px;
+        font-weight: 700;
+      }
+      .mini-seg span {
+        padding: 2px 9px;
+        border-radius: 999px;
+        color: var(--muted);
+      }
+      .mini-seg span.on {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .cm {
+        padding: 0 14px;
+      }
+      .c {
+        display: flex;
+        gap: 8px;
+        padding-top: 8px;
+      }
+      .c .rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .c .rail::after {
+        content: '';
+        width: 2px;
+        flex: 1;
+        background: var(--line);
+        border-radius: 2px;
+      }
+      .c .body {
+        flex: 1;
+        min-width: 0;
+        font-size: 13px;
+      }
+      .c .body .meta {
+        font-size: 11.5px;
+      }
+      .c .body p {
+        margin: 1px 0 3px;
+      }
+      .c .ca {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 11.5px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .c .ca svg {
+        width: 14px;
+        height: 14px;
+      }
+      .c .kids {
+        margin-left: 2px;
+      }
+      .cont {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--accent-text);
+        margin: 6px 0 0;
+      }
+      .collapsed {
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        padding-top: 8px;
+      }
+      .collapsed .ib {
+        width: 20px;
+        height: 20px;
+        background: var(--surface);
+      }
+      .collapsed .ib svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      /* game */
+      .gbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+      }
+      .gbar .ttl {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.15;
+      }
+      .gbar .ttl b {
+        font-size: 13.5px;
+        display: block;
+      }
+      .gbar .ttl small {
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .gico {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, var(--accent), #ffb38a);
+        flex: none;
+      }
+      .stage {
+        background: #2b1d14;
+        display: grid;
+        place-items: center;
+        padding: 12px;
+        position: relative;
+      }
+      .stage .lbl {
+        position: absolute;
+        top: 6px;
+        left: 8px;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        color: #b8a598;
+        opacity: 0.8;
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        background: #3b5bdb;
+        padding: 7px;
+        border-radius: 12px;
+        width: min(230px, 100%);
+      }
+      .board i {
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: #1c1512;
+        display: block;
+      }
+      .board i.r {
+        background: #ff6b3d;
+      }
+      .board i.y {
+        background: #ffd43b;
+      }
+      .handle {
+        height: 14px;
+        display: grid;
+        place-items: center;
+        background: var(--surface);
+        border-block: 1px solid var(--line);
+      }
+      .handle i {
+        width: 36px;
+        height: 4px;
+        border-radius: 9px;
+        background: var(--muted);
+        opacity: 0.5;
+        display: block;
+      }
+
+      /* notifications */
+      .nlist {
+        list-style: none;
+        margin: 0;
+        padding: 0 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .nlist .gh {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 8px 8px 2px;
+      }
+      .nlist li.n {
+        display: flex;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 14px;
+        align-items: flex-start;
+      }
+      .nlist li.n.unread {
+        background: var(--surface);
+      }
+      .nico {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        flex: none;
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .nico.sun {
+        background: var(--sun);
+        color: var(--sun-text);
+      }
+      .nico.gap {
+        background: var(--gap-soft);
+        color: var(--gap);
+      }
+      .nico svg {
+        width: 18px;
+        height: 18px;
+      }
+      .nbody {
+        flex: 1;
+        min-width: 0;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+      .nbody small {
+        display: block;
+        color: var(--muted);
+        font-size: 11.5px;
+        margin-top: 1px;
+      }
+      .nbody .nact {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .nbody .nact .btn {
+        padding: 5px 12px;
+        font-size: 12px;
+      }
+      .udot {
+        width: 8px;
+        height: 8px;
+        border-radius: 9px;
+        background: var(--accent);
+        flex: none;
+        margin-top: 6px;
+      }
+
+      /* profile */
+      .prof {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 6px 16px 0;
+        gap: 4px;
+      }
+      .prof h4 {
+        font-size: 21px;
+        font-weight: 800;
+        margin-top: 6px;
+      }
+      .prof .un {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .pres {
+        display: inline-flex;
+        gap: 5px;
+        align-items: center;
+        font-size: 12.5px;
+        color: var(--online);
+        font-weight: 700;
+      }
+      .pres::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 9px;
+        background: var(--online);
+      }
+      .bio {
+        font-size: 13px;
+        margin: 4px 0;
+        padding: 4px 8px;
+      }
+      .btnrow {
+        display: flex;
+        gap: 8px;
+        margin: 8px 0 4px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .sect {
+        padding: 10px 14px 0;
+      }
+      .sect h5 {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin: 0 0 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .stat {
+        background: var(--surface);
+        border-radius: 16px;
+        padding: 10px 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .stat .nums {
+        display: flex;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .stat .nums b {
+        display: block;
+        font-size: 17px;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+      .plist {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 6px;
+      }
+      .plist div {
+        background: var(--surface);
+        border-radius: 12px;
+        padding: 7px 10px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .plist small {
+        display: block;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 11.5px;
+      }
+
+      /* invites */
+      .suncard {
+        margin: 0 12px;
+        background: var(--sun);
+        color: var(--sun-text);
+        border-radius: 20px;
+        padding: 14px;
+      }
+      .suncard b {
+        font-size: 18px;
+        font-weight: 800;
+        display: block;
+      }
+      .suncard p {
+        margin: 4px 0 10px;
+        font-size: 13px;
+      }
+      .ilist {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .ilist li {
+        background: var(--surface);
+        border-radius: 16px;
+        padding: 10px 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .ilist .ii {
+        flex: 1;
+        min-width: 0;
+        font-size: 13px;
+      }
+      .ilist .ii b {
+        display: block;
+        font-size: 14px;
+      }
+      .ilist .ii small {
+        color: var(--muted);
+      }
+      .ilist .ib {
+        width: 32px;
+        height: 32px;
+        background: var(--bg);
+      }
+      .ilist li.dim {
+        opacity: 0.6;
+      }
+
+      /* onboarding */
+      .ob {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 24px 22px 22px;
+        gap: 12px;
+      }
+      .ob h4 {
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+      .ob p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .steps {
+        display: flex;
+        gap: 5px;
+      }
+      .steps i {
+        height: 5px;
+        flex: 1;
+        border-radius: 9px;
+        background: var(--line);
+      }
+      .steps i.on {
+        background: var(--accent);
+      }
+      .input {
+        background: var(--surface);
+        border: 2px solid var(--accent);
+        border-radius: 999px;
+        padding: 11px 16px;
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .input span {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .okline {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--online);
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .okline svg {
+        width: 16px;
+        height: 16px;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .or {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .or::before,
+      .or::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+      .invhero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        padding-top: 26px;
+      }
+      .logo {
+        font-weight: 800;
+        font-size: 22px;
+        color: var(--accent-text);
+        letter-spacing: -0.02em;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .logo i {
+        width: 26px;
+        height: 26px;
+        border-radius: 9px 9px 9px 3px;
+        background: var(--accent);
+        display: block;
+      }
+
+      /* ============ DESKTOP ============ */
+      .deskwrap {
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-top: 40px;
+      }
+      .desk {
+        width: 1180px;
+        height: 680px;
+        border-radius: 18px;
+        border: 8px solid var(--frame);
+        background: var(--bg);
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 68px 300px 1fr 8px 400px;
+        font-size: 14px;
+        line-height: 1.4;
+        margin: 0 auto;
+      }
+      .rail {
+        background: var(--surface);
+        border-right: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 0;
+      }
+      .rail .logo i {
+        width: 32px;
+        height: 32px;
+      }
+      .rail .ri {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        position: relative;
+      }
+      .rail .ri.on {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .rail .ri svg {
+        width: 21px;
+        height: 21px;
+        stroke-width: 1.75;
+      }
+      .rail .ri .nb {
+        position: absolute;
+        top: 4px;
+        right: 3px;
+        background: var(--accent);
+        color: var(--on-accent);
+        font-size: 10px;
+        font-weight: 800;
+        border-radius: 999px;
+        padding: 0 5px;
+        line-height: 15px;
+      }
+      .dcol {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        border-right: 1px solid var(--line);
+      }
+      .dchat {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .dchat .chat {
+        padding: 10px 18px;
+      }
+      .dchat .row {
+        max-width: 70%;
+      }
+      .resizer {
+        background: var(--surface);
+        display: grid;
+        place-items: center;
+        border-inline: 1px solid var(--line);
+      }
+      .resizer i {
+        width: 3px;
+        height: 40px;
+        border-radius: 9px;
+        background: var(--muted);
+        opacity: 0.45;
+        display: block;
+      }
+      .dgame {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: var(--surface);
+      }
+      .dgame .stage {
+        flex: 1;
+      }
+      .dgame .board {
+        width: 330px;
+      }
+      .laybtns {
+        display: inline-flex;
+        background: var(--bg);
+        border-radius: 999px;
+        padding: 2px;
+      }
+      .laybtns .ib {
+        width: 28px;
+        height: 28px;
+      }
+      .laybtns .ib.on {
+        background: var(--accent-soft);
+        color: var(--accent-soft-text);
+      }
+      .laybtns svg {
+        width: 15px;
+        height: 15px;
+      }
+      .gplayers {
+        display: flex;
+        gap: 10px;
+        padding: 10px 14px;
+        border-top: 1px solid var(--line);
+        align-items: center;
+        font-size: 13px;
+      }
+      .gplayers .turn {
+        margin-left: auto;
+        font-weight: 800;
+        color: var(--accent-text);
+      }
+
+      /* ============ INVENTORY ============ */
+      .inv {
+        display: grid;
+        gap: 18px;
+      }
+      .area {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 6px 0 4px;
+        border: 1px solid var(--line);
+      }
+      .area > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .area > summary::-webkit-details-marker {
+        display: none;
+      }
+      .area > summary h3 {
+        font-size: 19px;
+        font-weight: 800;
+      }
+      .area > summary .count {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .area > summary .chev {
+        margin-left: auto;
+        transition: transform 0.2s;
+        color: var(--muted);
+      }
+      .area[open] > summary .chev {
+        transform: rotate(90deg);
+      }
+      .tblwrap {
+        overflow-x: auto;
+        padding: 0 8px 8px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 760px;
+        font-size: 14px;
+      }
+      th {
+        text-align: left;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        font-weight: 800;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      td.scr {
+        font-weight: 700;
+        min-width: 150px;
+      }
+      td.scr code,
+      td code {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 400;
+        display: block;
+      }
+      td.what {
+        color: var(--text);
+        max-width: 52ch;
+      }
+      td.src {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        max-width: 30ch;
+      }
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        align-items: center;
+      }
+      .filters span {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      /* ============ GAPS ============ */
+      .gaps {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 16px;
+      }
+      .gapc {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+      }
+      .gapc header {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .gapc .gid {
+        font-family: var(--mono);
+        font-weight: 600;
+        color: var(--gap);
+        font-size: 13px;
+      }
+      .gapc h3 {
+        font-size: 17px;
+        font-weight: 800;
+        flex: 1;
+        min-width: 12ch;
+      }
+      .gapc p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .gapc .k {
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .gapc pre {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        line-height: 1.5;
+      }
+      .gapc .ask {
+        background: var(--sun);
+        color: var(--sun-text);
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-size: 13.5px;
+      }
+
+      /* design notes */
+      .notes {
+        display: grid;
+        gap: 12px;
+        max-width: 820px;
+      }
+      .note {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 14px;
+        background: var(--surface);
+        border-radius: 18px;
+        padding: 14px 18px;
+        border: 1px solid var(--line);
+      }
+      .note .swatches {
+        display: flex;
+        gap: 4px;
+        align-items: flex-start;
+        padding-top: 2px;
+      }
+      .note .sw {
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+      }
+      .note h3 {
+        font-size: 16px;
+        font-weight: 800;
+      }
+      .note p {
+        margin: 3px 0 0;
+        font-size: 14px;
+        color: var(--text);
+      }
+      .note p.m {
+        color: var(--muted);
+      }
+
+      @media (max-width: 520px) {
+        .note {
+          grid-template-columns: 1fr;
+        }
+        .gaps {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div>
+          <h1>Chaku screen map</h1>
+          <p>
+            Every screen v1 needs, checked against spec v0.4 (D1–D58) and the accepted data model.
+            The mockups use the Warm direction from <code>docs/design-system/foundations.md</code>.
+            Parts outlined with a dashed line are <b>not in the spec or data model yet</b>. They're
+            proposals, listed under Gaps.
+          </p>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Theme">
+            <button id="th-system" data-theme-set="system" aria-pressed="true">System</button>
+            <button id="th-light" data-theme-set="light" aria-pressed="false">Light</button>
+            <button id="th-dark" data-theme-set="dark" aria-pressed="false">Dark</button>
+          </div>
+          <label class="toggle" for="tweaks"
+            ><input type="checkbox" id="tweaks" /> Show proposed colour tweaks</label
+          >
+        </div>
+      </header>
+      <nav class="jump" aria-label="Sections">
+        <a href="#mockups">Mockups</a><a href="#desktop">Desktop</a
+        ><a href="#inventory">Screen inventory</a><a href="#gaps">Gaps (7 open)</a
+        ><a href="#design">Design notes</a>
+      </nav>
+
+      <!-- ===================== MOCKUPS ===================== -->
+      <section id="mockups">
+        <h2>Key screens on a phone</h2>
+        <p class="lede">
+          The spec is phone-first, 360px and up (D7). These frames are 284px inside, a bit narrower
+          than the real minimum, so anything that fits here will fit on a phone.
+        </p>
+        <div class="gallery">
+          <!-- 1 Invite landing -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="ob">
+                <div class="logo"><i></i>chaku</div>
+                <div class="invhero">
+                  <div class="av xl c1">A</div>
+                  <h4>Anya invited you to Chaku</h4>
+                  <p>
+                    Chat with friends, play games beside your chats, and see what people are
+                    posting.
+                  </p>
+                </div>
+                <div class="spacer"></div>
+                <button class="btn block soft" tabindex="-1">
+                  <svg viewBox="0 0 24 24" width="16" height="16">
+                    <path
+                      fill="#4285F4"
+                      d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2-1.9 3.2-4.7 3.2-8z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1-3.7 1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7.1H2.1a11 11 0 0 0 0 9.8z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.4c1.6 0 3 .6 4.2 1.6l3.1-3.1A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"
+                    /></svg
+                  >Continue with Google
+                </button>
+                <button class="btn block" tabindex="-1">
+                  <i data-lucide="mail"></i>Continue with email
+                </button>
+                <p style="font-size: 12px; text-align: center">
+                  This invite works once and expires in 6 days.
+                </p>
+              </div>
+            </div>
+            <figcaption>
+              <b>Invite landing</b>Logged out, from the Invite link. Shows who invited you (D12).
+            </figcaption>
+          </figure>
+
+          <!-- 2 Onboarding username -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="ob">
+                <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+                <h4>Pick a username</h4>
+                <p>People find you by it and use it to mention you.</p>
+                <div class="input"><span>@</span>sasha_k</div>
+                <div class="okline"><i data-lucide="circle-check"></i>Available</div>
+                <p style="font-size: 12.5px">
+                  3–20 characters: a–z, 0–9 and _. You can change it once every 30 days.
+                </p>
+                <div class="spacer"></div>
+                <button class="btn block" tabindex="-1">Continue</button>
+              </div>
+            </div>
+            <figcaption>
+              <b>Signup: username</b>Step 2 of 4, after age and terms. Then name and avatar, then
+              the install prompt (D12, D37).
+            </figcaption>
+          </figure>
+
+          <!-- 3 Chat list -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <h3>Chats</h3>
+                <span class="ib soft"><i data-lucide="square-pen"></i></span>
+              </div>
+              <div class="filter"><i data-lucide="search"></i>Filter chats</div>
+              <div class="content">
+                <ul class="clist">
+                  <li class="unread">
+                    <div class="av c1">A<span class="dot"></span></div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Anya Koval</b><time>9:38</time></div>
+                      <div class="cl-bot">
+                        <span>Are we still on for tonight?</span><span class="badge">3</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="unread">
+                    <div class="av grp c4">WC</div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Weekend crew</b><time>9:31</time></div>
+                      <div class="cl-bot">
+                        <span class="typing">Oleh is typing…</span
+                        ><span class="badges"
+                          ><span class="badge mention prop" title="Proposed G3">@</span
+                          ><span class="badge">12</span></span
+                        >
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="av c3">M</div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Mariia Shevchuk</b><time>8:02</time></div>
+                      <div class="cl-bot">
+                        <span><i data-lucide="check-check"></i>You: See you there 👋</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="av c2">O</div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Oleh Bondar</b><time>Yesterday</time></div>
+                      <div class="cl-bot">
+                        <span><i data-lucide="image"></i>Photo</span
+                        ><span class="ic" style="color: var(--muted)"
+                          ><i data-lucide="bell-off" style="width: 14px; height: 14px"></i
+                        ></span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="av grp c5">4R</div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Four in a Row night</b><time>Yesterday</time></div>
+                      <div class="cl-bot">
+                        <span class="prop" style="padding: 0 4px">Anya added Sasha</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="av c6">T</div>
+                    <div class="cl-main">
+                      <div class="cl-top"><b>Taras</b><time>Mon</time></div>
+                      <div class="cl-bot">
+                        <span><span class="draft">Draft:</span> let me check the train times</span>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="av c6" style="opacity: 0.5">?</div>
+                    <div class="cl-main">
+                      <div class="cl-top">
+                        <b style="color: var(--muted)">Deleted user</b><time>Sep 28</time>
+                      </div>
+                      <div class="cl-bot"><span>[deleted]</span></div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="tabbar">
+                <span class="on"><i data-lucide="message-circle"></i>Chats</span
+                ><span><i data-lucide="newspaper"></i>Feed</span
+                ><span><i data-lucide="gamepad-2"></i>Games</span
+                ><span
+                  ><i data-lucide="bell"></i
+                  ><em class="nb" style="font-style: normal">2</em>Alerts</span
+                ><span><i data-lucide="circle-user-round"></i>Me</span>
+              </div>
+            </div>
+            <figcaption>
+              <b>Chat list</b>Unread is bold with a count, plus Presence, typing, Mute, drafts,
+              "Seen". The <span class="ptag">G3</span> mention badge and
+              <span class="ptag">G1</span> system line are proposed.
+            </figcaption>
+          </figure>
+
+          <!-- 4 Group chat -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <span class="ib"><i data-lucide="chevron-left"></i></span>
+                <div class="av s grp c4">WC</div>
+                <div class="ttl"><b>Weekend crew</b><small>6 people · Oleh is typing…</small></div>
+                <span class="ib"><i data-lucide="ellipsis-vertical"></i></span>
+              </div>
+              <div class="content">
+                <div class="chat">
+                  <span class="day">Today</span>
+                  <span class="sys prop">Anya added Sasha <span class="ptag">G1</span></span>
+                  <div class="row">
+                    <div class="av s c2">O</div>
+                    <div class="bubble">
+                      <span class="who" style="color: var(--p1)">Oleh</span>Found a place for
+                      Saturday. Board games and a big table.<time>9:12</time>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="av s c3">M</div>
+                    <div class="bubble">
+                      <span class="who" style="color: var(--p2)">Mariia</span>
+                      <div class="imgs"><i></i><i></i></div>
+                      <time>9:14</time>
+                    </div>
+                  </div>
+                  <div class="reacts">
+                    <span class="rp mine">🔥 3</span><span class="rp">😂 1</span>
+                  </div>
+                  <div class="blocked">Message from blocked member · <b>Show</b></div>
+                  <div class="newdiv">New messages</div>
+                  <div class="row me">
+                    <div class="bubble">
+                      <div class="quote"><b>Oleh</b>Found a place for Saturday…</div>
+                      Perfect, I'm in. Bringing <code>four-in-a-row</code> 😄<time>9:30</time>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="av s c1">A</div>
+                    <div class="bubble">
+                      <span class="who" style="color: var(--p4)">Anya</span>Read this first 👀<span
+                        class="lp"
+                        ><small>boardgamegeek.com</small><b>Connect Four: opening strategy</b></span
+                      ><time>9:31</time>
+                    </div>
+                  </div>
+                  <div class="seen">
+                    Seen by <span class="av xs c2" style="margin-left: 4px">O</span
+                    ><span class="av xs c3">M</span><span class="av xs c1">A</span>
+                  </div>
+                  <div class="typingb"><i></i><i></i><i></i></div>
+                </div>
+              </div>
+              <div class="composer">
+                <span class="ib"><i data-lucide="image-plus"></i></span>
+                <div class="field">Message</div>
+                <span class="ib"><i data-lucide="smile"></i></span
+                ><span class="ib fill"><i data-lucide="send-horizontal"></i></span>
+              </div>
+            </div>
+            <figcaption>
+              <b>Group Chat</b>Participant name colours, images, Reactions, a collapsed blocked
+              Message, the "new messages" divider, a Message Reply, a Link Preview, "Seen by",
+              typing.
+            </figcaption>
+          </figure>
+
+          <!-- 5 Feed -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <h3>Feed</h3>
+                <span class="ib"><i data-lucide="search"></i></span
+                ><span class="ib fill"><i data-lucide="plus"></i></span>
+              </div>
+              <div class="tabs"><span class="on">Hot</span><span>New</span><span>Top</span></div>
+              <div class="chips">
+                <span class="on">All</span><span>General</span><span>Kyiv</span><span>Music</span
+                ><span>Games</span>
+              </div>
+              <div class="content">
+                <div class="cards">
+                  <article class="card">
+                    <div class="hero" role="img" aria-label="Photo"></div>
+                    <div class="in">
+                      <div class="meta">
+                        <span class="topic">Kyiv</span>·<span>Anya Koval · 3h</span>
+                      </div>
+                      <h4>Best late-night food near Podil</h4>
+                      <p>Just moved here, asking for real recommendations</p>
+                      <div class="actions">
+                        <span class="vote"
+                          ><span class="ib up"><i data-lucide="thumbs-up"></i></span>42<span
+                            class="ib"
+                            ><i data-lucide="thumbs-down"></i></span></span
+                        ><span class="pill">😍 5</span><span class="pill">🔥 3</span
+                        ><span class="pill"><i data-lucide="message-square"></i>18</span>
+                      </div>
+                    </div>
+                  </article>
+                  <article class="card">
+                    <div class="in">
+                      <div class="meta">
+                        <span class="topic">General</span>·<span>Oleh Bondar · 5h</span>
+                      </div>
+                      <h4>What are you reading this month?</h4>
+                      <div class="actions">
+                        <span class="vote"
+                          ><span class="ib"><i data-lucide="thumbs-up"></i></span>17<span class="ib"
+                            ><i data-lucide="thumbs-down"></i></span></span
+                        ><span class="pill"><i data-lucide="message-square"></i>24</span>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                <div class="toast" style="bottom: 10px">
+                  <div class="gico"></div>
+                  <div class="t">
+                    <b>Oleh challenged you to Four in a Row</b><small>Expires in 15 min</small>
+                  </div>
+                  <button class="btn dark" tabindex="-1">Join</button>
+                </div>
+              </div>
+              <div class="tabbar">
+                <span><i data-lucide="message-circle"></i>Chats</span
+                ><span class="on"><i data-lucide="newspaper"></i>Feed</span
+                ><span><i data-lucide="gamepad-2"></i>Games</span
+                ><span
+                  ><i data-lucide="bell"></i
+                  ><em class="nb" style="font-style: normal">3</em>Alerts</span
+                ><span><i data-lucide="circle-user-round"></i>Me</span>
+              </div>
+            </div>
+            <figcaption>
+              <b>Feed (Hot)</b>Topic chips and Post cards showing image, title, subtitle, Score,
+              Reactions and comment count (D13). Sun yellow is kept for Game Challenges, shown here
+              as a toast.
+            </figcaption>
+          </figure>
+
+          <!-- 6 Post page -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <span class="ib"><i data-lucide="chevron-left"></i></span>
+                <div class="ttl"><b style="color: var(--accent-text)">General</b></div>
+                <span class="ib"><i data-lucide="share"></i></span
+                ><span class="ib"><i data-lucide="ellipsis-vertical"></i></span>
+              </div>
+              <div class="content">
+                <div class="post">
+                  <div class="meta">
+                    <span class="av s c2" style="width: 20px; height: 20px; font-size: 9px">O</span
+                    >Oleh Bondar · @oleh · 5h · edited
+                  </div>
+                  <h4>What are you reading this month?</h4>
+                  <p>
+                    I'm halfway through a history of the Carpathians and need something lighter
+                    next.
+                  </p>
+                  <div class="actions" style="margin-top: 0">
+                    <span class="vote"
+                      ><span class="ib up"><i data-lucide="thumbs-up"></i></span>17<span class="ib"
+                        ><i data-lucide="thumbs-down"></i></span></span
+                    ><span class="rp mine">❤️ 4</span><span class="rp">🤔 1</span
+                    ><span class="pill"><i data-lucide="smile-plus"></i></span>
+                  </div>
+                </div>
+                <div class="cmhead">
+                  <b>24 comments</b
+                  ><span class="mini-seg"><span class="on">Best</span><span>Newest</span></span>
+                </div>
+                <div class="cm">
+                  <div class="c">
+                    <div class="rail"><div class="av s c3">M</div></div>
+                    <div class="body">
+                      <div class="meta"><b style="color: var(--text)">Mariia</b>· 4h</div>
+                      <p>Rereading Zabuzhko. Slow going but worth it.</p>
+                      <div class="ca"><span>▲ 12</span><span>Reply</span><span>React</span></div>
+                      <div class="c kids">
+                        <div class="rail">
+                          <div class="av s c2" style="width: 22px; height: 22px; font-size: 9px">
+                            O
+                          </div>
+                        </div>
+                        <div class="body">
+                          <div class="meta"><b style="color: var(--text)">Oleh</b>· 3h</div>
+                          <p>Which one?</p>
+                          <div class="ca"><span>▲ 3</span><span>Reply</span></div>
+                          <div class="c kids">
+                            <div class="rail">
+                              <div
+                                class="av s c6"
+                                style="width: 22px; height: 22px; font-size: 9px; opacity: 0.5"
+                              >
+                                ?
+                              </div>
+                            </div>
+                            <div class="body">
+                              <div class="meta">· 3h</div>
+                              <p style="color: var(--muted)">[deleted]</p>
+                              <span class="cont">Continue thread →</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="collapsed">
+                    <span class="ib"><i data-lucide="plus"></i></span
+                    ><b style="color: var(--text)">Taras</b> · 2h · 4 replies
+                  </div>
+                </div>
+              </div>
+              <div class="composer"><div class="field">Add a comment</div></div>
+            </div>
+            <figcaption>
+              <b>Post page</b>Threaded Comments, Best or Newest, "[deleted]" keeps its place,
+              "continue thread" past the depth limit, collapsed threads (D13).
+            </figcaption>
+          </figure>
+
+          <!-- 7 Game split phone -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="gbar">
+                <div class="gico"></div>
+                <div class="ttl"><b>Four in a Row</b><small>You vs Anya · your turn</small></div>
+                <span class="ib"><i data-lucide="minimize-2"></i></span
+                ><span class="ib"><i data-lucide="x"></i></span>
+              </div>
+              <div class="stage" style="height: 230px">
+                <span class="lbl">game iframe · reference.chakugames</span>
+                <div class="board">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i> <i></i><i></i><i></i><i></i
+                  ><i></i><i></i><i></i> <i></i><i></i><i></i><i class="y"></i><i></i><i></i><i></i>
+                  <i></i><i></i><i class="r"></i><i class="r"></i><i></i><i></i><i></i> <i></i
+                  ><i class="y"></i><i class="y"></i><i class="r"></i><i class="y"></i><i></i
+                  ><i></i> <i></i><i class="r"></i><i class="y"></i><i class="r"></i
+                  ><i class="r"></i><i class="y"></i><i></i>
+                </div>
+              </div>
+              <div class="handle"><i></i></div>
+              <div class="appbar" style="min-height: 40px; padding-block: 4px">
+                <div class="av s c1">
+                  A<span class="dot" style="width: 9px; height: 9px"></span>
+                </div>
+                <div class="ttl"><b>Anya Koval</b></div>
+              </div>
+              <div class="content">
+                <div class="chat">
+                  <div class="row">
+                    <div class="bubble">Bold opening 😏<time>21:04</time></div>
+                  </div>
+                  <div class="row me">
+                    <div class="bubble">You'll regret that<time>21:05</time></div>
+                  </div>
+                  <div class="seen" style="padding-right: 4px">Seen</div>
+                </div>
+              </div>
+              <div class="composer">
+                <div class="field">Message</div>
+                <span class="ib fill"><i data-lucide="send-horizontal"></i></span>
+              </div>
+            </div>
+            <figcaption>
+              <b>Game beside a Chat (phone)</b>Top/bottom split with a drag handle (D7, D15). The
+              Game and the Chat don't know about each other. The header bar is ours, and the board
+              is the Game's own iframe.
+            </figcaption>
+          </figure>
+
+          <!-- 8 Notifications -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <h3>Notifications</h3>
+                <span style="font-size: 13px; font-weight: 800; color: var(--accent-text)"
+                  >Mark all read</span
+                >
+              </div>
+              <div class="content">
+                <ul class="nlist">
+                  <li class="gh">Today</li>
+                  <li class="n unread">
+                    <span class="nico sun"><i data-lucide="swords"></i></span>
+                    <div class="nbody">
+                      <b>Challenge from Oleh: Four in a Row</b><small>Expires in 12 min</small>
+                      <div class="nact">
+                        <span class="btn" style="background: var(--sun-text); color: var(--sun)"
+                          >Join</span
+                        ><span class="btn soft">Decline</span>
+                      </div>
+                    </div>
+                    <span class="udot"></span>
+                  </li>
+                  <li class="n unread">
+                    <span class="nico"><i data-lucide="at-sign"></i></span>
+                    <div class="nbody">
+                      Anya mentioned you in <b>Weekend crew</b><small>9:31</small>
+                    </div>
+                    <span class="udot"></span>
+                  </li>
+                  <li class="n">
+                    <span class="nico"><i data-lucide="reply"></i></span>
+                    <div class="nbody">
+                      New reply from Mariia in <b>Weekend crew</b><small>9:14</small>
+                    </div>
+                  </li>
+                  <li class="n">
+                    <span class="nico"><i data-lucide="message-square"></i></span>
+                    <div class="nbody">
+                      New comment from Taras on <b>What are you reading this month?</b
+                      ><small>8:40</small>
+                    </div>
+                  </li>
+                  <li class="gh">Earlier</li>
+                  <li class="n">
+                    <span class="nico"><i data-lucide="users"></i></span>
+                    <div class="nbody">
+                      Added to <b>Four in a Row night</b> by Anya<small>Yesterday</small>
+                    </div>
+                  </li>
+                  <li class="n prop">
+                    <span class="nico gap"><i data-lucide="shield"></i></span>
+                    <div class="nbody">
+                      Your comment was removed by an admin: spam <span class="ptag">G4</span
+                      ><small>Mon · See why</small>
+                    </div>
+                  </li>
+                  <li class="n prop">
+                    <span class="nico gap"><i data-lucide="flag"></i></span>
+                    <div class="nbody">
+                      We reviewed your report and removed the post <span class="ptag">G4</span
+                      ><small>Sun</small>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="tabbar">
+                <span><i data-lucide="message-circle"></i>Chats</span
+                ><span><i data-lucide="newspaper"></i>Feed</span
+                ><span><i data-lucide="gamepad-2"></i>Games</span
+                ><span class="on"><i data-lucide="bell"></i>Alerts</span
+                ><span><i data-lucide="circle-user-round"></i>Me</span>
+              </div>
+            </div>
+            <figcaption>
+              <b>Notifications</b>The five spec types (D6, D26), with a Game Challenge you can act
+              on. The two <span class="ptag">G4</span> moderation notices are proposed.
+            </figcaption>
+          </figure>
+
+          <!-- 9 Profile -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <span class="ib"><i data-lucide="chevron-left"></i></span>
+                <div class="ttl"></div>
+                <span class="ib"><i data-lucide="ellipsis-vertical"></i></span>
+              </div>
+              <div class="content">
+                <div class="prof">
+                  <div class="av xl c1">A<span class="dot"></span></div>
+                  <h4>Anya Koval</h4>
+                  <span class="un">@anya</span>
+                  <span class="pres">Online</span>
+                  <p class="bio prop">
+                    Kyiv · board games · terrible puns <span class="ptag">G5</span>
+                  </p>
+                  <div class="btnrow">
+                    <span class="btn"><i data-lucide="message-circle"></i>Message</span
+                    ><span class="btn soft"><i data-lucide="link"></i>Copy profile link</span>
+                  </div>
+                </div>
+                <div class="sect">
+                  <h5>Games</h5>
+                  <div class="stat">
+                    <div class="gico"></div>
+                    <div style="flex: 1; min-width: 0">
+                      <b style="font-size: 13.5px">Four in a Row</b>
+                      <div class="nums">
+                        <span><b>24</b>played</span><span><b>14</b>wins</span
+                        ><span><b>2</b>draws</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sect">
+                  <h5>Posts <span class="ptag">G5</span></h5>
+                  <div class="plist prop">
+                    <div>Best late-night food near Podil<small>Kyiv · 3h · 42 likes</small></div>
+                    <div>Our board game shelf, ranked<small>Games · 2d · 31 likes</small></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <figcaption>
+              <b>Profile</b> at <code>/@username</code>, logged-in only. Game stats come from
+              <code>results.member_stats</code>, which no screen used yet. The bio and the list of
+              Posts are proposed <span class="ptag">G5</span>.
+            </figcaption>
+          </figure>
+
+          <!-- 10 Invites -->
+          <figure>
+            <div class="phone">
+              <div class="sb"><span>9:41</span><span>●●●</span></div>
+              <div class="appbar">
+                <span class="ib"><i data-lucide="chevron-left"></i></span>
+                <div class="ttl"><b>Invites</b></div>
+              </div>
+              <div class="content">
+                <div class="suncard">
+                  <b>You have 3 invites</b>
+                  <p>Each link works once and lasts 7 days. Unused ones come back to you.</p>
+                  <span class="btn dark"><i data-lucide="plus"></i>Create invite</span>
+                </div>
+                <ul class="ilist">
+                  <li class="prop">
+                    <div class="ii"><b>For Sasha</b><small>Expires in 6 days</small></div>
+                    <span class="ib"><i data-lucide="copy"></i></span
+                    ><span class="ib"><i data-lucide="x"></i></span><span class="ptag abs">G2</span>
+                  </li>
+                  <li class="prop">
+                    <div class="ii"><b>For Dmytro</b><small>Expires in 2 days</small></div>
+                    <span class="ib"><i data-lucide="copy"></i></span
+                    ><span class="ib"><i data-lucide="x"></i></span>
+                  </li>
+                  <li>
+                    <div class="av s c3">M</div>
+                    <div class="ii"><b>Mariia Shevchuk</b><small>Joined Sep 30</small></div>
+                  </li>
+                  <li class="dim">
+                    <div class="ii"><b>Expired</b><small>Sep 21 · came back to you</small></div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <figcaption>
+              <b>Settings → Invites</b>The current model stores only a hash of the code, so a link
+              can't be copied again after it's created, and Invites have no note saying who each one
+              is for <span class="ptag">G2</span>.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ===================== DESKTOP ===================== -->
+      <section id="desktop">
+        <h2>Desktop: chats beside a Game</h2>
+        <p class="lede">
+          On desktop the chat list and the open Chat sit side by side (D7), and a Game opens as a
+          resizable panel next to them (split layout, D15). The layout buttons switch between full,
+          split and chat-only. Scroll sideways on a small screen.
+        </p>
+        <div class="deskwrap">
+          <div class="desk">
+            <nav class="rail" aria-label="Mock navigation">
+              <div class="logo" style="margin-bottom: 10px"><i></i></div>
+              <span class="ri on"><i data-lucide="message-circle"></i></span>
+              <span class="ri"><i data-lucide="newspaper"></i></span>
+              <span class="ri"><i data-lucide="gamepad-2"></i></span>
+              <span class="ri"
+                ><i data-lucide="bell"></i><em class="nb" style="font-style: normal">2</em></span
+              >
+              <span class="ri"><i data-lucide="search"></i></span>
+              <span style="flex: 1"></span>
+              <span class="ri"><i data-lucide="settings"></i></span>
+              <div class="av s c4">S</div>
+            </nav>
+            <div class="dcol">
+              <div class="appbar">
+                <h3>Chats</h3>
+                <span class="ib soft"><i data-lucide="square-pen"></i></span>
+              </div>
+              <div class="filter"><i data-lucide="search"></i>Filter chats</div>
+              <ul class="clist">
+                <li class="sel">
+                  <div class="av c1">A<span class="dot"></span></div>
+                  <div class="cl-main">
+                    <div class="cl-top"><b>Anya Koval</b><time>21:05</time></div>
+                    <div class="cl-bot"><span>You: You'll regret that</span></div>
+                  </div>
+                </li>
+                <li class="unread">
+                  <div class="av grp c4">WC</div>
+                  <div class="cl-main">
+                    <div class="cl-top"><b>Weekend crew</b><time>20:51</time></div>
+                    <div class="cl-bot"><span>Mariia: Photo</span><span class="badge">4</span></div>
+                  </div>
+                </li>
+                <li>
+                  <div class="av c3">M</div>
+                  <div class="cl-main">
+                    <div class="cl-top"><b>Mariia Shevchuk</b><time>18:02</time></div>
+                    <div class="cl-bot"><span>Haha yes</span></div>
+                  </div>
+                </li>
+                <li>
+                  <div class="av c2">O</div>
+                  <div class="cl-main">
+                    <div class="cl-top"><b>Oleh Bondar</b><time>Yesterday</time></div>
+                    <div class="cl-bot"><span>Shared a post</span></div>
+                  </div>
+                </li>
+                <li>
+                  <div class="av grp c5">4R</div>
+                  <div class="cl-main">
+                    <div class="cl-top"><b>Four in a Row night</b><time>Mon</time></div>
+                    <div class="cl-bot"><span>Taras: gg</span></div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="dchat">
+              <div class="appbar" style="border-bottom: 1px solid var(--line)">
+                <div class="av s c1">
+                  A<span class="dot" style="width: 9px; height: 9px"></span>
+                </div>
+                <div class="ttl"><b>Anya Koval</b><small>Online</small></div>
+                <span class="ib"><i data-lucide="search"></i></span
+                ><span class="ib"><i data-lucide="ellipsis-vertical"></i></span>
+              </div>
+              <div class="content">
+                <div class="chat">
+                  <span class="day">Today</span>
+                  <div class="row">
+                    <div class="bubble">
+                      Did you see Oleh's post?
+                      <span class="lp" style="border-color: var(--accent-text)"
+                        ><small>Chaku · General</small><b>What are you reading this month?</b
+                        ><small>17 likes · 24 comments</small></span
+                      ><time>20:40</time>
+                    </div>
+                  </div>
+                  <div class="row me">
+                    <div class="bubble">Yes! Commented already<time>20:42</time></div>
+                  </div>
+                  <div class="reacts" style="justify-content: flex-end">
+                    <span class="rp">❤️ 1</span>
+                  </div>
+                  <div class="row">
+                    <div class="bubble">Rematch? Opening the game now<time>21:01</time></div>
+                  </div>
+                  <div class="row">
+                    <div class="bubble">Bold opening 😏<time>21:04</time></div>
+                  </div>
+                  <div class="row me">
+                    <div class="bubble">You'll regret that<time>21:05</time></div>
+                  </div>
+                  <div class="seen">Seen</div>
+                </div>
+              </div>
+              <div class="composer">
+                <span class="ib"><i data-lucide="image-plus"></i></span>
+                <div class="field">Message Anya</div>
+                <span class="ib"><i data-lucide="smile"></i></span
+                ><span class="ib fill"><i data-lucide="send-horizontal"></i></span>
+              </div>
+            </div>
+            <div class="resizer" aria-hidden="true"><i></i></div>
+            <div class="dgame">
+              <div class="gbar">
+                <div class="gico"></div>
+                <div class="ttl"><b>Four in a Row</b><small>Game with Anya</small></div>
+                <span class="laybtns"
+                  ><span class="ib" title="Full"><i data-lucide="maximize-2"></i></span
+                  ><span class="ib on" title="Split"><i data-lucide="columns-2"></i></span
+                  ><span class="ib" title="Chat only"><i data-lucide="minimize-2"></i></span
+                ></span>
+                <span class="ib"><i data-lucide="x"></i></span>
+              </div>
+              <div class="stage">
+                <span class="lbl">game iframe · reference.chakugames · sandboxed</span>
+                <div class="board">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i> <i></i><i></i><i></i><i></i
+                  ><i></i><i></i><i></i> <i></i><i></i><i></i><i class="y"></i><i></i><i></i><i></i>
+                  <i></i><i></i><i class="r"></i><i class="r"></i><i></i><i></i><i></i> <i></i
+                  ><i class="y"></i><i class="y"></i><i class="r"></i><i class="y"></i><i></i
+                  ><i></i> <i></i><i class="r"></i><i class="y"></i><i class="r"></i
+                  ><i class="r"></i><i class="y"></i><i></i>
+                </div>
+              </div>
+              <div class="gplayers">
+                <div class="av s c4">S</div>
+                You<span style="color: var(--muted)">vs</span>
+                <div class="av s c1">A</div>
+                Anya<span class="turn">Your turn</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== INVENTORY ===================== -->
+      <section id="inventory">
+        <h2>Screen inventory</h2>
+        <p class="lede">
+          Every screen and sheet v1 needs, by area, with what it shows and where its data comes
+          from. Routes in the spec are kept. The others are suggestions and marked with *.
+        </p>
+        <div class="filters">
+          <span>Show:</span>
+          <div class="seg" role="group" aria-label="Filter screens">
+            <button id="f-all" data-filter="all" aria-pressed="true">All</button>
+            <button id="f-gap" data-filter="gap" aria-pressed="false">Gaps and decisions</button>
+          </div>
+          <span class="legend" style="margin-left: 8px"
+            ><span class="chip ok">Covered</span><span class="chip gap">Gap</span
+            ><span class="chip decide">Decide</span></span
+          >
+        </div>
+        <div class="inv" id="inv"></div>
+      </section>
+
+      <!-- ===================== GAPS ===================== -->
+      <section id="gaps">
+        <h2>Gaps</h2>
+        <p class="lede">
+          Things the screens need that the spec or the data model doesn't cover yet. Five change
+          tables, one is spec wording only, and one is a profile decision. Each needs a decision
+          before it goes into the spec and the data model doc. G8 (theme) is decided: D59, ADR-0015.
+        </p>
+        <div class="gaps" id="gaplist"></div>
+      </section>
+
+      <!-- ===================== DESIGN NOTES ===================== -->
+      <section id="design">
+        <h2>Design notes on the Warm direction</h2>
+        <p class="lede">
+          What I noticed laying out real screens with the foundations. Turn on
+          <b>Show proposed colour tweaks</b> at the top to compare notes 1 and 2 on the mockups.
+        </p>
+        <div class="notes">
+          <div class="note">
+            <div class="swatches">
+              <span class="sw" style="background: #fff7ef"></span
+              ><span class="sw" style="background: #ffffff"></span>
+            </div>
+            <div>
+              <h3>1. White bubbles barely separate from the cream background</h3>
+              <p>
+                White on <code>#FFF7EF</code> is about 1.05:1, so in a long Chat other people's
+                bubbles read as floating text. Tweak: give the Message list its own slightly deeper
+                ground (<code>#F6EBDF</code>). Muted text on it is still 4.9:1.
+              </p>
+            </div>
+          </div>
+          <div class="note">
+            <div class="swatches">
+              <span class="sw" style="background: #ff8a5c"></span
+              ><span class="sw" style="background: #a8472a"></span>
+            </div>
+            <div>
+              <h3>2. Own bubbles in dark mode are very loud</h3>
+              <p>
+                The dark accent <code>#FF8A5C</code> with dark text works for buttons, but a screen
+                full of your own Messages becomes a wall of bright coral at night. Tweak: a deeper
+                coral for own bubbles only (<code>#A8472A</code>, light text at 5.4:1), keeping the
+                bright one for buttons and badges.
+              </p>
+            </div>
+          </div>
+          <div class="note">
+            <div class="swatches"><span class="sw" style="background: #ffe08a"></span></div>
+            <div>
+              <h3>3. Sun yellow works as the Game Challenge signal. Keep it for that.</h3>
+              <p>
+                Because nothing else is yellow, a Challenge toast stands out anywhere in the app.
+                Warnings should use a separate semantic colour, which the tokens ticket still has to
+                define.
+              </p>
+            </div>
+          </div>
+          <div class="note">
+            <div class="swatches">
+              <span class="sw" style="background: #c8461b"></span
+              ><span class="sw" style="background: #ffe4d3"></span>
+            </div>
+            <div>
+              <h3>4. Coral does a lot of jobs on the chat screens</h3>
+              <p>
+                Own bubbles, the Send button, unread badges, links and the selected tab are all
+                coral. It still reads clearly because bubbles are large and badges are small. If it
+                gets noisy, unread badges are the first thing to move to ink.
+              </p>
+            </div>
+          </div>
+          <div class="note">
+            <div class="swatches"><span class="sw" style="background: #2b1d14"></span></div>
+            <div>
+              <h3>5. What makes it Chaku is the shapes</h3>
+              <p>
+                Cream with coral is a common palette right now. What sets Chaku apart is Nunito's
+                rounded letters, the bubble tail, pill controls and soft group avatars. Lean on
+                those rather than adding more colour.
+              </p>
+            </div>
+          </div>
+          <div class="note">
+            <div class="swatches"><span class="sw" style="background: #7a604f"></span></div>
+            <div>
+              <h3>6. Check the phone tab bar in Ukrainian</h3>
+              <p>
+                "Сповіщення" is the longest label, and five tabs at 360px is tight. I used "Alerts"
+                in the mockups, but voice-and-tone says Notification. Options: a shorter UK label,
+                or an icon-only bell with a screen-reader label. Decide in the tokens ticket's
+                Storybook check.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script>
+      /* ---------- theme + tweaks ---------- */
+      (function () {
+        const root = document.documentElement;
+        const btns = document.querySelectorAll('[data-theme-set]');
+        function setTheme(t) {
+          if (t === 'system') root.removeAttribute('data-theme');
+          else root.setAttribute('data-theme', t);
+          btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+          try {
+            localStorage.setItem('chaku-map-theme', t);
+          } catch (e) {}
+        }
+        btns.forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+        let saved = 'system';
+        try {
+          saved = localStorage.getItem('chaku-map-theme') || 'system';
+        } catch (e) {}
+        setTheme(saved);
+        const tw = document.getElementById('tweaks');
+        tw.addEventListener('change', () => {
+          tw.checked ? root.setAttribute('data-tweaks', '') : root.removeAttribute('data-tweaks');
+        });
+      })();
+
+      /* ---------- inventory data ---------- */
+      const INV = [
+        {
+          area: 'Entry and signup',
+          rows: [
+            [
+              'Log in',
+              '/login',
+              'Google, email, passkey. Turnstile on the email step. Shows suspended (with end date) or banned instead of logging in.',
+              'identity.sessions, members.banned / ban_expires',
+              'ok',
+            ],
+            [
+              'Email code',
+              '/login/code *',
+              '6-digit code, resend, wrong-code limit (5), expired-code message.',
+              'identity.verifications',
+              'ok',
+            ],
+            [
+              'Email link',
+              '/login/link *',
+              "A page with a 'Log in' button so email scanners can't use up the link (D32).",
+              'identity.verifications',
+              'ok',
+            ],
+            [
+              'Invite landing',
+              '/i/[code] *',
+              "Inviter's name and avatar, expiry, used, expired or cancelled states.",
+              'identity.invites, members',
+              'ok',
+            ],
+            [
+              'Age and terms',
+              '/welcome *',
+              'Confirm 16+, accept terms and privacy policy (D37).',
+              'members.age_confirmed_at, terms_*',
+              'ok',
+            ],
+            [
+              'Username',
+              '/welcome *',
+              'Live availability check, rules, reserved words.',
+              'members.username',
+              'ok',
+            ],
+            [
+              'Name and avatar',
+              '/welcome *',
+              'Display Name 1–50, optional avatar upload.',
+              'members.display_name, media.uploads',
+              'ok',
+            ],
+            [
+              'Install the app',
+              '/welcome *',
+              'Install prompt with iPhone steps (D7). Then lands in the Direct Chat with the inviter.',
+              'client only',
+              'ok',
+            ],
+            [
+              'Passkey offer',
+              'sheet',
+              "Offered strongly after first login (D32). 'Not now' remembered per device.",
+              'identity.passkeys',
+              'ok',
+            ],
+            ['Please update your browser', 'static', 'Older browsers (D7).', 'none', 'ok'],
+            [
+              'Deletion cancelled',
+              'banner',
+              'Logging in during the 14-day grace period cancels deletion. Say so (D5).',
+              'members.status',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'App shell',
+          rows: [
+            [
+              'Navigation',
+              'layout',
+              'Phone: bottom tabs (Chats, Feed, Games, Notifications, Me). Desktop: side rail. Bell shows the unread Notification count.',
+              'sync check',
+              'ok',
+            ],
+            [
+              'Search',
+              'sheet / /search *',
+              'One box, grouped results: people, chats (filtered in the browser), Posts (D17).',
+              'identity trigram, feed.search_vector',
+              'ok',
+            ],
+            [
+              'Offline banner, toasts',
+              'layout',
+              'No offline sending (D7). Toasts for Challenges and Notifications.',
+              'realtime',
+              'ok',
+            ],
+            [
+              'Game shell and Mini Player',
+              'layout',
+              'Stays mounted across navigation (D31). Floating window on desktop, bottom bar on phones.',
+              'session storage',
+              'ok',
+            ],
+            [
+              'Theme',
+              '/settings *',
+              'Light, dark or system, stored per device in a cookie so the first paint is right (D59, ADR-0015).',
+              'cookie, packages/ui tokens',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Chats',
+          rows: [
+            [
+              'Chat list',
+              '/chats *',
+              "Order by activity, Unread bold with a count (99+), last Message, typing, Presence dot, Mute icon, device drafts, 'Seen' tick, filter.",
+              'chat.participants + chats, identity.getProfiles',
+              'ok',
+            ],
+            [
+              'Mention badge in the list',
+              'chat list',
+              "An '@' when an unread Notification points into this Chat. Needs a way to clear it when you read the Chat.",
+              'notifications.context_id',
+              'gap',
+              'G3',
+            ],
+            [
+              'System lines',
+              'chat list, Chat',
+              "'Anya added Sasha', 'renamed the group', 'left'. The events exist in chat.events but are pruned after 30 days and aren't part of the Message window.",
+              'chat.events (30 days only)',
+              'gap',
+              'G1',
+            ],
+            [
+              'Hide a Direct Chat',
+              'chat list',
+              "'Anyone can message anyone' (D3). Today a spammer's Direct Chat stays in your list forever, even after a Block.",
+              '—',
+              'decide',
+              'G7',
+            ],
+            [
+              'New chat',
+              '/chats/new *',
+              "People search, then open or create the Direct Chat. 'New group' entry.",
+              'identity search, chats_direct_pair_key',
+              'ok',
+            ],
+            [
+              'New group',
+              '/chats/new *',
+              'Pick up to 49 people (Blocks apply), name 1–64, optional avatar.',
+              'chat.chats, participants',
+              'ok',
+            ],
+            [
+              'Chat',
+              '/chats/[id] *',
+              "About 200 Messages around the first unread, day separators, 'new messages' divider, bubbles with images, Link Preview or Post Card, Message Reply quote, Reactions, edited, [deleted], [removed by admin], collapsed blocked Messages, Seen / Seen by, typing.",
+              'chat.messages, message_images, reactions, participants.read_seq',
+              'ok',
+            ],
+            [
+              'Composer',
+              'Chat',
+              "Plain textarea with formatting, image upload with progress (Send waits), Link Preview with dismiss, reply bar, mention autocomplete (Participants only), drafts. Blocked state and Deleted user state: can't send.",
+              'media.uploads, chat.link_previews',
+              'ok',
+            ],
+            [
+              'Message actions',
+              'sheet / menu',
+              'Reply, React (6 quick + 24), Copy, Edit, Delete (confirm), Report, Info (Seen by).',
+              '—',
+              'ok',
+            ],
+            [
+              'Image viewer',
+              'overlay',
+              'Full screen, swipe between the images of one Message (D26).',
+              '/media/{id}/{size}',
+              'ok',
+            ],
+            [
+              'Who reacted',
+              'popover',
+              'Long-press or hover a Reaction pill.',
+              'chat.message_reactions',
+              'ok',
+            ],
+            [
+              'Direct Chat info',
+              'sheet',
+              'Person, link to profile, Mute, Block, Report.',
+              'participants.muted_until',
+              'ok',
+            ],
+            [
+              'Group info',
+              'sheet',
+              'Name, avatar, Participants with roles, add people, promote or demote Group Admin, remove, rename, leave.',
+              'participants.role',
+              'ok',
+            ],
+            [
+              'Transfer ownership',
+              'Group info',
+              "The spec only passes ownership on when the Owner leaves (D3). There's no 'Make owner' action.",
+              'participant_role_changed',
+              'decide',
+              'G6',
+            ],
+            [
+              'Mute',
+              'dialog',
+              '1 hour, 8 hours, 1 week, until I turn it back on.',
+              'participants.muted_until',
+              'ok',
+            ],
+            ['Leave group', 'dialog', 'Confirm. Ownership passes on (D3).', 'participants', 'ok'],
+          ],
+        },
+        {
+          area: 'People',
+          rows: [
+            [
+              'Profile',
+              '/@username',
+              'Avatar, Display Name, Username, Presence (reciprocal, Blocks), Message, copy Profile Link, Block, Report.',
+              'identity.members',
+              'ok',
+            ],
+            [
+              'Game stats on profile',
+              '/@username',
+              'results.member_stats exists, but no screen in the spec shows it.',
+              'results.member_stats',
+              'decide',
+              'G5',
+            ],
+            [
+              'Posts on profile, bio',
+              '/@username',
+              'Not in the spec. A Posts list needs an index by author and date, and a bio needs a new column.',
+              'feed.posts_author_idx (erasure only)',
+              'decide',
+              'G5',
+            ],
+            [
+              'Block',
+              'dialog',
+              'Explains what Block does. Silent for the other person (D11).',
+              'identity.blocks',
+              'ok',
+            ],
+            [
+              'Report',
+              'dialog',
+              'Reason (8 codes), details up to 1,000 characters. Message Reports snapshot about 10 earlier Messages.',
+              'moderation.reports',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Notifications',
+          rows: [
+            [
+              'Bell list',
+              '/notifications *',
+              'Mentions, Message Replies in Group Chats, Game Challenges (Join / Decline, expiry), Comments on your Post or Comment, added to a Group Chat. Mark all read.',
+              'notifications.notifications',
+              'ok',
+            ],
+            [
+              'Read when you read the Chat',
+              'Bell, chat list',
+              'If you read the mention in the Chat, the bell item should clear too. No rule or data for this yet.',
+              '—',
+              'gap',
+              'G3',
+            ],
+            [
+              'Moderation notices',
+              'Bell, email',
+              'The author learns content was removed and why. The reporter learns the outcome. Likely required by the EU DSA for hosting services.',
+              '—',
+              'gap',
+              'G4',
+            ],
+            [
+              'Push',
+              'system',
+              "Only when there's no active tab (D29). Text only if 'Show message text' is on (off by default).",
+              'push_subscriptions, preferences',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Feed',
+          rows: [
+            [
+              'Feed',
+              '/',
+              'Hot / New / Top (today, week, all time), Topic chips, cards: first image, title, subtitle, Score, Reactions, comment count.',
+              'feed.posts hot/new/top indexes',
+              'ok',
+            ],
+            ['Topic', '/t/[slug]', 'Same as the Feed, one Topic.', 'posts_topic_* indexes', 'ok'],
+            [
+              'Post',
+              '/posts/[id]-slug',
+              'Title, subtitle, author, Topic, edited, images with alt text, body, Link Preview, Vote (counts on hover), Reactions, share, edit, delete, report.',
+              'feed.posts, post_images, link_previews',
+              'ok',
+            ],
+            [
+              'Comments',
+              'Post',
+              "Best / Newest, 4–5 levels then 'continue thread', collapse, live updates, mentions, Votes, Reactions, edit, delete, Blocks collapsed.",
+              'feed.comments best/new/root indexes',
+              'ok',
+            ],
+            [
+              'Continue thread',
+              '/posts/[id]-slug/c/[commentId] *',
+              'One deep branch on its own page.',
+              'comments_root_idx',
+              'ok',
+            ],
+            [
+              'New / edit Post',
+              '/posts/new *',
+              'Topic (not archived), title 120, subtitle 200, body 10,000 with formatting, up to 10 images with order and alt text.',
+              'feed.posts, media.uploads',
+              'ok',
+            ],
+            [
+              'Share to a Chat',
+              'sheet',
+              'Copy link, or pick a Chat to send a Post Card.',
+              'chat.messages.post_card_post_id',
+              'ok',
+            ],
+            [
+              'Logged-out Post',
+              '/posts/[id]-slug',
+              "Same page, no live Comments, no voting, no profiles. 'Chaku is invite-only' note. Report link.",
+              'canView',
+              'ok',
+            ],
+            [
+              'Logged-out report form',
+              'dialog',
+              'Email, reason, details, Turnstile (D37, D44).',
+              'moderation.reports.reporter_email',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Games',
+          rows: [
+            [
+              'Game Catalog',
+              '/games',
+              'Listed Game Manifests: image, name (EN/UK), players.',
+              'games.manifests',
+              'ok',
+            ],
+            [
+              'Game shell',
+              'layout',
+              'Full, split or chat-only, resizable, sizes saved per Game. Phones: top/bottom split.',
+              'client (sizes per Game)',
+              'ok',
+            ],
+            [
+              'People picker',
+              'sheet',
+              "Opened by the Game's requestInvite. Our own picker, Blocks applied, shows people with a pending Challenge.",
+              'identity, games.challenges',
+              'ok',
+            ],
+            [
+              'Waiting for players',
+              'Game shell',
+              'Who was challenged, time left (15 min), cancel.',
+              'games.sessions, challenges',
+              'ok',
+            ],
+            [
+              'Incoming Challenge',
+              'toast, Push, bell',
+              'Join or Decline. Expired state.',
+              'games.challenges',
+              'ok',
+            ],
+            [
+              'Mini Player',
+              'layout',
+              'Floating on desktop, bottom bar on phones. Keeps the heartbeat going (D43).',
+              'sessions.last_heartbeat_at',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Settings',
+          rows: [
+            [
+              'Profile',
+              '/settings *',
+              'Display Name, avatar, Username with the next allowed change date (30 days).',
+              'members.username_changed_at',
+              'ok',
+            ],
+            [
+              'Account',
+              '/settings/account *',
+              'Email (change with a code), Google connection, passkeys (add, rename, remove).',
+              'accounts, passkeys',
+              'ok',
+            ],
+            [
+              'Sessions and devices',
+              '/settings/sessions *',
+              'Device label, method, last active, log out remotely.',
+              'sessions, login_devices',
+              'ok',
+            ],
+            [
+              'Privacy',
+              '/settings/privacy *',
+              'Share read receipts, share online status (both reciprocal), block list.',
+              'members.share_*, blocks',
+              'ok',
+            ],
+            [
+              'Notifications',
+              '/settings/notifications *',
+              'Turn on Push on this device, pause all Push, show message text.',
+              'notifications.preferences',
+              'ok',
+            ],
+            ['Language', '/settings *', 'Auto, English, Ukrainian.', 'members.locale', 'ok'],
+            [
+              'Invites',
+              '/settings/invites *',
+              "Invites left, create, copy link, cancel, who joined. Links can't be copied again and Invites can't be labelled.",
+              'identity.invites (code_hash only)',
+              'gap',
+              'G2',
+            ],
+            [
+              'Your data',
+              '/settings/data *',
+              'Request a data export. Delete account (14 days, serious tone).',
+              'export_requests, members.status',
+              'ok',
+            ],
+            [
+              'Feedback, legal, log out',
+              '/settings *',
+              'Feedback button to Linear triage, privacy policy, terms.',
+              'none',
+              'ok',
+            ],
+          ],
+        },
+        {
+          area: 'Admin (passkey session only)',
+          rows: [
+            [
+              'Report queue',
+              '/admin/reports *',
+              'Open Reports, oldest first: target kind, reason, count.',
+              'moderation.reports_queue_idx',
+              'ok',
+            ],
+            [
+              'Report detail',
+              '/admin/reports/[id] *',
+              'Snapshot (each view logged), earlier Reports about the person. Remove, suspend, ban, dismiss. Removal needs a reason code for the notice.',
+              'report_snapshot_items, sanctions',
+              'gap',
+              'G4',
+            ],
+            [
+              'Member',
+              '/admin/members/[id] *',
+              'Profile, sanctions history, Reports, invite tree position, top up Invites, cancel Invites, remove all content.',
+              'identity, moderation',
+              'ok',
+            ],
+            [
+              'Invite tree',
+              '/admin/invites/tree *',
+              'Who invited whom, level by level.',
+              'members_invited_by_idx',
+              'ok',
+            ],
+            [
+              'Multi-use Invites',
+              '/admin/invites *',
+              'Create with a use limit and expiry, copy link (same issue as G2).',
+              'identity.invites',
+              'gap',
+              'G2',
+            ],
+            [
+              'Topics',
+              '/admin/topics *',
+              'Create, names in EN and UK, order, archive, default.',
+              'feed.topics',
+              'ok',
+            ],
+            [
+              'Games',
+              '/admin/games *',
+              'Register a Manifest, list, hide, retire, rotate the service credential (shown once).',
+              'games.manifests, service_credentials',
+              'ok',
+            ],
+            [
+              'Audit log',
+              '/admin/audit *',
+              'Every Admin action, newest first, kept 2 years.',
+              'moderation.audit_log',
+              'ok',
+            ],
+            [
+              'Export requests',
+              '/admin/exports *',
+              'Open requests to deliver within 30 days.',
+              'export_requests_open_idx',
+              'ok',
+            ],
+          ],
+        },
+      ];
+
+      const GAPS = [
+        {
+          id: 'G1',
+          title: 'System lines in Chats',
+          kind: 'data',
+          problem:
+            "Messengers show 'Anya added Sasha', 'renamed the group to …' and 'Oleh left' in the timeline and as the last line in the chat list. Today those exist only as chat.events, which are pruned after 30 days, and the Message window reads chat.messages only.",
+          proposal:
+            "Store them as Messages with a kind. They already take a Chat Sequence number, so ordering and catch-up come for free. They don't count as Unread.",
+          sql: "chat.messages\n  kind          text  'user' | 'system'  default 'user'\n  system_event  text null  created | participant_added | participant_left\n                | participant_removed | owner_changed | admin_changed\n                | renamed | avatar_changed\n  system_member_id uuid null  ID → identity.members.id\n  -- author_id = who did it; body null",
+          ask: 'Show system lines? (Recommended: yes, for Group Chats)',
+        },
+        {
+          id: 'G2',
+          title: 'Invite links can be copied again, and labelled',
+          kind: 'data',
+          problem:
+            "identity.invites stores only code_hash, so the link exists once, at creation. The Invites screen can't offer 'Copy link' later. With 5 open Invites there's also no way to tell which one is for whom.",
+          proposal:
+            'Store the code itself. An Invite is low-risk: single-use, 7 days, and the new person still has to log in. Add an optional note that only the creator sees.',
+          sql: 'identity.invites\n  code  text  unique   -- replaces code_hash\n  note  text null  1–50, creator only ("For Sasha")',
+          ask: 'Store the code (recommended), or keep the hash and show the link once?',
+        },
+        {
+          id: 'G3',
+          title: 'Reading a Chat clears its Notifications',
+          kind: 'data',
+          problem:
+            "A mention creates both an Unread count and a bell Notification. After you read the Message in the Chat, the bell still shows it as unread. Nothing links a Notification to a place in the Chat. The '@' badge in the chat list needs the same link.",
+          proposal:
+            'Keep the Chat Sequence of the Message on chat Notifications. When a Read Position moves, chat adds a job, and notifications marks read everything in that Chat up to that number.',
+          sql: "notifications.notifications\n  context_seq bigint null   -- Message's seq, chat types only\n  index (recipient_id, context_id) where read_at is null\n\njob chat.read_position_moved { chat_id, member_id, read_seq }",
+          ask: 'Should reading a Chat clear its mention and reply Notifications? (Recommended: yes)',
+        },
+        {
+          id: 'G4',
+          title: 'Moderation notices to the author and the reporter',
+          kind: 'data',
+          problem:
+            "Admins can remove content and ban people, but nobody is told. The EU Digital Services Act asks hosting services to confirm a report, tell the reporter the decision, and give the affected person a statement of reasons. That likely applies to Chaku's public Feed even at beta size. Removal also stores no reason.",
+          proposal:
+            'Two Notification types, plus email for logged-out reporters (transactional, which D6 allows). Store a reason code with each Admin action.',
+          sql: 'notifications.type += content_removed, report_resolved\nmoderation.audit_log\n  reason text null   -- same codes as reports.reason\n-- ban/suspension: shown on the login screen from members.ban_reason',
+          ask: 'Add both notices? Check the wording with the legal pages ticket (CHK-33).',
+        },
+        {
+          id: 'G5',
+          title: 'What a profile shows',
+          kind: 'decide',
+          problem:
+            "The spec defines /@username but not what's on it. results.member_stats is stored and never shown anywhere. Feed authors have no list of their Posts.",
+          proposal:
+            'Show Game stats (no change). Optionally a Posts list (needs one index) and a short bio (new column, not in the spec).',
+          sql: 'feed.posts_author_new_idx (author_id, created_at desc, id desc)\n  where deleted_at is null and removed_at is null\nidentity.members.bio text null  -- up to 160, optional',
+          ask: 'Game stats only, + Posts, or + Posts and bio?',
+        },
+        {
+          id: 'G6',
+          title: 'Group Owner can hand over ownership',
+          kind: 'spec',
+          problem:
+            "D3 passes ownership on only when the Owner leaves. An Owner who wants to stay but stop managing the group can't.",
+          proposal:
+            "A 'Make owner' action for the Owner, on a Participant in Group info. The data already supports it (participant roles, participant_role_changed event).",
+          sql: 'no table change',
+          ask: "Add 'Make owner'? (Recommended: yes)",
+        },
+        {
+          id: 'G7',
+          title: 'Hiding a Direct Chat',
+          kind: 'data',
+          problem:
+            "Anyone can message anyone (D3) and there's no 'delete for me' (D5). A stranger's or spammer's Direct Chat stays in your list forever, even after you Block them.",
+          proposal:
+            "'Hide chat' removes it from your list until a new Message arrives. History stays for both people.",
+          sql: 'chat.participants\n  hidden_until_seq bigint null  -- hidden while last_message_seq <= this',
+          ask: "Add 'Hide chat', or keep the list as is for the beta?",
+        },
+        {
+          id: 'G8',
+          title: 'Theme setting',
+          kind: 'done',
+          problem: 'Foundations defines a dark theme, but no screen or setting chooses it.',
+          proposal:
+            'Light / dark / system in Settings, stored per device in a cookie so the first paint is right. No database change.',
+          sql: 'no table change',
+          ask: 'Decided: per device, with themeable tokens (D59, ADR-0015).',
+        },
+      ];
+
+      /* ---------- render inventory ---------- */
+      const inv = document.getElementById('inv');
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+        );
+      const chipFor = (st, g) =>
+        st === 'ok'
+          ? '<span class="chip ok">Covered</span>'
+          : `<a href="#${g}" class="chip ${st}" style="text-decoration:none">${st === 'gap' ? 'Gap' : 'Decide'} · ${g}</a>`;
+      INV.forEach((a, i) => {
+        const gaps = a.rows.filter((r) => r[4] !== 'ok').length;
+        const d = document.createElement('details');
+        d.className = 'area';
+        d.open = i < 3;
+        d.innerHTML = `<summary><h3>${esc(a.area)}</h3><span class="count">${a.rows.length} screens${gaps ? ` · ${gaps} open` : ''}</span><span class="chev">›</span></summary>
+  <div class="tblwrap"><table><thead><tr><th>Screen</th><th>Shows and does</th><th>Data</th><th>Status</th></tr></thead><tbody>
+  ${a.rows.map((r) => `<tr data-st="${r[4]}"><td class="scr">${esc(r[0])}<code>${esc(r[1])}</code></td><td class="what">${esc(r[2])}</td><td class="src">${esc(r[3])}</td><td>${chipFor(r[4], r[5])}</td></tr>`).join('')}
+  </tbody></table></div>`;
+        inv.appendChild(d);
+      });
+      document.querySelectorAll('[data-filter]').forEach((b) =>
+        b.addEventListener('click', () => {
+          const f = b.dataset.filter;
+          document
+            .querySelectorAll('[data-filter]')
+            .forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+          document.querySelectorAll('#inv tr[data-st]').forEach((tr) => {
+            tr.hidden = f === 'gap' && tr.dataset.st === 'ok';
+          });
+          document.querySelectorAll('#inv details').forEach((d) => {
+            const vis = [...d.querySelectorAll('tr[data-st]')].some((tr) => !tr.hidden);
+            d.hidden = !vis;
+            if (f === 'gap') d.open = true;
+          });
+        }),
+      );
+
+      /* ---------- render gaps ---------- */
+      const kindChip = {
+        done: '<span class="chip ok">Decided</span>',
+        data: '<span class="chip data">Data model</span>',
+        spec: '<span class="chip ok">Spec only</span>',
+        decide: '<span class="chip decide">Decision</span>',
+      };
+      document.getElementById('gaplist').innerHTML = GAPS.map(
+        (g) => `<article class="gapc" id="${g.id}">
+  <header><span class="gid">${g.id}</span><h3>${esc(g.title)}</h3>${kindChip[g.kind]}</header>
+  <div><span class="k">Problem</span><p>${esc(g.problem)}</p></div>
+  <div><span class="k">Proposal</span><p>${esc(g.proposal)}</p></div>
+  <pre>${esc(g.sql)}</pre>
+  <div class="ask">${esc(g.ask)}</div>
+</article>`,
+      ).join('');
+
+      /* ---------- icons ---------- */
+      try {
+        if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 1.75 } });
+      } catch (e) {}
+    </script>
+  </body>
+</html>

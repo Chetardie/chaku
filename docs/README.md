@@ -18,7 +18,7 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 |---|---|
 | Anyone | [Glossary (CONTEXT.md)](../CONTEXT.md), [Product spec](messenger-app-spec.md) §1–4 |
 | Engineering | [CONTRIBUTING](../CONTRIBUTING.md), [Architecture overview](architecture/overview.md), [ADRs](adr/), [Workflow](process/workflow.md) |
-| Design | [Design system foundations](design-system/foundations.md), [Voice and tone](design-system/voice-and-tone.md) |
+| Design | [Design system foundations](design-system/foundations.md), [Screen map](design-system/screens.md), [Voice and tone](design-system/voice-and-tone.md) |
 | Product | [Spec](messenger-app-spec.md) (§9 is every decision and why) |
 | QA | [CONTRIBUTING → Definition of Done](../CONTRIBUTING.md#definition-of-done), spec D7, D18, D19 |
 | Support and moderation | spec §3.6, [Data retention](operations/data-retention.md) |
@@ -28,14 +28,14 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 ### Product
 | Doc | Status |
 |---|---|
-| [Product spec](messenger-app-spec.md), decisions D1–D58 | v0.4 |
+| [Product spec](messenger-app-spec.md), decisions D1–D59 | v0.4 |
 | [Glossary (CONTEXT.md)](../CONTEXT.md) | current |
 
 ### Architecture
 | Doc | Status |
 |---|---|
 | [Architecture overview](architecture/overview.md) | current |
-| [ADRs](adr/) | 0001–0014 |
+| [ADRs](adr/) | 0001–0015 |
 | [Data model](architecture/data-model.md): Postgres schema per module, Chat events, counters, Hot constants | accepted (CHK-15, D57, D58) |
 | [Web data flow](architecture/web-data-flow.md): in-process oRPC, hydration, query keys, realtime cache updates (D50) | current (CHK-16) |
 | Security: D9 as a checklist, authorization test matrix | Foundation |
@@ -55,7 +55,8 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 ### Design system
 | Doc | Status |
 |---|---|
-| [Foundations](design-system/foundations.md) | Warm direction; token scales next |
+| [Foundations](design-system/foundations.md): Warm direction, theming (ADR-0015) | Warm direction; token scales next |
+| [Screen map](design-system/screens.md): every v1 screen, its data, open gaps; [mockups](design-system/screen-map.html) | draft; gaps G1–G7 to decide |
 | [Voice and tone](design-system/voice-and-tone.md) | current |
 | Design workflow: Figma structure, handoff, Code Connect | Design System project |
 

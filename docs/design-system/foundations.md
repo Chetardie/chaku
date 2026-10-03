@@ -2,6 +2,23 @@
 
 Code-first in `packages/ui` (tokens as CSS variables, Tailwind 4, shadcn/ui on Base UI), mirrored to a Figma library (ADR-0011). This doc sets the direction. The full token scales are defined in code and documented in Storybook.
 
+## Theming
+
+Warm is the first theme, not a fixed look. Every colour, font and shape reaches a component through a semantic token (ADR-0015, D59):
+
+| Layer | Example | Who uses it |
+|---|---|---|
+| Primitive | `coral-600 = #C8461B` | theme files only |
+| Semantic role | `bubble-own = coral-600` (light), `bubble-own = coral-400` (dark) | components, through Tailwind utilities |
+| Utility | `bg-bubble-own` | components |
+
+- **Change the look:** edit `packages/ui/src/tokens/themes/warm.ts`, or add a new theme file and make it the default. No component changes.
+- **Never in components:** hex or `oklch()` values, Tailwind palette classes (`bg-orange-500`, which don't exist in our build), or `dark:` classes. Lint rejects all three.
+- **Need a colour no role describes?** Add a semantic role, then map it in every theme.
+- **Contrast** is tested for every theme and mode, so a theme change that breaks AA fails CI.
+
+The values below are the seeds of the Warm theme.
+
 ## Brand direction: Warm
 
 Chosen 2026-10-02 (CHK-10).
@@ -76,8 +93,9 @@ Group Chats color each Participant's name from a fixed set of 6–8 hues, picked
 
 ## Still to define
 
-These go in the tokens and Storybook work in the Design System project:
-- full color scales and semantic tokens (success, warning, danger, info) in both themes
+These go in the tokens and Storybook work (CHK-36):
+- full color scales, and the values of every semantic role in ADR-0015 (including success, warning, danger, info) in both modes
+- the two colour tweaks proposed in the [screen map](screens.md#design-notes-on-the-warm-direction): a deeper `chat-background` in light mode, and a deeper `bubble-own` in dark mode
 - spacing scale (4px base), type scale, z-index layers
 - logo and app icon (PWA icons, Open Graph image)
 - illustrations for empty states and onboarding
