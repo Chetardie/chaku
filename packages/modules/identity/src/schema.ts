@@ -206,6 +206,23 @@ export const loginDevices = identity.table(
   (t) => [uniqueIndex('login_devices_member_device_key').on(t.memberId, t.deviceHash)],
 );
 
+/**
+ * The old address of an email change, kept until the alert to it is sent (D37). A job payload
+ * carries only this row's ID, never the address (ADR-0008).
+ */
+export const emailChanges = identity.table(
+  'email_changes',
+  {
+    id: id(),
+    memberId: uuid()
+      .notNull()
+      .references(() => members.id, { onDelete: 'cascade' }),
+    oldEmail: text().notNull(),
+    changedAt: timestamptz().notNull().defaultNow(),
+  },
+  (t) => [index('email_changes_member_idx').on(t.memberId)],
+);
+
 export const invites = identity.table(
   'invites',
   {

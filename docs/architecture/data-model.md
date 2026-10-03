@@ -92,7 +92,7 @@ Every term defined in [CONTEXT.md](../../CONTEXT.md), and where it lives.
 
 ## `identity`
 
-Members, login (Better Auth), Invites and Blocks. Better Auth's tables are renamed to plural `snake_case` with its `modelName` and `fields` options, and its extra columns are `additionalFields`.
+Members, login (Better Auth), Invites and Blocks. Better Auth's tables are renamed to plural `snake_case` with its `modelName` and `fields` options, and its extra columns are `additionalFields`. The ban and role columns keep the names of Better Auth's admin plugin, but the plugin is not turned on: its HTTP endpoints include impersonation (D2), and Admin tools go through oRPC. `identity` checks bans itself at login (CHK-20).
 
 ```mermaid
 erDiagram
@@ -100,6 +100,7 @@ erDiagram
   members ||--o{ accounts : "links"
   members ||--o{ passkeys : "registers"
   members ||--o{ login_devices : "uses"
+  members ||--o{ email_changes : "changes email"
   members ||--o{ invites : "creates"
   invites |o--o{ members : "admits"
   members |o--o{ members : "invited"
@@ -176,7 +177,7 @@ Better Auth sessions, 30 days, extended while in use (D21).
 | `user_agent` | `text null` | |
 | `auth_method` | `text` | `google`, `email_code`, `email_link`, `passkey`. Admin tools need `passkey` (D47). Set in Better Auth's session hook |
 | `login_device_id` | `uuid null` | FK → `identity.login_devices.id` |
-| `impersonated_by` | `text null` | added by the admin plugin. Impersonation stays turned off: it would let an Admin read Chats (D2) |
+| `impersonated_by` | `text null` | the admin plugin's column, always `null`: the plugin is off, and impersonation would let an Admin read Chats (D2) |
 | `created_at` | `timestamptz` | |
 | `updated_at` | `timestamptz` | |
 
@@ -212,13 +213,13 @@ Keys and indexes:
 
 #### `identity.verifications`
 
-Better Auth's short-lived values: email login codes (10 minutes, stored hashed, D32) and email change codes (D37).
+Better Auth's short-lived values: email login codes and link tokens (10 minutes, stored hashed, D32) and email change codes (D37).
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` | PK, default `uuidv7()` |
-| `identifier` | `text` | the email address the code was sent to |
-| `value` | `text` | the hashed code and attempt count |
+| `identifier` | `text` | what the value is for: `sign-in-otp-<email>` for a login code, `change-email-otp-<old>-<new>` for an email change code, `email-link-<SHA-256 of the token>` for a link token (CHK-20) |
+| `value` | `text` | a code's hash and attempt count (`<hash>:<attempts>`), or a link token's email address |
 | `expires_at` | `timestamptz` | |
 | `created_at` | `timestamptz` | |
 | `updated_at` | `timestamptz` | |
@@ -283,6 +284,21 @@ Devices a Member has logged in from, for the new-device email alert (D21). The d
 Keys and indexes:
 - `login_devices_pkey`: primary key (`id`)
 - `login_devices_member_device_key`: unique (`member_id`, `device_hash`)
+
+#### `identity.email_changes`
+
+The old address of an email change, kept until the alert to it is sent (D37). The alert job's payload carries only this row's ID, never an address (ADR-0008). The job deletes the row once the email is sent (CHK-20).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | PK, default `uuidv7()` |
+| `member_id` | `uuid` | FK → `identity.members.id`, on delete cascade |
+| `old_email` | `text` | the address before the change |
+| `changed_at` | `timestamptz` | default `now()` |
+
+Keys and indexes:
+- `email_changes_pkey`: primary key (`id`)
+- `email_changes_member_idx`: (`member_id`)
 
 #### `identity.invites`
 
@@ -352,6 +368,7 @@ Keys and indexes:
 | `identity.verifications` | rows for the Member's email deleted, before the email is overwritten |
 | `identity.passkeys` | deleted |
 | `identity.login_devices` | deleted |
+| `identity.email_changes` | deleted |
 | `identity.invites` | kept for the invite tree; unused ones get `revoked_at`; the `note` is set to `null` (D61) |
 | `identity.blocks` | deleted in both directions |
 | `identity.export_requests` | deleted |

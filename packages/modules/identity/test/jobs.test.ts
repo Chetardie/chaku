@@ -3,11 +3,12 @@ import { queuedJobs, runJob, useTestDatabase } from '@chaku/db/testing';
 import { asc } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { deleteExpiredSessions, identityJobs } from '../src/index.ts';
+import { deleteExpiredSessions, identityJobs as createIdentityJobs } from '../src/index.ts';
 import { members, sessions } from '../src/schema.ts';
 import { seedIdentity } from '../src/seed.ts';
 
 const database = useTestDatabase();
+const identityJobs = createIdentityJobs({ email: { send: () => Promise.resolve() } });
 
 const hour = 60 * 60 * 1000;
 

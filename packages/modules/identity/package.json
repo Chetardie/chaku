@@ -8,16 +8,23 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc",
-    "test": "vitest run"
+    "test": "vitest run --dir test",
+    "check": "vitest run --dir live"
   },
   "dependencies": {
+    "@better-auth/passkey": "catalog:",
+    "@chaku/adapters": "workspace:*",
     "@chaku/db": "workspace:*",
+    "better-auth": "catalog:",
     "drizzle-orm": "catalog:",
+    "react": "catalog:",
+    "react-email": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@chaku/config": "workspace:*",
     "@types/node": "catalog:",
+    "@types/react": "catalog:",
     "@typescript/native": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",

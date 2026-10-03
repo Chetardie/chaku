@@ -78,11 +78,12 @@ async function query<Row extends object>(text: string): Promise<Row[]> {
 }
 
 describe('the data model doc', () => {
-  it('lists the ten identity tables', () => {
+  it('lists the eleven identity tables', () => {
     expect(tables.map((table) => table.name).sort()).toEqual(
       [
         'accounts',
         'blocks',
+        'email_changes',
         'export_requests',
         'invites',
         'jwks',
