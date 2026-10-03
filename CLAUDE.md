@@ -12,6 +12,8 @@ Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI, the loc
 | Architecture decisions | [docs/adr/](docs/adr/) |
 | System and module map, key flows | [docs/architecture/overview.md](docs/architecture/overview.md) |
 | Running the local stack, trusting its certificate, troubleshooting | [docs/guides/local-development.md](docs/guides/local-development.md) |
+| How code is written here: naming, IDs, modules, jobs, oRPC errors, paging, dates, logging (D9), env vars, vendors | [docs/guides/conventions.md](docs/guides/conventions.md) |
+| Test layers and how to run each, a Postgres per test worker, job tests, Playwright, fixtures, criteria → tests | [docs/guides/testing.md](docs/guides/testing.md) |
 | How work moves from Linear to merged code | [docs/process/workflow.md](docs/process/workflow.md) |
 | Index of all docs, planned and written | [docs/README.md](docs/README.md) |
 | Engineering contract: Definition of Done, commits, decisions | [CONTRIBUTING.md](CONTRIBUTING.md) |

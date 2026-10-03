@@ -48,11 +48,11 @@ The full flow, Linear ticket included, is in [docs/process/workflow.md](docs/pro
 
 A change is done when:
 
-- [ ] every acceptance criterion is covered by an automated test, and CI is green
-- [ ] module boundaries hold (ADR-0003, ADR-0007); dependency-cruiser passes
+- [ ] every acceptance criterion is covered by an automated test, and CI is green ([testing guide](docs/guides/testing.md))
+- [ ] the code follows the [conventions](docs/guides/conventions.md); module boundaries hold (ADR-0003, ADR-0007) and dependency-cruiser passes
 - [ ] UI text is in both EN and UK and follows [voice and tone](docs/design-system/voice-and-tone.md)
 - [ ] UI works with keyboard and screen reader basics, at 360px wide, in light and dark (D7, D18)
-- [ ] no Message or Comment bodies in logs, errors, analytics or job payloads (D9)
+- [ ] no Message or Comment bodies in logs, errors, analytics or job payloads (D9, [conventions](docs/guides/conventions.md#logging-and-what-never-leaves-the-server))
 - [ ] no secrets, real people or real emails in the diff (ADR-0013)
 - [ ] docs changed in the same PR if behaviour, a decision or a process changed (see "Where docs live" below)
 

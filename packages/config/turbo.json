@@ -4,10 +4,23 @@
   "tasks": {
     "test": {
       // The tests read files at the repo root: data-model.test.ts and web-data-flow.test.ts the glossary and docs,
-      // ci.test.ts the workflows, workspace.test.ts every workspace package.json.
+      // ci.test.ts the workflows, workspace.test.ts every workspace package.json. guides.test.ts
+      // reads the docs that link the guides and the source files the guides quote and link.
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/CONTEXT.md",
+        "$TURBO_ROOT$/CLAUDE.md",
+        "$TURBO_ROOT$/CONTRIBUTING.md",
+        "$TURBO_ROOT$/.env.example",
+        "$TURBO_ROOT$/apps/**",
+        "$TURBO_ROOT$/packages/**",
+        "$TURBO_ROOT$/stack/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.next/**",
+        "!$TURBO_ROOT$/**/.turbo/**",
+        "!$TURBO_ROOT$/**/dist/**",
+        "!$TURBO_ROOT$/**/test-results/**",
+        "!$TURBO_ROOT$/**/playwright-report/**",
         "$TURBO_ROOT$/docs/**",
         "$TURBO_ROOT$/.github/**/*.yml",
         "$TURBO_ROOT$/.github/**/*.yaml",
