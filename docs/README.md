@@ -28,15 +28,15 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 ### Product
 | Doc | Status |
 |---|---|
-| [Product spec](messenger-app-spec.md), decisions D1–D56 | v0.4 |
+| [Product spec](messenger-app-spec.md), decisions D1–D58 | v0.4 |
 | [Glossary (CONTEXT.md)](../CONTEXT.md) | current |
 
 ### Architecture
 | Doc | Status |
 |---|---|
 | [Architecture overview](architecture/overview.md) | current |
-| [ADRs](adr/) | 0001–0013 |
-| [Data model](architecture/data-model.md): Postgres schema per module, Chat events, counters, Hot constants | proposed (CHK-15); open questions to settle before the first migrations |
+| [ADRs](adr/) | 0001–0014 |
+| [Data model](architecture/data-model.md): Postgres schema per module, Chat events, counters, Hot constants | accepted (CHK-15, D57, D58) |
 | Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50) | CHK-16, before phase 1 UI work |
 | Security: D9 as a checklist, authorization test matrix | Foundation |
 | Realtime protocol: event types, catch-up limits, sync check, log retention, Presence | before phase 2 |

@@ -1,6 +1,6 @@
 # Chaku: Product Spec v0.4
 
-Status: product decisions complete (see §9 Decisions log, D1–D56). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. The data model is proposed in [`docs/architecture/data-model.md`](architecture/data-model.md). Not yet designed: realtime protocol, `game-sdk` contract details.
+Status: product decisions complete (see §9 Decisions log, D1–D58). v0.3 added the spec review fixes (D24–D38) and the application libraries (D39). v0.4 adds the fixes from the second review (D40–D54): sync check, media access, Game Session presence, bot checks, moderation and operations gaps, and the public repository. The data model is in [`docs/architecture/data-model.md`](architecture/data-model.md) (D57, D58). Not yet designed: realtime protocol, `game-sdk` contract details.
 Goal: a real product. The first iteration is an invite-only beta, released to friends in waves, to see how it feels.
 Glossary: [`/CONTEXT.md`](../CONTEXT.md). Architecture decisions: [`docs/adr/`](adr/).
 
@@ -109,12 +109,13 @@ See D18, D19 and D36. Summary:
 | Module | Owns |
 |---|---|
 | identity | Members, profiles, sessions, Invites, Blocks, roles, Game token issuing, people search |
-| chat | Chats (Direct and Group), Participants, Messages, Message Replies, Chat events and the Chat Sequence, Read Positions, Mute, Link Previews, Reactions and mentions on Messages |
+| chat | Chats (Direct and Group), Participants, Messages, Message Replies, Chat events and the Chat Sequence, Read Positions, Mute, Link Previews in Messages, Reactions and mentions on Messages |
 | games | Game Manifests, Game Catalog, Game Sessions, Game Challenges |
 | results | Game Results and per-Member stats |
-| feed | Topics, Posts, Comments, images, Votes and Reactions on Posts and Comments, mentions in Posts and Comments, Post search |
+| feed | Topics, Posts, Comments, Post images, Link Previews in Posts, Votes and Reactions on Posts and Comments, mentions in Posts and Comments, Post search |
 | notifications | Notifications, Push subscriptions, delivery rules |
 | moderation | Reports, snapshots, Admin actions, bans |
+| media | uploads, the image sizes we serve, the storage quota, upload cleanup, for every module (D57) |
 | search | no tables; groups results from identity and feed |
 
 Each module has one public entry point and its own Postgres schema. Other modules refer to its data by ID only. Direct calls are for immediate answers; jobs added in the same transaction are for side effects (ADR-0003, ADR-0008). Screens that combine modules use batch lookups, and counters are stored with the item (ADR-0007). Every module that stores Member data handles `member.erasure_requested`.
@@ -195,14 +196,14 @@ CLAUDE.md
 - **Centrifugo spike outcome** (start of phase 2).
 
 ## 8. Next design docs
-- Data model (Postgres schema per module, including Chat events and counters): [`docs/architecture/data-model.md`](architecture/data-model.md), proposed in CHK-15
+- Data model (Postgres schema per module, including Chat events and counters): [`docs/architecture/data-model.md`](architecture/data-model.md), accepted (D58)
 - Realtime protocol (event types, the Chat Sequence, catch-up limits, event log retention, Presence and active-tab rules)
 - `game-sdk` contract in detail
 - Design system foundations
 - Web data flow: in-process oRPC, hydration, query keys, realtime cache updates (D50)
 
 ## 9. Decisions log
-Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. Terms are defined in `/CONTEXT.md`.
+Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D38 were made the same day after the spec review, turning v0.2 into v0.3. D40–D54 were made on 2026-10-01 after the second review, turning v0.3 into v0.4. D55 and D56 were made on 2026-10-02. D57 and D58 were made on 2026-10-03 in the review of the data model doc. Terms are defined in `/CONTEXT.md`.
 - D1: "Invite" is signup-only; a game request is a **Game Challenge**. A Game Challenge expires after 15 minutes if not accepted. (Revised by D15: Challenges no longer appear as cards in Chats.)
 - D2: Site-wide roles are Member and Admin only (the role field should leave room for Moderator later). Admins manage topics, remove posts and comments ("[removed by admin]"), suspend or ban users, handle the report queue, and create unlimited Invites. Admins cannot browse private chats; a Report snapshots the reported message plus about 10 messages before it.
 - D3: People in a chat are **Participants**. Group Chat: the creator is the Group Owner, who can promote Group Admins. Owners and Group Admins can rename, change the avatar and remove Participants. Any Participant can add people (blocks apply). Limit of 50 Participants. Anyone can leave; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant. New Participants see the full history. A Direct Chat always has exactly 2 Participants and there is only one per pair; adding a third person creates a new Group Chat.
@@ -216,8 +217,8 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
   - **Access:** production database access limited to 1–2 people and logged; no admin screen shows chat content; coding agents and MCP servers connect only to local or preview databases with fake seed data.
   - **Logs:** never log Message or Comment bodies; scrub request data before it goes to Sentry; analytics events carry no content.
   - **Images:** chat images live in a private bucket with short-lived signed URLs and unguessable names; feed images may be public.
-  - **Push:** payloads use the web push encryption standard; a user setting "Show message text in notifications".
-  - **Reports:** snapshots visible to Admins only, every view logged, deleted 90 days after the Report is resolved.
+  - **Push:** payloads use the web push encryption standard; a user setting "Show message text in notifications". (Revised by D58: off by default.)
+  - **Reports:** snapshots visible to Admins only, every view logged, deleted 90 days after the Report is resolved. (Revised by D58: kept until then even if the author is erased.)
   - **Authorization:** every read goes through one policy (`canView`, extended to Chats, Messages and images); every realtime event is checked when published (D29); automated tests try to read other people's Chats.
   - **XSS:** formatting is rendered from a parsed structure, never raw HTML; strict Content Security Policy; Link Preview images go through our own proxy. (Revised by D42: they are downloaded once and stored privately.)
   - **Accounts:** Google sign-in plus passkeys or email codes and links (no passwords); a "Your devices / sessions" page with remote log-out; an email alert on login from a new device; rate limits on login and Invites.
@@ -235,7 +236,7 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
   - Block lists are unlimited and managed in Settings.
 - D12: Invites and finding people.
   - **Finding people:** existing Members find each other through username search and Profile Links (`/@username`). An Invite is for new people only.
-  - **Invite limits:** each Member has 5 Invites; Admins have unlimited and can top up a Member's count. A Member's Invites are single-use and expire after 7 days. Only Admins create multi-use Invites, which have a use limit and an expiry date.
+  - **Invite limits:** each Member has 5 Invites; Admins have unlimited and can top up a Member's count. A Member's Invites are single-use and expire after 7 days. (Revised by D58: an unused Invite that expires or is cancelled goes back to the count.) Only Admins create multi-use Invites, which have a use limit and an expiry date.
   - **Invite tree:** Admins can see who invited whom. Banning someone can also cancel their unused Invites.
   - **Signup:** open the Invite → Google or email login → username (3–20 characters, `a-z 0-9 _`, not case-sensitive, reserved words blocked) → display name and optional avatar → install prompt → land in an automatic Direct Chat with the inviter. (Revised by D37: age and terms step after login.)
   - **Username change:** at most once every 30 days; old Profile Links don't redirect in v1.
@@ -392,7 +393,7 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
     | Adding Participants | 50 per hour |
     | Email login codes | 3 per address per 10 min, 10 per address per day, 20 per IP per hour |
     | Wrong code attempts | 5 per code, then the code is void |
-    | Game Challenges | 10 per 10 min; at most 1 pending per invitee |
+    | Game Challenges | 10 per 10 min; at most 1 pending per invitee (per sender, D58) |
     | Reports | 10 per hour; logged-out visitors 3 per hour per IP, plus Turnstile (D44) |
     | Image uploads | 60 per hour |
     | Posts / Comments | 10 per day / 30 per 10 min |
@@ -411,3 +412,15 @@ Decisions D1–D23 were made on 2026-09-30 while turning v0.1 into v0.2. D24–D
     | Wave 3: Posts per week / active Members who comment each week | ≥ 5 / ≥ 20% |
 
     If week 4 lands below about half of these, talk to the friends before building more.
+- D57: A `media` module (ADR-0014). Uploads, the image sizes we serve, the per-Member storage quota and the 24-hour cleanup belong to a new `media` module, used by `chat`, `feed` and `identity`. Access to an image is still decided by the module whose item shows it (D42). Link Previews belong to the module whose item shows them: `chat` for Messages, `feed` for Posts, with the fetching code shared.
+- D58: Data model review (CHK-15), accepting the doc's suggestions. Tables and constants are in [`docs/architecture/data-model.md`](architecture/data-model.md).
+  - **Hot:** decay of 45,000 seconds (12.5 hours) from the epoch 2026-01-01; Best uses z = 1.281551565545 (D33).
+  - **Chat event log:** kept 30 days; catch-up further back reloads the Chat's recent window (ADR-0009).
+  - **Link Previews** are deleted with their Message or Post.
+  - **Lengths:** Message up to 4,000 characters, Comment up to 5,000, Display Name 1–50, Group Chat name 1–64, image alt text up to 1,000, Report details up to 1,000.
+  - **Game Challenges:** "at most 1 pending per invitee" (D56) means one pending Challenge from a given sender to a given invitee.
+  - **"Show message text in notifications"** is off by default (D9).
+  - **Last seen** is stored as a date on the Member, updated at most once a day from the sync check; online state stays in Redis (D10).
+  - **Report snapshots** are kept until their deletion 90 days after the Report is resolved, even if the author's account is erased, including the images they hold. The privacy policy says so (D53).
+  - **Invites:** a Member's unused Invite that expires or is cancelled goes back to their count, so "5 Invites" means 5 open at a time (D12).
+  - **Better Auth** keeps its own columns (the admin plugin's ban and impersonation fields, Google tokens); impersonation stays turned off, because it would let an Admin read Chats (D2).
