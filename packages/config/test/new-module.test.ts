@@ -19,7 +19,9 @@ const readRepo: ReadFile = (relative) => {
   return existsSync(file) ? readFileSync(file, 'utf8') : undefined;
 };
 
-const changes = planNewModule('scratch', 'notes for trying the scaffold', readRepo);
+const changes = planNewModule('scratch', 'notes for trying the scaffold', (relative) =>
+  relative.startsWith('packages/modules/scratch/') ? undefined : readRepo(relative),
+);
 const byPath = new Map(changes.map((change: FileChange) => [change.path, change.content]));
 const file = (relative: string) => {
   const content = byPath.get(relative);

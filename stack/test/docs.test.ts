@@ -43,3 +43,23 @@ describe('local development guide', () => {
     }
   });
 });
+
+// CHK-24: the agent tools are described where agents and people look for them.
+describe('agent tools', () => {
+  it.each(['docs/process/workflow.md', 'CLAUDE.md'])(
+    '%s describes the Postgres MCP and both skills',
+    (file) => {
+      const text = read(file);
+      expect(text).toMatch(/Postgres MCP|`postgres` MCP/);
+      expect(text).toContain('chaku_readonly');
+      for (const skill of ['new-module', 'new-migration']) {
+        expect(text).toContain(`\`${skill}\``);
+        expect(existsSync(path.join(repoRoot, `.claude/skills/${skill}/SKILL.md`))).toBe(true);
+      }
+    },
+  );
+
+  it('the local development guide covers the Postgres MCP', () => {
+    expect(read(guide)).toMatch(/^### Postgres MCP$/m);
+  });
+});

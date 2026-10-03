@@ -17,7 +17,8 @@
         "$TURBO_ROOT$/apps/games/*/package.json",
         "$TURBO_ROOT$/packages/*/package.json",
         "$TURBO_ROOT$/packages/modules/*/package.json",
-        "$TURBO_ROOT$/stack/package.json"
+        "$TURBO_ROOT$/stack/package.json",
+        "$TURBO_ROOT$/.claude/settings.json"
       ]
     }
   }

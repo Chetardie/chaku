@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
   afterEdit,
@@ -23,6 +23,9 @@ const hookInput = (file: string) => ({
 });
 
 /** A workspace of one package, outside the repo so nothing else sees it. */
+// `tsc` takes a second or two, longer while Turborepo runs every package's checks at once.
+vi.setConfig({ testTimeout: 60_000 });
+
 let root: string;
 let pkg: string;
 
