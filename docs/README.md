@@ -17,10 +17,10 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 | If you are… | Read first |
 |---|---|
 | Anyone | [Glossary (CONTEXT.md)](../CONTEXT.md), [Product spec](messenger-app-spec.md) §1–4 |
-| Engineering | [CONTRIBUTING](../CONTRIBUTING.md), [Architecture overview](architecture/overview.md), [ADRs](adr/), [Workflow](process/workflow.md) |
+| Engineering | [CONTRIBUTING](../CONTRIBUTING.md), [Architecture overview](architecture/overview.md), [ADRs](adr/), [Workflow](process/workflow.md), [Conventions](guides/conventions.md), [Testing](guides/testing.md) |
 | Design | [Design system foundations](design-system/foundations.md), [Screen map](design-system/screens.md), [Voice and tone](design-system/voice-and-tone.md) |
 | Product | [Spec](messenger-app-spec.md) (§9 is every decision and why) |
-| QA | [CONTRIBUTING → Definition of Done](../CONTRIBUTING.md#definition-of-done), spec D7, D18, D19 |
+| QA | [CONTRIBUTING → Definition of Done](../CONTRIBUTING.md#definition-of-done), [Testing](guides/testing.md), spec D7, D18, D19 |
 | Support and moderation | spec §3.6, [Data retention](operations/data-retention.md) |
 
 ## All repo docs
@@ -46,8 +46,8 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 | Doc | Status |
 |---|---|
 | [Local development](guides/local-development.md): stack, certificates, database and seed, troubleshooting | current; seed logins with CHK-20, tunnel later |
-| Conventions: IDs (`uuidv7`), errors, pagination, naming | Foundation |
-| Testing: layers, fixtures, Playwright with Mailpit, the two-browser realtime test | Foundation |
+| [Conventions](guides/conventions.md): naming, IDs (`uuidv7`), modules, jobs, errors over oRPC, pagination, dates, logging and D9, env vars, vendors | current (CHK-28); lists what isn't decided yet |
+| [Testing](guides/testing.md): layers and how to run each, Postgres per test worker, job tests, Playwright, fixtures, criteria to tests | current (CHK-28); Mailpit login with CHK-20 and CHK-41, the two-browser realtime test in phase 2 |
 | i18n: adding strings, EN and UK, plurals, review | Foundation |
 | Accessibility checklist | Foundation |
 | Releases and feature flags | phase 4 |
