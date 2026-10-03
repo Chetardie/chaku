@@ -3,8 +3,22 @@
   "extends": ["//"],
   "tasks": {
     "test": {
-      // data-model.test.ts reads the glossary and docs at the repo root.
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/CONTEXT.md", "$TURBO_ROOT$/docs/**"]
+      // The tests read files at the repo root: data-model.test.ts the glossary and docs,
+      // ci.test.ts the workflows, workspace.test.ts every workspace package.json.
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/CONTEXT.md",
+        "$TURBO_ROOT$/docs/**",
+        "$TURBO_ROOT$/.github/**/*.yml",
+        "$TURBO_ROOT$/.github/**/*.yaml",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/pnpm-workspace.yaml",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/apps/games/*/package.json",
+        "$TURBO_ROOT$/packages/*/package.json",
+        "$TURBO_ROOT$/packages/modules/*/package.json",
+        "$TURBO_ROOT$/stack/package.json"
+      ]
     }
   }
 }
