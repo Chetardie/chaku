@@ -93,7 +93,7 @@ Group Chats color each Participant's name from a fixed set of 6–8 hues, picked
 
 ## Still to define
 
-These go in the tokens and Storybook work in the Design System project:
+These go in the tokens and Storybook work (CHK-36):
 - full color scales, and the values of every semantic role in ADR-0015 (including success, warning, danger, info) in both modes
 - the two colour tweaks proposed in the [screen map](screens.md#design-notes-on-the-warm-direction): a deeper `chat-background` in light mode, and a deeper `bubble-own` in dark mode
 - spacing scale (4px base), type scale, z-index layers

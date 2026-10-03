@@ -52,7 +52,7 @@ Removing Tailwind's palette and rejecting colour literals turns "use the tokens"
 
 ## Consequences
 
-- The tokens ticket in the Design System project builds the three layers, the script, the lint rules and the contrast test before the first component. The values in [foundations](../design-system/foundations.md) are the seeds of the Warm theme.
+- The tokens ticket (CHK-36) builds the three layers, the script, the lint rules and the contrast test before the first component. The values in [foundations](../design-system/foundations.md) are the seeds of the Warm theme.
 - Storybook gets a toolbar switch for theme and mode, and every component story is checked in both modes.
 - The `game-sdk` doc defines which semantic values go into `init.theme`.
 - New tokens are added as semantic roles first. A component that needs a colour no role describes gets a new role, not a primitive.

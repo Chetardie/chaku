@@ -268,4 +268,4 @@ What laying out real screens showed about the [foundations](foundations.md). The
 5. **The shapes make it Chaku.** Cream with coral is a common palette. Nunito's rounded letters, the bubble tail, pill controls and soft group avatars set it apart, so lean on those rather than adding colour.
 6. **Check the phone tab bar in Ukrainian.** "Сповіщення" is the longest of five labels at 360px. Options: a shorter UK label, or an icon-only bell with a screen-reader label. Decide in the Storybook check of both languages. (The mockups say "Alerts" to fit, but voice-and-tone says Notification.)
 
-All six are inputs to the tokens ticket. None of them changes a token yet.
+All six are inputs to the tokens ticket (CHK-36). None of them changes a token yet.
