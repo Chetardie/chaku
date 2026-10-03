@@ -2,13 +2,14 @@
 status: accepted
 date: 2026-09-30
 amends: ADR-0003
+amended-by: ADR-0014
 ---
 
 # Module data ownership and read composition
 
 Every table has exactly one owning module, and a module owns data only for its own bounded context. There are no "shared" modules that own data across contexts. Code that several modules need (the formatting parser, mention parsing, the Reaction set) lives in `packages/content`, a plain library that owns no tables and imports no module.
 
-This replaces the `reactions` and `mentions` modules from ADR-0003:
+This replaces the `reactions` and `mentions` modules from ADR-0003 _(amended by ADR-0014: the table also gives uploads to a new `media` module, and Link Previews to the module whose item shows them)_:
 
 | Data | Owner |
 |---|---|
@@ -17,6 +18,9 @@ This replaces the `reactions` and `mentions` modules from ADR-0003:
 | Blocks, profiles, Invites | `identity` |
 | Post full-text index | `feed` |
 | People search index | `identity` |
+| Uploads, image sizes, the storage quota _(added by ADR-0014)_ | `media` |
+| Link Previews in Messages _(added by ADR-0014)_ | `chat` |
+| Link Previews in Posts _(added by ADR-0014)_ | `feed` |
 
 `search` owns no tables: it calls `identity.searchPeople` and `feed.searchPosts` and groups the results.
 

@@ -13,7 +13,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 | Message and feed images | as long as their Message or Post | D42, D46 | |
 | Uploads never attached to a Message or Post | 24 hours | D46 | Cleanup job. |
 | Reactions and Votes | until removed, or the account is erased | D5 | |
-| Link Previews and their images | _to decide_ | D4, D42 | Suggested: deleted with their Message. |
+| Link Previews and their images | as long as their Message or Post | D4, D42, D58 | Unattached ones are deleted after 24 hours, like uploads. |
 | Message drafts | on the device only, never sent to us | D26 | |
 | Typing indicators | never stored | D10 | |
 
@@ -28,7 +28,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 | Realtime connection tickets | 60 seconds, single use | ADR-0009 | |
 | Game identity tokens | 10 minutes | D21 | |
 | Unused Invites | 7 days (Member Invites); Admin multi-use Invites until their own expiry date | D12 | |
-| Presence ("last seen") | _to decide_ | D10, ADR-0009 | Online state lives in Redis with a short time-to-live. Suggested: store only the last-seen day, overwritten each time. |
+| Presence ("last seen") | only the last-seen day, overwritten | D10, D58 | Online state lives in Redis with a short time-to-live (ADR-0009). |
 | Push subscriptions | _to decide_ | D6 | Suggested: until the browser reports it expired, the Member logs out on that device, or 90 days unused. |
 | Data export files | _to decide_ | D37 | Suggested: deleted 7 days after delivery. |
 
@@ -50,7 +50,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 
 | Data | Kept for | Source | Notes |
 |---|---|---|---|
-| Report snapshots | 90 days after the Report is resolved | D9 | Admins only; every view logged. |
+| Report snapshots | 90 days after the Report is resolved | D9, D58 | Admins only; every view logged. Kept until then even if the author's account is erased, images included. |
 | Reports themselves | _to decide_ | D2 | Suggested: 2 years, like the audit log, so repeat abuse can be seen. |
 | Email addresses of logged-out reporters | _to decide_ | D37 | Suggested: 90 days after the Report is resolved, with the snapshot. |
 | Admin audit log | 2 years | D47 | |
@@ -61,7 +61,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 | Data | Kept for | Source | Notes |
 |---|---|---|---|
 | Database backups | 30 days, encrypted | D36 | Railway backups plus a nightly `pg_dump` to R2 with a 30-day expiry. |
-| Chat event log (`chat.events`) | _to decide in the realtime protocol doc_ | ADR-0009 | References only, never content. Suggested: 30 days ([data model](../architecture/data-model.md#chatevents), Q3). |
+| Chat event log (`chat.events`) | 30 days | ADR-0009, D58 | References only, never content. Catch-up further back reloads the Chat ([data model](../architecture/data-model.md#chatevents)). |
 | Background jobs | removed when finished | ADR-0008 | Payloads hold IDs only. |
 | Application logs (`pino`) | _to decide_ | D36 | Never contain Message or Comment bodies. Suggested: 14 days. |
 | Error reports (Sentry) | _to decide_ | D19 | Content scrubbed. Suggested: 30 days. |

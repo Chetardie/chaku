@@ -79,7 +79,7 @@ Rules that shape this picture:
 
 ## Modules
 
-Each module is a package in `packages/modules/*` with one public entry point and its own Postgres schema (ADR-0003, ADR-0007). Arrows are direct calls through the public entry point; side effects go through jobs instead.
+Each module is a package in `packages/modules/*` with one public entry point and its own Postgres schema (ADR-0003, ADR-0007, ADR-0014). Arrows are direct calls through the public entry point; side effects go through jobs instead.
 
 ```mermaid
 flowchart LR
@@ -91,6 +91,7 @@ flowchart LR
   notifications["notifications<br/>Notifications, Push"]
   moderation["moderation<br/>Reports, bans,<br/>audit log"]
   search["search<br/>no tables"]
+  media["media<br/>uploads, image sizes,<br/>storage quota"]
   content["packages/content<br/>parser, mentions,<br/>Reaction set (no data)"]
 
   chat --> identity
@@ -103,6 +104,10 @@ flowchart LR
   moderation --> feed
   search --> identity
   search --> feed
+  chat --> media
+  feed --> media
+  identity --> media
+  moderation --> media
   chat --> content
   feed --> content
 ```

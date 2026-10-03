@@ -1,12 +1,12 @@
 # Data model
 
-Status: **proposed** (CHK-15), for review before the first migrations (CHK-17). The [open questions](#open-questions) at the end need a decision. Where this doc and an ADR or spec decision disagree, the ADR or decision wins, and this doc is fixed.
+Status: **accepted** (CHK-15, reviewed 2026-10-03). The [review decisions](#review-decisions) at the end record what was settled (D57, D58, ADR-0014). Where this doc and an ADR or spec decision disagree, the ADR or decision wins, and this doc is fixed.
 
 This doc lists, for every module, its Postgres tables with their columns, keys, indexes and stored counters, and what each table does when a Member is erased. It follows the module data ownership rules in ADR-0007: one schema per module, references to other modules by ID only, counters stored with the item. A test, `packages/config/test/data-model.test.ts`, checks the doc against those rules.
 
 ## Conventions
 
-**Schemas.** Each module owns one Postgres schema with the module's name: `identity`, `chat`, `games`, `results`, `feed`, `notifications`, `moderation`, plus `media` if [Q1](#open-questions) is accepted. `search` and the sync check own no tables (ADR-0007, ADR-0012). Graphile Worker owns `graphile_worker` and migrates it itself; Drizzle's `schemaFilter` leaves it out. All module schemas share one Drizzle migration history (D36). The first migration creates the `pg_trgm` and `unaccent` extensions in `public`.
+**Schemas.** Each module owns one Postgres schema with the module's name: `identity`, `chat`, `games`, `results`, `feed`, `notifications`, `moderation`, `media` (ADR-0014). `search` and the sync check own no tables (ADR-0007, ADR-0012). Graphile Worker owns `graphile_worker` and migrates it itself; Drizzle's `schemaFilter` leaves it out. All module schemas share one Drizzle migration history (D36). The first migration creates the `pg_trgm` and `unaccent` extensions in `public`.
 
 **Keys and IDs.**
 - Every entity table has `id uuid` primary key with default `uuidv7()` (Postgres 18, ADR-0011), so IDs sort by creation time. Join tables (Participants, Votes, Reactions) use a composite primary key instead.
@@ -61,12 +61,12 @@ Every term defined in [CONTEXT.md](../../CONTEXT.md), and where it lives.
 | Message | `chat.messages` | |
 | Message Reply | `chat.messages.reply_to_id` | same-Chat foreign key |
 | Post Card | `chat.messages.post_card_post_id` | the Post is read from `feed` when shown |
-| Link Preview | `chat.link_previews`, `feed.link_previews` | one per Message or Post; see [Q4](#open-questions) |
+| Link Preview | `chat.link_previews`, `feed.link_previews` | one per Message or Post, owned by the module whose item shows it (ADR-0014) |
 | Unread | not stored | derived: Messages with `seq` above my `chat.participants.read_seq` that I didn't write |
 | Mute | `chat.participants.muted_until` | `infinity` means indefinitely |
 | Read Position | `chat.participants.read_seq` | outside the Chat Sequence (D49) |
 | Chat Sequence | `chat.chats.last_seq`, `chat.events` | each Message also keeps the `seq` it was created at |
-| Presence | not stored | online state is in Redis with a time-to-live (ADR-0009); for the rough last seen, see [Q8](#open-questions) |
+| Presence | `identity.members.last_seen_on` | only the rough last seen, as a date (D58); online state is in Redis with a time-to-live (ADR-0009) |
 | Notification | `notifications.notifications` | |
 | Push | `notifications.push_subscriptions` | each Push is a job, not a row |
 | Game | `games.manifests` | a Game exists for the app only through its Manifest |
@@ -134,13 +134,14 @@ One row per Member, kept as a tombstone after erasure so every `ID → identity.
 | `deletion_requested_at` | `timestamptz null` | the 14-day grace period starts here (D5) |
 | `invite_id` | `uuid null` | FK → `identity.invites.id`; the Invite used at signup. `null` only for seeded Admins |
 | `invited_by_id` | `uuid null` | FK → `identity.members.id`; the invite tree (D12) |
-| `invites_left` | `smallint` | default 5; ignored for Admins (D12) |
+| `invites_left` | `smallint` | default 5; ignored for Admins (D12). An unused Invite that expires or is cancelled gives one back, so 5 are open at a time (D58) |
 | `age_confirmed_at` | `timestamptz null` | 16+ (D37) |
 | `terms_accepted_at` | `timestamptz null` | |
 | `terms_version` | `text null` | which terms and privacy policy were accepted |
 | `locale` | `text null` | `en` or `uk`; `null` follows the browser (D18) |
 | `share_read_receipts` | `boolean` | default `true` (D10) |
 | `share_presence` | `boolean` | default `true` (D10) |
+| `last_seen_on` | `date null` | the rough last seen (D10, D58): set from the sync check with `where last_seen_on is distinct from current_date`, so at most one write a day. The gateway never writes it (ADR-0009) |
 | `created_at` | `timestamptz` | default `now()` |
 | `updated_at` | `timestamptz` | Better Auth `updatedAt` |
 
@@ -405,7 +406,7 @@ Keys and indexes:
 | `seq` | `bigint` | the Chat Sequence at which the Message was created: its order and the base of Unread counts |
 | `client_id` | `uuid` | made by the sender's client; a retry with the same one returns the existing Message (§5.3) |
 | `author_id` | `uuid` | ID → `identity.members.id`; stays after erasure and shows "Deleted user" |
-| `body` | `text null` | source text, 1–4,000 characters ([Q5](#open-questions)); `null` when Deleted or Removed, or when the Message has only images |
+| `body` | `text null` | source text, 1–4,000 characters (D58); `null` when Deleted or Removed, or when the Message has only images |
 | `reply_to_id` | `uuid null` | the quoted Message (D26), through `messages_reply_fkey` |
 | `post_card_post_id` | `uuid null` | ID → `feed.posts.id` (D4) |
 | `link_preview_id` | `uuid null` | FK → `chat.link_previews.id`; `check`: not both a Post Card and a Link Preview |
@@ -454,7 +455,7 @@ Keys and indexes:
 
 #### `chat.link_previews`
 
-A Link Preview is fetched when the composer sees an outside link, before Send, so the sender can dismiss it (D4). Sending attaches it to the Message. Unattached ones are deleted after 24 hours, like uploads.
+A Link Preview is fetched when the composer sees an outside link, before Send, so the sender can dismiss it (D4). Sending attaches it to the Message. Unattached ones are deleted after 24 hours, like uploads, and attached ones are deleted with their Message (D58).
 
 | Column | Type | Notes |
 |---|---|---|
@@ -494,7 +495,7 @@ Event types (the realtime protocol doc owns the final list and payloads): `messa
 
 There are typed ID columns and no `jsonb`, so content can't slip into the log.
 
-**Retention.** A daily cron job deletes events older than **30 days** ([Q3](#open-questions)). Because numbers have no gaps, catch-up knows the log was pruned when the oldest kept `seq` for the Chat is above `afterSeq + 1`. The client then reloads the Chat's recent window (ADR-0009). Read Positions are never in the log (D49).
+**Retention.** A daily cron job deletes events older than **30 days** (D58). Because numbers have no gaps, catch-up knows the log was pruned when the oldest kept `seq` for the Chat is above `afterSeq + 1`. The client then reloads the Chat's recent window (ADR-0009). Read Positions are never in the log (D49).
 
 ### Writing in a Chat
 
@@ -628,7 +629,7 @@ Keys and indexes:
 Keys and indexes:
 - `challenges_pkey`: primary key (`id`)
 - `challenges_to_pending_idx`: (`to_member_id`, `created_at`) where `status = 'pending'`: pending Game Challenges in the sync check (ADR-0012)
-- `challenges_pair_pending_key`: unique (`from_member_id`, `to_member_id`) where `status = 'pending'`: at most 1 pending per invitee (D56; see [Q6](#open-questions))
+- `challenges_pair_pending_key`: unique (`from_member_id`, `to_member_id`) where `status = 'pending'`: at most 1 pending Challenge per sender and invitee (D56, D58)
 - `challenges_session_idx`: (`session_id`)
 
 ### Counters
@@ -793,7 +794,7 @@ Keys and indexes:
 
 #### `feed.link_previews`
 
-The same shape as `chat.link_previews`: one per Post, for the first outside link in its body (D13, [Q4](#open-questions)).
+The same shape as `chat.link_previews`: one per Post, for the first outside link in its body (D13, ADR-0014). Deleted with its Post (D58).
 
 | Column | Type | Notes |
 |---|---|---|
@@ -821,7 +822,7 @@ Keys and indexes:
 | `root_id` | `uuid null` | FK → `feed.comments.id`: the top-level Comment of its thread; `null` for a top-level Comment |
 | `depth` | `smallint` | 0 for top-level. The UI shows 4–5 levels, then "continue thread"; the data has no limit |
 | `author_id` | `uuid` | ID → `identity.members.id` |
-| `body` | `text null` | 1–5,000 characters ([Q5](#open-questions)); `null` when Deleted or Removed |
+| `body` | `text null` | 1–5,000 characters (D58); `null` when Deleted or Removed |
 | `likes` | `integer` | default 0, counter |
 | `dislikes` | `integer` | default 0, counter |
 | `score` | `integer` | generated, stored: `likes - dislikes` |
@@ -978,7 +979,7 @@ Keys and indexes:
 |---|---|---|
 | `member_id` | `uuid` | PK; ID → `identity.members.id` |
 | `push_paused` | `boolean` | default `false`: the global switch (D6) |
-| `show_message_text` | `boolean` | "Show message text in notifications" (D9); default in [Q7](#open-questions) |
+| `show_message_text` | `boolean` | "Show message text in notifications" (D9); default `false` (D58) |
 | `updated_at` | `timestamptz` | |
 
 Keys and indexes:
@@ -1018,7 +1019,7 @@ erDiagram
 | `chat_id` | `uuid null` | ID → `chat.chats.id`: for a Message |
 | `post_id` | `uuid null` | ID → `feed.posts.id`: for a Comment |
 | `reporter_id` | `uuid null` | ID → `identity.members.id`; `null` for a logged-out visitor |
-| `reporter_email` | `text null` | logged-out visitors only (D37); `check`: exactly one of `reporter_id` and `reporter_email`. Cleared with the snapshot, 90 days after resolution |
+| `reporter_email` | `text null` | logged-out visitors only (D37); `check`: exactly one of `reporter_id` and `reporter_email`. Retention still to decide in [data retention](../operations/data-retention.md); suggested: cleared with the snapshot |
 | `reason` | `text` | `spam`, `harassment`, `hate`, `sexual`, `violence`, `self_harm`, `illegal`, `other` |
 | `details` | `text null` | up to 1,000 characters; never logged (D9) |
 | `status` | `text` | `open`, `resolved`, `dismissed` |
@@ -1047,7 +1048,7 @@ The copy taken when the Report is made: for a Message, the Message and about 10 
 | `item_id` | `uuid` | the Message, Post, Comment or Member it was copied from |
 | `author_id` | `uuid null` | ID → `identity.members.id` |
 | `body` | `text null` | the copied text |
-| `image_upload_ids` | `uuid[]` | default `{}`; see [Q9](#open-questions) |
+| `image_upload_ids` | `uuid[]` | default `{}`: images in the copied item, kept through `media.upload_holds` until the snapshot is deleted (D58) |
 | `item_created_at` | `timestamptz` | |
 
 Keys and indexes:
@@ -1101,19 +1102,22 @@ Keys and indexes:
 | Table | On `member.erasure_requested` |
 |---|---|
 | `moderation.reports` | Reports the Member made: `details` set to `null`, `reporter_id` kept (ID only). Reports about them are kept |
-| `moderation.report_snapshot_items` | kept until the snapshot's own 90-day deletion; see [Q9](#open-questions) |
+| `moderation.report_snapshot_items` | kept until the snapshot's own deletion, 90 days after the Report is resolved, even when its author is erased (D58) |
 | `moderation.sanctions` | kept (IDs only) |
 | `moderation.audit_log` | kept (IDs only) |
 
-## `media` (proposed)
+## `media`
 
-Uploads and the image sizes made from them, for every module (D42, D46). Proposed in [Q1](#open-questions); it needs an ADR if accepted. Uploads exist before the Message or Post they end up in, the storage quota counts all of a Member's images, and the 24-hour cleanup spans every kind. All three are simpler with one owner.
+Uploads and the image sizes made from them, for every module (D42, D46, ADR-0014). Uploads exist before the Message or Post they end up in, the storage quota counts all of a Member's images, and the 24-hour cleanup spans every kind. All three are simpler with one owner.
 
 Owning modules attach an upload when they save the item (`media.attach(uploadId, kind, targetId)`). The `/media/{id}/{size}` route in `apps/web` reads the upload from `media`, then asks the module that owns its target whether the viewer may see it (`canView`, D9), and redirects.
+
+When an item is Deleted, Removed or erased, its module calls `media.delete(uploadIds)`. That sets `deletion_requested_at`, and a cleanup job deletes the rows and objects that no Report snapshot holds (D58).
 
 ```mermaid
 erDiagram
   uploads ||--o{ upload_variants : "made into"
+  uploads ||--o{ upload_holds : "held by"
   member_usage {
     uuid member_id PK
   }
@@ -1138,11 +1142,13 @@ erDiagram
 | `processed_bytes` | `bigint` | default 0: the sizes we keep, for the quota |
 | `created_at` | `timestamptz` | |
 | `processed_at` | `timestamptz null` | |
+| `deletion_requested_at` | `timestamptz null` | its item is gone; deleted by the cleanup job once no hold remains |
 
 Keys and indexes:
 - `uploads_pkey`: primary key (`id`)
 - `uploads_unattached_idx`: (`created_at`) where `attached_to_id is null`: the 24-hour cleanup (D46)
 - `uploads_owner_idx`: (`owner_id`): erasure
+- `uploads_deletion_idx`: (`deletion_requested_at`) where `deletion_requested_at is not null`: the deletion cleanup
 
 When processing finishes, the job adds `media.upload_processed` (or `media.upload_rejected`) with the upload ID, kind and target, which the owning module handles: for example `chat` sets `message_images.ready` and records the `message_images_ready` event (D46).
 
@@ -1161,6 +1167,20 @@ When processing finishes, the job adds `media.upload_processed` (or `media.uploa
 Keys and indexes:
 - `upload_variants_pkey`: primary key (`upload_id`, `size`)
 
+#### `media.upload_holds`
+
+Uploads a Report snapshot keeps after their item is gone (D58). `moderation` adds a hold when it takes the snapshot and releases it when the snapshot is deleted.
+
+| Column | Type | Notes |
+|---|---|---|
+| `upload_id` | `uuid` | FK → `media.uploads.id`, on delete cascade |
+| `holder_id` | `uuid` | the Report holding it; a plain ID, since `moderation` owns Reports |
+| `created_at` | `timestamptz` | |
+
+Keys and indexes:
+- `upload_holds_pkey`: primary key (`upload_id`, `holder_id`)
+- `upload_holds_holder_idx`: (`holder_id`): releasing a Report's holds
+
 #### `media.member_usage`
 
 | Column | Type | Notes |
@@ -1175,7 +1195,7 @@ Keys and indexes:
 
 | Table | On `member.erasure_requested` |
 |---|---|
-| `media.uploads` | every upload the Member owns is deleted, rows and objects |
+| `media.uploads` | every upload the Member owns gets `deletion_requested_at`; the cleanup deletes rows and objects unless a Report snapshot holds them (D58) |
 | `media.member_usage` | deleted |
 
 ## Ranking
@@ -1193,7 +1213,7 @@ hot = sign(s) * log10(max(|s|, 1)) + t / 45000
 | epoch | `2026-01-01T00:00:00Z` | keeps the numbers small; it doesn't change the order |
 | decay | 45,000 seconds (12.5 hours) | a Post needs 10 times the Score to rank level with a Post 12.5 hours newer |
 
-`hot_rank` depends only on the Votes and `created_at`, so it changes only when someone votes. That is why it can be stored and indexed. Ties go to the newer Post (`id desc`). Tuning is in [Q2](#open-questions).
+`hot_rank` depends only on the Votes and `created_at`, so it changes only when someone votes. That is why it can be stored and indexed. Ties go to the newer Post (`id desc`).
 
 **Top** is `score desc`. "Today" and "this week" are the last 24 hours and the last 7 days, not calendar days, so they need no time zone. They are read from `posts_new_idx` and sorted by Score; the window holds few Posts.
 
@@ -1232,18 +1252,18 @@ Each list in the spec is one module's query on that module's indexes, with a fix
 | Report queue | moderation | open Reports, oldest first | `reports_queue_idx` |
 | Admin audit log | moderation | newest first | `audit_log_created_idx` |
 
-## Open questions
+## Review decisions
 
-For the reviewer to decide. Each has a suggestion, which this doc already follows.
+The questions this doc raised, as decided in review on 2026-10-03. Each is recorded in the spec (D57, D58) or ADR-0014, and the sections above follow it.
 
-1. **A `media` module.** Uploads, image sizes, the storage quota and the 24-hour cleanup cover Message images, Post images, Member avatars, Group Chat avatars and Link Preview images, which belong to four modules. Suggested: a new `media` module as [above](#media-proposed), with a new ADR amending ADR-0007 and spec §5.2. The alternative is an `uploads` table in each of `chat`, `feed` and `identity`, with the quota summed across three modules on every upload.
-2. **Hot constants.** Suggested: decay 45,000 seconds (12.5 hours), as Reddit's. With few Posts a week in the beta, a slower decay (for example 86,400 seconds, one day) would keep Posts on top longer. Changing it later is one migration.
-3. **Chat event log retention.** Suggested: 30 days, after which catch-up reloads the Chat's window. The realtime protocol doc owns the catch-up limits; [data retention](../operations/data-retention.md) gets the final value.
-4. **Link Previews on Posts.** D13 says links in a Post body get Link Previews, and §5.2 has `chat` owning Link Previews. Suggested: `feed` keeps its own `feed.link_previews` (one per Post, for the first outside link), like the two Reaction implementations, with the fetcher shared as library code. Where that code lives (a new non-module package, since `packages/content` does no I/O) is decided with the Link Preview ticket. Also: are Link Previews deleted with their Message or Post (the data retention suggestion)? This doc assumes yes.
-5. **Lengths the spec doesn't give.** Suggested: Message body up to 4,000 characters, Comment up to 5,000, Display Name 1–50, Group Chat name 1–64, image alt text up to 1,000, Report details up to 1,000.
-6. **"At most 1 pending per invitee" (D56).** Read here as one pending Game Challenge per sender and invitee pair (`challenges_pair_pending_key`). If it means one pending Challenge per invitee from anyone, the unique index becomes (`to_member_id`) only.
-7. **"Show message text in notifications" default.** Suggested: off, the more private choice (D9). Push then says "New message from Alice".
-8. **Rough last seen (D10).** Presence is in Redis with a time-to-live, but "this week" and "a long time ago" outlive any short time-to-live. Suggested: an `identity.members.last_seen_on date`, updated at most once a day from the sync check (a conditional update when the date changed). This is also the data retention suggestion. The gateway never writes the database (ADR-0009).
-9. **Report snapshots and erasure.** Suggested: snapshot text is kept until the snapshot's own deletion, 90 days after the Report is resolved, even if its author is erased, because it is evidence in a moderation case. Images in a snapshot are kept by reference (`image_upload_ids`), and the files are not deleted while an open Report holds them. This needs a check against the privacy policy (D53).
-10. **Invites returned on expiry.** When a Member's unused Invite expires, does `invites_left` go back up? Suggested: yes, so "5 Invites" means 5 open at a time.
-11. **Better Auth's own columns.** The admin plugin's `ban_reason` and `impersonated_by`, and Google's tokens in `identity.accounts`, are kept because Better Auth expects them. Impersonation stays off. The auth ticket confirms these against Better Auth 1.7, including the session hook that sets `auth_method`.
+1. **A `media` module** owns uploads, image sizes, the storage quota and the cleanups (D57, ADR-0014).
+2. **Hot constants:** decay of 45,000 seconds (12.5 hours) from the epoch 2026-01-01 (D58). Changing them later is one migration.
+3. **Chat event log retention:** 30 days; catch-up further back reloads the Chat's window (D58). The realtime protocol doc sets the catch-up limits.
+4. **Link Previews** belong to the module whose item shows them: `chat.link_previews` and `feed.link_previews`, with the fetching code shared (ADR-0014). They are deleted with their Message or Post (D58).
+5. **Lengths:** Message up to 4,000 characters, Comment up to 5,000, Display Name 1–50, Group Chat name 1–64, image alt text up to 1,000, Report details up to 1,000 (D58).
+6. **Game Challenges:** at most one pending Challenge per sender and invitee (D56, D58).
+7. **"Show message text in notifications"** is off by default (D58).
+8. **Last seen** is `identity.members.last_seen_on`, updated at most once a day from the sync check (D58).
+9. **Report snapshots** keep their text and images until their deletion 90 days after resolution, even when the author is erased, through `media.upload_holds` (D58). The privacy policy says so (D53).
+10. **Invites** that expire or are cancelled unused go back to the Member's count (D58).
+11. **Better Auth's own columns** stay; impersonation stays off. The auth ticket (CHK-20) checks them against Better Auth 1.7, including the session hook that sets `auth_method` (D58).

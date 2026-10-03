@@ -12,7 +12,7 @@ const read = (file: string) => readFileSync(path.join(root, file), 'utf8');
 const docFile = 'docs/architecture/data-model.md';
 const doc = read(docFile);
 
-/** Modules that own tables (spec §5.2). `search` and the sync check own none. */
+/** Modules that own tables (spec §5.2, ADR-0014). `search` and the sync check own none. */
 const modulesWithTables = [
   'identity',
   'chat',
@@ -21,6 +21,7 @@ const modulesWithTables = [
   'feed',
   'notifications',
   'moderation',
+  'media',
 ];
 
 /** Screens the ticket names; each must be served by one module's indexes. */
@@ -214,9 +215,9 @@ describe('data model doc', () => {
     }
   });
 
-  it('ends with numbered open questions for review', () => {
+  it('ends with the numbered decisions from review', () => {
     const last = sections(doc, 2).at(-1);
-    expect(last?.heading).toBe('Open questions');
+    expect(last?.heading).toBe('Review decisions');
     expect(last?.body).toMatch(/^1\. \*\*/m);
   });
 });
