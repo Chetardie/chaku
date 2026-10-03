@@ -1,8 +1,9 @@
 // HTTPS requests to the stack's sites that trust only Caddy's root certificate, the way a browser
-// does after the one-time trust step.
+// does after the one-time trust step. They never use Node's default CA list, so the developer's
+// Node settings don't change the results.
 import https from 'node:https';
 import type { LookupFunction } from 'node:net';
-import type { TLSSocket } from 'node:tls';
+import tls, { type TLSSocket } from 'node:tls';
 
 export interface Response {
   status: number;
@@ -16,7 +17,12 @@ export interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
   body?: string;
-  /** PEM certificates to trust instead of Node's default list. */
+  /**
+   * PEM certificates to trust. Default: Node's bundled Mozilla list (`tls.rootCertificates`), the
+   * public roots that a machine without the trust step has. Not Node's default list: with
+   * `NODE_USE_SYSTEM_CA` or `NODE_EXTRA_CA_CERTS` it holds this machine's roots too, Caddy's among
+   * them after the trust step (CHK-39).
+   */
   ca?: string;
 }
 
@@ -37,7 +43,7 @@ export function request(url: string, options: RequestOptions = {}): Promise<Resp
       {
         method: options.method ?? 'GET',
         headers: options.headers,
-        ca: options.ca,
+        ca: options.ca ?? [...tls.rootCertificates],
         lookup: loopback,
         agent: false,
       },

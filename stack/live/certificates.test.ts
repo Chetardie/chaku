@@ -1,6 +1,7 @@
 // CHK-14: every site, Mailpit's included, is served over HTTPS with a certificate that a browser
 // trusts once Caddy's root is trusted (ADR-0006). The checks trust only that root.
 import { readFileSync } from 'node:fs';
+import tls from 'node:tls';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -42,5 +43,19 @@ describe('HTTPS on the .localhost sites', () => {
     await expect(request(`https://${sites.mail}/`)).rejects.toMatchObject({
       code: expect.stringMatching(/CERT|SELF_SIGNED|UNABLE_TO_VERIFY/) as unknown,
     });
+  });
+
+  // CHK-39: after the trust step, NODE_USE_SYSTEM_CA or NODE_EXTRA_CA_CERTS put Caddy's root into
+  // Node's default list. The check above must still see only the public roots.
+  it('is not trusted before the trust step when Node already trusts Caddy', async () => {
+    const defaults = tls.getCACertificates('default');
+    tls.setDefaultCACertificates([...defaults, root]);
+    try {
+      await expect(request(`https://${sites.mail}/`)).rejects.toMatchObject({
+        code: expect.stringMatching(/CERT|SELF_SIGNED|UNABLE_TO_VERIFY/) as unknown,
+      });
+    } finally {
+      tls.setDefaultCACertificates(defaults);
+    }
   });
 });
