@@ -7,6 +7,7 @@ import {
   cloneTemplate,
   databaseUrlFor,
   dropDatabases,
+  queuedJobs,
   useTestDatabase,
   workerDatabaseName,
 } from '../src/testing/index.ts';
@@ -45,6 +46,27 @@ describe('the test database', () => {
     it('empties every table before the next test', async () => {
       const { rows } = await database.db.$client.query('select * from harness_test.rows');
       expect(rows).toEqual([]);
+    });
+  });
+
+  describe('the job queue (CHK-18)', () => {
+    it('has the graphile_worker schema from the template', async () => {
+      const { rows } = await database.db.$client.query<{ count: string }>(
+        'select count(*) from graphile_worker.migrations',
+      );
+      expect(Number(rows[0]?.count)).toBeGreaterThan(0);
+    });
+
+    // These two run in order, like the tables above.
+    it('lets a test add a job', async () => {
+      await database.db.$client.query(`select graphile_worker.add_job('harness.left_behind')`);
+      expect(await queuedJobs(database.db)).toHaveLength(1);
+    });
+
+    it('starts the next test with an empty queue and Graphile Worker still installed', async () => {
+      expect(await queuedJobs(database.db)).toEqual([]);
+      await database.db.$client.query(`select graphile_worker.add_job('harness.still_works')`);
+      expect(await queuedJobs(database.db)).toMatchObject([{ name: 'harness.still_works' }]);
     });
   });
 });

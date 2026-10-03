@@ -15,7 +15,7 @@ async function snapshot(): Promise<Record<string, unknown[]>> {
   const db = database.db.$client;
   const { rows: tables } = await db.query<{ name: string }>(
     `select format('%I.%I', schemaname, tablename) as name from pg_tables
-     where schemaname not in ('public', 'information_schema', 'drizzle') and schemaname !~ '^pg_'
+     where schemaname not in ('public', 'information_schema', 'drizzle', 'graphile_worker') and schemaname !~ '^pg_'
      order by 1`,
   );
   const result: Record<string, unknown[]> = {};

@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "pg": "catalog:"
+    "graphile-worker": "catalog:",
+    "pg": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@chaku/config": "workspace:*",

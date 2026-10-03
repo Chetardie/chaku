@@ -4,6 +4,7 @@
 // clones and drops each have a database name of their own and need none.
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import pg from 'pg';
@@ -24,9 +25,21 @@ export function databaseUrlFor(url: string, database: string): string {
   return next.toString();
 }
 
-/** The template's name changes with the migrations, so a new migration gets a new template. */
+/** Graphile Worker's version: its schema is part of the template too (ADR-0008). */
+function graphileWorkerVersion(): string {
+  // Its package exports only the entry point, so find package.json next to it.
+  const entry = createRequire(import.meta.url).resolve('graphile-worker');
+  const file = path.resolve(path.dirname(entry), '../package.json');
+  return (JSON.parse(readFileSync(file, 'utf8')) as { version: string }).version;
+}
+
+/**
+ * The template's name changes with the migrations and the Graphile Worker version, so either
+ * change gets a new template.
+ */
 export function templateName(): string {
   const hash = createHash('sha256');
+  hash.update(`graphile-worker@${graphileWorkerVersion()}`);
   for (const folder of readdirSync(migrationsFolder).sort()) {
     hash.update(folder);
     hash.update(readFileSync(path.join(migrationsFolder, folder, 'migration.sql')));

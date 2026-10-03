@@ -56,6 +56,14 @@ export default {
       to: { path: '^packages/modules/' },
     },
     {
+      name: 'graphile-worker-only-in-the-worker',
+      comment:
+        'Only apps/worker runs jobs, and @chaku/db/migrate installs their schema. Everything else adds jobs with addJob from @chaku/db (ADR-0008).',
+      severity: 'error',
+      from: { pathNot: ['^apps/worker/', String.raw`^packages/db/src/migrate\.ts$`] },
+      to: { path: '(^|/)graphile-worker/' },
+    },
+    {
       name: 'no-circular',
       comment: 'Cycles make modules impossible to change or split out on their own.',
       severity: 'error',
@@ -73,7 +81,11 @@ export default {
   ],
   options: {
     doNotFollow: { path: 'node_modules' },
-    exclude: { path: String.raw`(^|/)(node_modules|dist|\.next|\.turbo|coverage)/` },
+    // Packages' own node_modules folders aren't crawled; npm packages stay in the graph as leaves,
+    // so a rule can name one (graphile-worker-only-in-the-worker).
+    exclude: {
+      path: String.raw`(^|/)(dist|\.next|\.turbo|coverage)/|^(apps|packages)/.*node_modules/`,
+    },
     // Type-only imports cross boundaries too.
     tsPreCompilationDeps: true,
     // Workspace packages resolve through their package.json exports, like Node and bundlers do.
