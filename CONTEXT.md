@@ -68,6 +68,10 @@ _Avoid_: Post (that is the feed), chat post
 A Message that quotes one earlier Message in the same Chat; tapping the quote jumps to the original.
 _Avoid_: Reply (alone), quote, thread (in a Chat)
 
+**System line**:
+A line in a Group Chat's timeline that records a change, such as someone being added or the group being renamed; stored as a Message of kind `system`, never written by a Participant.
+_Avoid_: Service message, event (that is the Chat event log), notice
+
 **Post Card**:
 A card in a Chat that shows a feed Post, created by sharing the Post or pasting its link.
 _Avoid_: Shared post, embed
@@ -188,8 +192,9 @@ _Avoid_: Deleted (when an Admin did it), hidden
 
 - An **Invite** is created by one **Member** and can be redeemed by one (single-use) or many (multi-use) new people
 - A **Message Reply** quotes exactly one earlier **Message** in the same **Chat**
+- A **System line** shares the **Chat Sequence** number of the change it records; it doesn't count as **Unread**
 - A **Direct Chat** has exactly 2 **Participants**; adding a third person creates a new **Group Chat** instead
-- A **Group Chat** has exactly one **Group Owner**, zero or more **Group Admins**, and up to 50 **Participants** in total; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant
+- A **Group Chat** has exactly one **Group Owner**, zero or more **Group Admins**, and up to 50 **Participants** in total; if the Owner leaves, ownership passes to the longest-serving Group Admin, else the longest-serving Participant; the Owner can also hand it to any Participant
 - A **Block** never removes anyone from a shared **Group Chat**; the blocked person's Messages are collapsed for the blocker instead
 - **Posts** and **Comments** take both **Votes** and **Reactions**; **Messages** take **Reactions** only
 - An **Admin** sees private chat content only through a **Report**, which snapshots the reported message and about 10 messages before it

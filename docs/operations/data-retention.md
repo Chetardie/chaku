@@ -52,7 +52,7 @@ How long Chaku keeps each kind of data, gathered from the decisions in the [spec
 |---|---|---|---|
 | Report snapshots | 90 days after the Report is resolved | D9, D58 | Admins only; every view logged. Kept until then even if the author's account is erased, images included. |
 | Reports themselves | _to decide_ | D2 | Suggested: 2 years, like the audit log, so repeat abuse can be seen. |
-| Email addresses of logged-out reporters | _to decide_ | D37 | Suggested: 90 days after the Report is resolved, with the snapshot. |
+| Email addresses of logged-out reporters | 90 days after the Report is resolved, with the snapshot | D37, D63 | Used for the receipt and decision emails. |
 | Admin audit log | 2 years | D47 | |
 | Bans | while in force | D37 | |
 

@@ -1954,8 +1954,8 @@
           <p>
             Every screen v1 needs, checked against spec v0.4 (D1–D58) and the accepted data model.
             The mockups use the Warm direction from <code>docs/design-system/foundations.md</code>.
-            Parts outlined with a dashed line are <b>not in the spec or data model yet</b>. They're
-            proposals, listed under Gaps.
+            Parts outlined with a dashed line were <b>gaps</b> in the spec or data model. All of
+            them are now decided (D60–D66).
           </p>
         </div>
         <div class="controls">
@@ -1971,7 +1971,7 @@
       </header>
       <nav class="jump" aria-label="Sections">
         <a href="#mockups">Mockups</a><a href="#desktop">Desktop</a
-        ><a href="#inventory">Screen inventory</a><a href="#gaps">Gaps (7 open)</a
+        ><a href="#inventory">Screen inventory</a><a href="#gaps">Decisions</a
         ><a href="#design">Design notes</a>
       </nav>
 
@@ -2149,8 +2149,8 @@
             </div>
             <figcaption>
               <b>Chat list</b>Unread is bold with a count, plus Presence, typing, Mute, drafts,
-              "Seen". The <span class="ptag">G3</span> mention badge and
-              <span class="ptag">G1</span> system line are proposed.
+              "Seen". The mention badge <span class="ptag">D62</span> and the System line
+              <span class="ptag">D60</span> came from the screen map.
             </figcaption>
           </figure>
 
@@ -2167,7 +2167,7 @@
               <div class="content">
                 <div class="chat">
                   <span class="day">Today</span>
-                  <span class="sys prop">Anya added Sasha <span class="ptag">G1</span></span>
+                  <span class="sys prop">Anya added Sasha <span class="ptag">D60</span></span>
                   <div class="row">
                     <div class="av s c2">O</div>
                     <div class="bubble">
@@ -2487,14 +2487,14 @@
                   <li class="n prop">
                     <span class="nico gap"><i data-lucide="shield"></i></span>
                     <div class="nbody">
-                      Your comment was removed by an admin: spam <span class="ptag">G4</span
+                      Your comment was removed by an admin: spam <span class="ptag">D63</span
                       ><small>Mon · See why</small>
                     </div>
                   </li>
                   <li class="n prop">
                     <span class="nico gap"><i data-lucide="flag"></i></span>
                     <div class="nbody">
-                      We reviewed your report and removed the post <span class="ptag">G4</span
+                      We reviewed your report and removed the post <span class="ptag">D63</span
                       ><small>Sun</small>
                     </div>
                   </li>
@@ -2510,7 +2510,7 @@
             </div>
             <figcaption>
               <b>Notifications</b>The five spec types (D6, D26), with a Game Challenge you can act
-              on. The two <span class="ptag">G4</span> moderation notices are proposed.
+              on. The two moderation notices came from the screen map <span class="ptag">D63</span>.
             </figcaption>
           </figure>
 
@@ -2530,7 +2530,7 @@
                   <span class="un">@anya</span>
                   <span class="pres">Online</span>
                   <p class="bio prop">
-                    Kyiv · board games · terrible puns <span class="ptag">G5</span>
+                    Kyiv · board games · terrible puns <span class="ptag">not in v1</span>
                   </p>
                   <div class="btnrow">
                     <span class="btn"><i data-lucide="message-circle"></i>Message</span
@@ -2551,7 +2551,7 @@
                   </div>
                 </div>
                 <div class="sect">
-                  <h5>Posts <span class="ptag">G5</span></h5>
+                  <h5>Posts <span class="ptag">D64</span></h5>
                   <div class="plist prop">
                     <div>Best late-night food near Podil<small>Kyiv · 3h · 42 likes</small></div>
                     <div>Our board game shelf, ranked<small>Games · 2d · 31 likes</small></div>
@@ -2561,8 +2561,9 @@
             </div>
             <figcaption>
               <b>Profile</b> at <code>/@username</code>, logged-in only. Game stats come from
-              <code>results.member_stats</code>, which no screen used yet. The bio and the list of
-              Posts are proposed <span class="ptag">G5</span>.
+              <code>results.member_stats</code>, which no screen used yet. The list of Posts came
+              from the screen map <span class="ptag">D64</span>. The bio is shown only to compare:
+              it is not in v1.
             </figcaption>
           </figure>
 
@@ -2584,7 +2585,8 @@
                   <li class="prop">
                     <div class="ii"><b>For Sasha</b><small>Expires in 6 days</small></div>
                     <span class="ib"><i data-lucide="copy"></i></span
-                    ><span class="ib"><i data-lucide="x"></i></span><span class="ptag abs">G2</span>
+                    ><span class="ib"><i data-lucide="x"></i></span
+                    ><span class="ptag abs">D61</span>
                   </li>
                   <li class="prop">
                     <div class="ii"><b>For Dmytro</b><small>Expires in 2 days</small></div>
@@ -2602,9 +2604,8 @@
               </div>
             </div>
             <figcaption>
-              <b>Settings → Invites</b>The current model stores only a hash of the code, so a link
-              can't be copied again after it's created, and Invites have no note saying who each one
-              is for <span class="ptag">G2</span>.
+              <b>Settings → Invites</b>Storing the code lets a link be copied again, and the note
+              says who each Invite is for <span class="ptag">D61</span>.
             </figcaption>
           </figure>
         </div>
@@ -2768,11 +2769,10 @@
           <span>Show:</span>
           <div class="seg" role="group" aria-label="Filter screens">
             <button id="f-all" data-filter="all" aria-pressed="true">All</button>
-            <button id="f-gap" data-filter="gap" aria-pressed="false">Gaps and decisions</button>
+            <button id="f-gap" data-filter="gap" aria-pressed="false">Added by D60–D66</button>
           </div>
           <span class="legend" style="margin-left: 8px"
-            ><span class="chip ok">Covered</span><span class="chip gap">Gap</span
-            ><span class="chip decide">Decide</span></span
+            ><span class="chip ok">Covered</span><span class="chip ok">Covered · Dn</span></span
           >
         </div>
         <div class="inv" id="inv"></div>
@@ -2780,11 +2780,11 @@
 
       <!-- ===================== GAPS ===================== -->
       <section id="gaps">
-        <h2>Gaps</h2>
+        <h2>Gaps and decisions</h2>
         <p class="lede">
-          Things the screens need that the spec or the data model doesn't cover yet. Five change
-          tables, one is spec wording only, and one is a profile decision. Each needs a decision
-          before it goes into the spec and the data model doc. G8 (theme) is decided: D59, ADR-0015.
+          Things the screens need that the spec or the data model doesn't cover yet. Everything the
+          screens needed that the spec or data model didn't cover. All decided on 2026-10-03 with
+          the recommended option: D59 to D66.
         </p>
         <div class="gaps" id="gaplist"></div>
       </section>
@@ -3035,26 +3035,26 @@
             [
               'Mention badge in the list',
               'chat list',
-              "An '@' when an unread Notification points into this Chat. Needs a way to clear it when you read the Chat.",
-              'notifications.context_id',
-              'gap',
-              'G3',
+              "An '@' when an unread mention Notification points into this Chat; it clears when you read past the Message.",
+              'notifications.context_seq',
+              'done',
+              'D62',
             ],
             [
               'System lines',
               'chat list, Chat',
-              "'Anya added Sasha', 'renamed the group', 'left'. The events exist in chat.events but are pruned after 30 days and aren't part of the Message window.",
-              'chat.events (30 days only)',
-              'gap',
-              'G1',
+              "'Anya added Sasha', 'renamed the group', 'left', in the timeline and as the chat list's last line. Group Chats only; not Unread.",
+              'chat.messages (kind = system)',
+              'done',
+              'D60',
             ],
             [
               'Hide a Direct Chat',
               'chat list',
-              "'Anyone can message anyone' (D3). Today a spammer's Direct Chat stays in your list forever, even after a Block.",
-              '—',
-              'decide',
-              'G7',
+              "'Hide chat' in Direct Chat info. Gone from the list until a new Message arrives or you open it; history stays.",
+              'chat.participants.hidden_until_seq',
+              'done',
+              'D66',
             ],
             [
               'New chat',
@@ -3122,10 +3122,10 @@
             [
               'Transfer ownership',
               'Group info',
-              "The spec only passes ownership on when the Owner leaves (D3). There's no 'Make owner' action.",
+              "'Make owner' on a Participant, for the Owner only, with a confirm. The old Owner becomes a Group Admin.",
               'participant_role_changed',
-              'decide',
-              'G6',
+              'done',
+              'D65',
             ],
             [
               'Mute',
@@ -3150,18 +3150,18 @@
             [
               'Game stats on profile',
               '/@username',
-              'results.member_stats exists, but no screen in the spec shows it.',
+              'Played, wins, draws and best score per Game.',
               'results.member_stats',
-              'decide',
-              'G5',
+              'done',
+              'D64',
             ],
             [
-              'Posts on profile, bio',
+              'Posts on profile',
               '/@username',
-              'Not in the spec. A Posts list needs an index by author and date, and a bio needs a new column.',
-              'feed.posts_author_idx (erasure only)',
-              'decide',
-              'G5',
+              "The Member's Posts, newest first, paged. Blocks collapse them. No bio in v1.",
+              'feed.posts_author_created_idx',
+              'done',
+              'D64',
             ],
             [
               'Block',
@@ -3192,18 +3192,18 @@
             [
               'Read when you read the Chat',
               'Bell, chat list',
-              'If you read the mention in the Chat, the bell item should clear too. No rule or data for this yet.',
-              '—',
-              'gap',
-              'G3',
+              'Reading the Chat past a mention or Message Reply marks its Notification read.',
+              'notifications.context_seq',
+              'done',
+              'D62',
             ],
             [
               'Moderation notices',
               'Bell, email',
-              'The author learns content was removed and why. The reporter learns the outcome. Likely required by the EU DSA for hosting services.',
-              '—',
-              'gap',
-              'G4',
+              'The author learns content was removed and why; the reporter learns the outcome. Logged-out reporters and banned Members get email (EU DSA).',
+              'notifications.type, audit_log.reason',
+              'done',
+              'D63',
             ],
             [
               'Push',
@@ -3365,10 +3365,10 @@
             [
               'Invites',
               '/settings/invites *',
-              "Invites left, create, copy link, cancel, who joined. Links can't be copied again and Invites can't be labelled.",
-              'identity.invites (code_hash only)',
-              'gap',
-              'G2',
+              'Invites left, create with an optional note, copy link (again any time), cancel, who joined.',
+              'identity.invites (code, note; CHK-21)',
+              'done',
+              'D61',
             ],
             [
               'Your data',
@@ -3399,10 +3399,10 @@
             [
               'Report detail',
               '/admin/reports/[id] *',
-              'Snapshot (each view logged), earlier Reports about the person. Remove, suspend, ban, dismiss. Removal needs a reason code for the notice.',
-              'report_snapshot_items, sanctions',
-              'gap',
-              'G4',
+              'Snapshot (each view logged), earlier Reports about the person. Remove, suspend, ban (each with a reason code), dismiss.',
+              'report_snapshot_items, sanctions, audit_log.reason',
+              'done',
+              'D63',
             ],
             [
               'Member',
@@ -3421,10 +3421,10 @@
             [
               'Multi-use Invites',
               '/admin/invites *',
-              'Create with a use limit and expiry, copy link (same issue as G2).',
+              'Create with a use limit, expiry and note; copy link any time.',
               'identity.invites',
-              'gap',
-              'G2',
+              'done',
+              'D61',
             ],
             [
               'Topics',
@@ -3461,80 +3461,87 @@
       const GAPS = [
         {
           id: 'G1',
+          dn: 'D60',
           title: 'System lines in Chats',
-          kind: 'data',
+          kind: 'done',
           problem:
             "Messengers show 'Anya added Sasha', 'renamed the group to …' and 'Oleh left' in the timeline and as the last line in the chat list. Today those exist only as chat.events, which are pruned after 30 days, and the Message window reads chat.messages only.",
           proposal:
             "Store them as Messages with a kind. They already take a Chat Sequence number, so ordering and catch-up come for free. They don't count as Unread.",
           sql: "chat.messages\n  kind          text  'user' | 'system'  default 'user'\n  system_event  text null  created | participant_added | participant_left\n                | participant_removed | owner_changed | admin_changed\n                | renamed | avatar_changed\n  system_member_id uuid null  ID → identity.members.id\n  -- author_id = who did it; body null",
-          ask: 'Show system lines? (Recommended: yes, for Group Chats)',
+          ask: 'Decided: System lines in Group Chats (D60).',
         },
         {
           id: 'G2',
+          dn: 'D61',
           title: 'Invite links can be copied again, and labelled',
-          kind: 'data',
+          kind: 'done',
           problem:
             "identity.invites stores only code_hash, so the link exists once, at creation. The Invites screen can't offer 'Copy link' later. With 5 open Invites there's also no way to tell which one is for whom.",
           proposal:
             'Store the code itself. An Invite is low-risk: single-use, 7 days, and the new person still has to log in. Add an optional note that only the creator sees.',
           sql: 'identity.invites\n  code  text  unique   -- replaces code_hash\n  note  text null  1–50, creator only ("For Sasha")',
-          ask: 'Store the code (recommended), or keep the hash and show the link once?',
+          ask: 'Decided: store the code and an optional note (D61). Migration in CHK-21.',
         },
         {
           id: 'G3',
+          dn: 'D62',
           title: 'Reading a Chat clears its Notifications',
-          kind: 'data',
+          kind: 'done',
           problem:
             "A mention creates both an Unread count and a bell Notification. After you read the Message in the Chat, the bell still shows it as unread. Nothing links a Notification to a place in the Chat. The '@' badge in the chat list needs the same link.",
           proposal:
             'Keep the Chat Sequence of the Message on chat Notifications. When a Read Position moves, chat adds a job, and notifications marks read everything in that Chat up to that number.',
           sql: "notifications.notifications\n  context_seq bigint null   -- Message's seq, chat types only\n  index (recipient_id, context_id) where read_at is null\n\njob chat.read_position_moved { chat_id, member_id, read_seq }",
-          ask: 'Should reading a Chat clear its mention and reply Notifications? (Recommended: yes)',
+          ask: 'Decided: reading a Chat marks its mention and reply Notifications read (D62).',
         },
         {
           id: 'G4',
+          dn: 'D63',
           title: 'Moderation notices to the author and the reporter',
-          kind: 'data',
+          kind: 'done',
           problem:
             "Admins can remove content and ban people, but nobody is told. The EU Digital Services Act asks hosting services to confirm a report, tell the reporter the decision, and give the affected person a statement of reasons. That likely applies to Chaku's public Feed even at beta size. Removal also stores no reason.",
           proposal:
             'Two Notification types, plus email for logged-out reporters (transactional, which D6 allows). Store a reason code with each Admin action.',
           sql: 'notifications.type += content_removed, report_resolved\nmoderation.audit_log\n  reason text null   -- same codes as reports.reason\n-- ban/suspension: shown on the login screen from members.ban_reason',
-          ask: 'Add both notices? Check the wording with the legal pages ticket (CHK-33).',
+          ask: 'Decided: both notices, plus emails and a reason code (D63).',
         },
         {
           id: 'G5',
+          dn: 'D64',
           title: 'What a profile shows',
-          kind: 'decide',
+          kind: 'done',
           problem:
             "The spec defines /@username but not what's on it. results.member_stats is stored and never shown anywhere. Feed authors have no list of their Posts.",
           proposal:
             'Show Game stats (no change). Optionally a Posts list (needs one index) and a short bio (new column, not in the spec).',
           sql: 'feed.posts_author_new_idx (author_id, created_at desc, id desc)\n  where deleted_at is null and removed_at is null\nidentity.members.bio text null  -- up to 160, optional',
-          ask: 'Game stats only, + Posts, or + Posts and bio?',
+          ask: 'Decided: Game stats and Posts, no bio (D64).',
         },
         {
           id: 'G6',
+          dn: 'D65',
           title: 'Group Owner can hand over ownership',
-          kind: 'spec',
+          kind: 'done',
           problem:
             "D3 passes ownership on only when the Owner leaves. An Owner who wants to stay but stop managing the group can't.",
           proposal:
             "A 'Make owner' action for the Owner, on a Participant in Group info. The data already supports it (participant roles, participant_role_changed event).",
           sql: 'no table change',
-          ask: "Add 'Make owner'? (Recommended: yes)",
+          ask: 'Decided: "Make owner" (D65).',
         },
         {
           id: 'G7',
+          dn: 'D66',
           title: 'Hiding a Direct Chat',
-          kind: 'data',
+          kind: 'done',
           problem:
             "Anyone can message anyone (D3) and there's no 'delete for me' (D5). A stranger's or spammer's Direct Chat stays in your list forever, even after you Block them.",
           proposal:
             "'Hide chat' removes it from your list until a new Message arrives. History stays for both people.",
           sql: 'chat.participants\n  hidden_until_seq bigint null  -- hidden while last_message_seq <= this',
-          ask: "Add 'Hide chat', or keep the list as is for the beta?",
+          ask: 'Decided: "Hide chat" for Direct Chats (D66).',
         },
         {
           id: 'G8',
@@ -3558,13 +3565,15 @@
       const chipFor = (st, g) =>
         st === 'ok'
           ? '<span class="chip ok">Covered</span>'
-          : `<a href="#${g}" class="chip ${st}" style="text-decoration:none">${st === 'gap' ? 'Gap' : 'Decide'} · ${g}</a>`;
+          : st === 'done'
+            ? `<span class="chip ok">Covered · ${g}</span>`
+            : `<a href="#${g}" class="chip ${st}" style="text-decoration:none">${st === 'gap' ? 'Gap' : 'Decide'} · ${g}</a>`;
       INV.forEach((a, i) => {
         const gaps = a.rows.filter((r) => r[4] !== 'ok').length;
         const d = document.createElement('details');
         d.className = 'area';
         d.open = i < 3;
-        d.innerHTML = `<summary><h3>${esc(a.area)}</h3><span class="count">${a.rows.length} screens${gaps ? ` · ${gaps} open` : ''}</span><span class="chev">›</span></summary>
+        d.innerHTML = `<summary><h3>${esc(a.area)}</h3><span class="count">${a.rows.length} screens${gaps ? ` · ${gaps} added by D60–D66` : ''}</span><span class="chev">›</span></summary>
   <div class="tblwrap"><table><thead><tr><th>Screen</th><th>Shows and does</th><th>Data</th><th>Status</th></tr></thead><tbody>
   ${a.rows.map((r) => `<tr data-st="${r[4]}"><td class="scr">${esc(r[0])}<code>${esc(r[1])}</code></td><td class="what">${esc(r[2])}</td><td class="src">${esc(r[3])}</td><td>${chipFor(r[4], r[5])}</td></tr>`).join('')}
   </tbody></table></div>`;
@@ -3596,7 +3605,7 @@
       };
       document.getElementById('gaplist').innerHTML = GAPS.map(
         (g) => `<article class="gapc" id="${g.id}">
-  <header><span class="gid">${g.id}</span><h3>${esc(g.title)}</h3>${kindChip[g.kind]}</header>
+  <header><span class="gid">${g.id}${g.dn ? ' → ' + g.dn : ''}</span><h3>${esc(g.title)}</h3>${kindChip[g.kind]}</header>
   <div><span class="k">Problem</span><p>${esc(g.problem)}</p></div>
   <div><span class="k">Proposal</span><p>${esc(g.proposal)}</p></div>
   <pre>${esc(g.sql)}</pre>
