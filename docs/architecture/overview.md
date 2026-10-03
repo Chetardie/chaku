@@ -116,6 +116,16 @@ Each module's tables, keys, indexes and counters, and how each handles erasure, 
 
 `packages/db` holds the database plumbing every module and app shares: the `pg` pool and Drizzle client, the transaction helper that also hands over the `pg` client for adding jobs (ADR-0008), the one migration history for every module schema (D36) and the test harness (D19). It owns no tables and imports no module; each module declares its own tables in `src/schema.ts`.
 
+### Jobs
+
+Side effects and timers are Graphile Worker jobs (ADR-0008), run by `apps/worker`. `pnpm db:migrate` installs the `graphile_worker` schema with the module migrations, so apps can add jobs before the worker has ever run.
+
+- **Define** a job in the module with `defineJob('<area>.<event>', z.object({ … }))` from `@chaku/db`. The payload holds IDs, enums, numbers, booleans and timestamps only (D9): `defineJob` throws on a field that could carry free text.
+- **Add** it with `addJob(scope, job, payload, options)` inside `transaction(db, async (scope) => …)`, so the job exists if and only if the change commits. `jobKey` keeps one pending job for a burst of changes.
+- **Handle** it with `handle(job, async (payload, { db, log, job, signal }) => …)` and export the module's `ModuleJobs` (`handlers`, and `cron` for scheduled jobs) from its public entry point. Add the module to [`apps/worker/src/modules.ts`](../../apps/worker/src/modules.ts). Only `apps/worker` imports `graphile-worker` (dependency-cruiser).
+- **Idempotent:** a job can run more than once (a retry, a crash before it was marked done). Write so that a second run changes nothing: delete or update with a condition that the first run already made false (`where expires_at < now()`, `where status = 'pending'`), insert with `on conflict do nothing`, and for an outside effect such as an email, record that it was sent in the same transaction as the check. The worker checks the payload again before the handler runs.
+- **Test** with `queuedJobs(db)` (the jobs a transaction added) and `runJob(db, moduleJobs, job, payload)` (the handler, run twice for idempotency) from `@chaku/db/testing`. Failing jobs are retried with backoff, up to 25 attempts by default; logs carry the job's name, ID and attempt, never its payload.
+
 `apps/web` composes screens across modules with batch lookups (`identity.getProfiles`, `identity.getBlockRelations`) and composes the sync check from `chat`, `notifications` and `games` (ADR-0012). `packages/content` imports no module. Games import only `game-sdk` and `ui`.
 
 ## Key flows

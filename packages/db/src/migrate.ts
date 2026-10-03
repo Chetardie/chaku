@@ -1,18 +1,27 @@
-// `pnpm db:migrate` and `pnpm db:reset`: one migration history for every module schema (D36).
+// `pnpm db:migrate` and `pnpm db:reset`: one migration history for every module schema (D36), then
+// Graphile Worker's own schema, so apps can add jobs before the worker has ever run (ADR-0008).
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { Logger, runMigrations } from 'graphile-worker';
 
 import type { Database, Transaction } from './client.ts';
 import { migrationsFolder, migrationsSchema } from './modules.ts';
 import { transaction } from './transaction.ts';
 
-/** Applies the migrations this database doesn't have yet. */
+/** Graphile Worker logs each migration step; a migration run only reports failures, by throwing. */
+const quiet = new Logger(() => () => undefined);
+
+/**
+ * Applies the module migrations this database doesn't have yet, then installs or upgrades the
+ * `graphile_worker` schema. Graphile Worker migrates that schema itself; Drizzle never sees it.
+ */
 export async function migrateDatabase(db: Database): Promise<void> {
   await migrate(db, { migrationsFolder, migrationsSchema });
+  await runMigrations({ pgPool: db.$client, logger: quiet });
 }
 
 /**
  * Every schema but `public` and Postgres's own: the module schemas, Drizzle's migration table,
- * and Graphile Worker's queue (it installs itself again when the worker starts, CHK-18).
+ * and Graphile Worker's queue, which `migrateDatabase` installs again.
  */
 export async function droppableSchemas(db: Database): Promise<string[]> {
   const { rows } = await db.$client.query<{ name: string }>(

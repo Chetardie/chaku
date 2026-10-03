@@ -1,18 +1,20 @@
 {
-  "name": "@chaku/identity",
+  "name": "@chaku/worker",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "scripts": {
+    "dev": "node --watch --env-file=../../.env.example --env-file-if-exists=../../.env src/main.ts",
+    "build": "tsdown",
+    "start": "node --env-file=../../.env.example --env-file-if-exists=../../.env dist/main.mjs",
     "lint": "eslint .",
     "typecheck": "tsc",
     "test": "vitest run"
   },
   "dependencies": {
+    "@chaku/adapters": "workspace:*",
     "@chaku/db": "workspace:*",
-    "drizzle-orm": "catalog:",
+    "@chaku/identity": "workspace:*",
+    "graphile-worker": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -20,6 +22,7 @@
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
     "eslint": "catalog:",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

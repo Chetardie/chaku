@@ -156,4 +156,27 @@ describe('module boundaries', () => {
       }),
     ).toEqual(['no-circular: packages/modules/chat/src/a.ts → packages/modules/chat/src/b.ts']);
   });
+
+  it('lets only apps/worker and the migrations import graphile-worker (CHK-18)', async () => {
+    const graphile = {
+      'node_modules/graphile-worker/package.json': JSON.stringify({
+        name: 'graphile-worker',
+        exports: './index.js',
+      }),
+      'node_modules/graphile-worker/index.js': 'export const run = 1;\n',
+    };
+    const importIt = "import 'graphile-worker';\n";
+    expect(
+      await violations({
+        ...graphile,
+        'apps/worker/src/runner.ts': importIt,
+        'packages/db/src/migrate.ts': importIt,
+        'apps/web/src/jobs.ts': importIt,
+        'packages/modules/chat/src/jobs.ts': importIt,
+      }),
+    ).toEqual([
+      'graphile-worker-only-in-the-worker: apps/web/src/jobs.ts → node_modules/graphile-worker/index.js',
+      'graphile-worker-only-in-the-worker: packages/modules/chat/src/jobs.ts → node_modules/graphile-worker/index.js',
+    ]);
+  });
 });
