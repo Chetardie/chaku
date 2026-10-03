@@ -1,13 +1,9 @@
 // The `pg` pool and the Drizzle client over it. `pg` is the driver Graphile Worker uses too, so a
-// job can be added with raw SQL inside a Drizzle transaction (ADR-0008, ADR-0011).
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-
+// job can be added with raw SQL inside a Drizzle transaction (ADR-0008, ADR-0011). Apps bundle
+// this, so it reads no files.
 import type { PgAsyncDatabase } from 'drizzle-orm/pg-core';
 import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
-
-import { repoRoot } from './modules.ts';
 
 export type Database = NodePgDatabase & { $client: pg.Pool };
 
@@ -23,18 +19,6 @@ export function createDatabase(connectionString: string): Database {
 /** Closes the pool. Scripts and tests call this so Node.js can exit. */
 export async function closeDatabase(db: Database): Promise<void> {
   await db.$client.end();
-}
-
-/**
- * Loads `.env`, then fills anything it doesn't set from `.env.example`, like `pnpm stack` does.
- * Only scripts and tests on a developer's machine or in CI call this; deployed apps get their
- * environment from the platform.
- */
-export function loadLocalEnv(): void {
-  for (const file of ['.env', '.env.example']) {
-    const full = path.join(repoRoot, file);
-    if (existsSync(full)) process.loadEnvFile(full);
-  }
 }
 
 export function databaseUrl(): string {

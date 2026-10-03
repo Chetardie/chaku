@@ -1,0 +1,16 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      // env.test.ts reads .env.example; docs.test.ts the docs, CLAUDE.md and the Caddyfile.
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.env.example",
+        "$TURBO_ROOT$/CLAUDE.md",
+        "$TURBO_ROOT$/docs/**",
+        "$TURBO_ROOT$/stack/Caddyfile"
+      ]
+    }
+  }
+}

@@ -50,9 +50,9 @@ export default {
     {
       name: 'shared-packages-import-no-module',
       comment:
-        'content, game-sdk, ui, config and db are plain libraries that own no data and import no module (ADR-0007, ADR-0002).',
+        'content, game-sdk, ui, config, db and adapters are plain libraries that own no data and import no module (ADR-0007, ADR-0002).',
       severity: 'error',
-      from: { path: '^packages/(content|game-sdk|ui|config|db)/' },
+      from: { path: '^packages/(content|game-sdk|ui|config|db|adapters)/' },
       to: { path: '^packages/modules/' },
     },
     {

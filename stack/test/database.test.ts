@@ -2,7 +2,7 @@
 // gives the same data (D23: fixed seed data).
 import { readdirSync } from 'node:fs';
 
-import { droppableSchemas } from '@chaku/db';
+import { droppableSchemas } from '@chaku/db/migrate';
 import { useTestDatabase } from '@chaku/db/testing';
 import { describe, expect, it } from 'vitest';
 

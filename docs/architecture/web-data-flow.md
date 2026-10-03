@@ -2,11 +2,11 @@
 
 Status: **current** (CHK-16). How `apps/web` loads, caches and updates server data: one set of oRPC procedures called in-process by Server Components and over HTTP by the browser (D50), handed to TanStack Query through hydration, and kept current by realtime events, catch-up and the sync check (ADR-0009, ADR-0012). CHK-19 builds the pieces named here; this doc is the pattern every screen follows.
 
-Code below is a sketch of the shape, not copy-paste: names may change when CHK-19 writes the real files.
+Code below is a sketch of the shape, not copy-paste. CHK-19 wrote the real files; where they differ from the first draft of this doc, the text says so.
 
 ## Checked against
 
-The pattern was checked against these versions on 2026-10-03, with Context7 and the npm registry (ADR-0011). Recheck when CHK-19 pins the versions in the catalog.
+The pattern was checked against these versions on 2026-10-03, with Context7 and the npm registry (ADR-0011). CHK-19 pinned the same versions in the catalog and built on them the same day.
 
 | Library | Version | Sources |
 |---|---|---|
@@ -32,8 +32,10 @@ oRPC 2 is in beta (`2.0.0-beta`); ADR-0011 stays on 1 until it is stable.
 | `src/server/rpc/router.ts` | The router: one namespace per module (`chat`, `feed`, `identity`, `games`, `notifications`, `moderation`, `media`), plus `sync`. Each procedure validates input with Zod, runs the auth middleware and calls the module's public entry point. Business logic stays in the modules (ADR-0003). |
 | `src/server/rpc/context.ts` | Base context `{ headers }`. Middleware `withSession` reads the Better Auth session from the headers; `requireMember` and `requireAdmin` (a passkey session, D47) build on it. |
 | `app/rpc/[[...rest]]/route.ts` | `RPCHandler` for browser calls, with CSRF protection and an error interceptor that logs the procedure path and error code, never the input (D9). |
-| `src/lib/orpc.server.ts` | Registers the server-side router client on `globalThis`. |
-| `src/lib/orpc.ts` | Exports `client` and `orpc`. Loads `orpc.server.ts` only during server rendering. |
+| `src/lib/orpc.server.ts` | Registers the server-side router client on `globalThis`. `instrumentation.ts` calls it once when the server starts. |
+| `src/lib/orpc.ts` | Exports `client` and `orpc`. Never imports `orpc.server.ts`. |
+| `instrumentation.ts` | At startup: checks the environment (Zod), registers the server-side client. Reports render and route errors through the errors adapter. |
+| `proxy.ts` | The CSP nonce for each page request (D35). |
 | `src/lib/query-client.ts` | `getQueryClient()`: a new client per server request, one per tab in the browser; the serializer and the defaults. |
 | `app/providers.tsx` | `QueryClientProvider`, and the realtime engine started once per tab. |
 | `src/realtime/` | The realtime engine: socket, reconnect, Chat Sequence checks, catch-up, the sync check loop, and pure functions that apply events to cached data. |
@@ -41,27 +43,31 @@ oRPC 2 is in beta (`2.0.0-beta`); ADR-0011 stays on 1 until it is stable.
 ### The two clients
 
 ```ts
-// src/lib/orpc.server.ts: registered once; the context function runs inside each request
-globalThis.$client = createRouterClient(router, {
-  context: async () => ({ headers: await headers() }),
-})
+// src/lib/orpc.server.ts: instrumentation.ts calls this once; the context function runs inside each request
+export function registerServerClient() {
+  globalThis.$client ??= createRouterClient(router, {
+    context: async () => ({ headers: await headers() }),
+  })
+}
 
 // src/lib/orpc.ts
-if (import.meta.env.SSR) await import('./orpc.server') // dropped from the browser bundle at build time
-
-export const client: RouterClient<typeof router> =
-  globalThis.$client ?? createORPCClient(new RPCLink({ url: `${window.location.origin}/rpc` }))
+export const client: RouterClient<Router> =
+  typeof window === 'undefined'
+    ? lazyServerClient() // calls globalThis.$client when a procedure is called
+    : createORPCClient(new RPCLink({ url: `${window.location.origin}/rpc`, plugins: [new SimpleCsrfProtectionLinkPlugin()] }))
 
 export const orpc = createTanstackQueryUtils(client)
 ```
 
-The server client is shared across requests, so its context holds nothing but the request headers, which `headers()` reads from the current request. The session comes from middleware. `getSession` is wrapped in React's `cache()`, so one server render looks it up once, however many procedures it calls. `orpc.server.ts` must not import `server-only`: oRPC's docs note it breaks the build. The `import.meta.env.SSR` guard needs Turbopack, which is Next.js 16's default bundler.
+The server client is shared across requests, so its context holds nothing but the request headers, which `headers()` reads from the current request. The session comes from middleware. `getSession` is wrapped in React's `cache()`, so one server render looks it up once, however many procedures it calls. `orpc.server.ts` must not import `server-only`: oRPC's docs note it breaks the build.
+
+_(Changed in CHK-19: the first draft followed oRPC's recipe, where `orpc.ts` runs `if (import.meta.env.SSR) await import('./orpc.server')`. Next.js 16.3 then fails the build, because client components import `orpc.ts` and their server render may not import `next/headers`. Registering from `instrumentation.ts` keeps `next/headers` out of every client graph. The server client is looked up when a procedure is called, not at import: `next build` imports pages without starting the server.)_
 
 ### The query client
 
 ```ts
 // src/lib/query-client.ts
-const serializer = new RPCJsonSerializer() // keeps Dates as Dates through dehydration
+const serializer = new StandardRPCJsonSerializer() // from @orpc/client/standard; keeps Dates as Dates through dehydration
 
 function makeQueryClient() {
   return new QueryClient({
@@ -116,7 +122,7 @@ A layout or page:
 export default async function ChatsLayout({ children }: { children: React.ReactNode }) {
   await requireMemberPage() // redirect('/login?next=…') without a session
   const queryClient = getQueryClient()
-  await queryClient.prefetchQuery(orpc.chat.list.queryOptions({ input: {} }))
+  await queryClient.query(orpc.chat.list.queryOptions({ input: {} })).catch(noop)
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <ChatList />
@@ -134,7 +140,7 @@ export function ChatList() {
 ```
 
 - **Await what the first screen shows; leave the rest to the client.** Prefetching the window around the first unread Message is worth it. Profiles of people further up the history are not. Pending queries are not streamed in v1; that keeps errors simple. Measure in phase 2 before changing it.
-- **The page's main item uses `fetchQuery`, extras use `prefetchQuery`.** `fetchQuery` throws, so a missing or forbidden Chat becomes `notFound()` on the server. `prefetchQuery` swallows errors, and the client component retries and shows its error boundary.
+- **The page's main item uses `query()`, extras use `query().catch(noop)`.** `query()` throws, so a missing or forbidden Chat becomes `notFound()` on the server. An extra swallows its error, and the client component retries and shows its error boundary. _(Changed in CHK-19: TanStack Query 5.104 deprecates `fetchQuery` and `prefetchQuery` in favour of `query()`.)_
 - **A Server Component may call `client` directly** when the result is rendered on the server and never needed in the cache, for example `generateMetadata` on the public Post page. It is the same procedure and the same authorization.
 
 ## Realtime events into the cache
@@ -209,7 +215,7 @@ The engine compares each result with the cache:
 | `BAD_REQUEST` | Zod validation | the field's message (forms) |
 | anything else | a bug | the error boundary; reported to Sentry without input (D9) |
 
-**On the server.** The signed-in layout checks the session itself and calls `redirect('/login?next=…')`. `unauthorized()` would fit, but it still needs `experimental.authInterrupts`, and we don't depend on experimental flags. A `NOT_FOUND` from `fetchQuery` becomes `notFound()`.
+**On the server.** The signed-in layout checks the session itself and calls `redirect('/login?next=…')`. `unauthorized()` would fit, but it still needs `experimental.authInterrupts`, and we don't depend on experimental flags. A `NOT_FOUND` from `query()` becomes `notFound()`.
 
 **Loading.** Each route segment that waits for data has a `loading.tsx`, so navigation shows a skeleton at once. Client components use `useSuspenseQuery` under Suspense boundaries; data hydrated from the server never suspends. Realtime updates never show spinners.
 

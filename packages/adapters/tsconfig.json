@@ -1,0 +1,10 @@
+{
+  "extends": "@chaku/config/tsconfig/node.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    // The live checks run as TypeScript straight in Node.js, which needs the .ts extension on imports.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["*.js", "*.ts", "src/**/*.ts", "test/**/*.ts", "live/**/*.ts"]
+}

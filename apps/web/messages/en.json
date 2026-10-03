@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "description": "Chats, games and posts with your friends."
+  },
+  "home": {
+    "checking": "Checking the server…",
+    "ready": "Everything's working."
+  },
+  "chats": {
+    "unread": "{count, plural, one {# unread message} other {# unread messages}}"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist, or you can't see it.",
+    "home": "Go to Chaku"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "We couldn't load this page. Try again in a moment.",
+    "retry": "Try again"
+  }
+}

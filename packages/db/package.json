@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./migrate": "./src/migrate-entry.ts",
     "./testing": "./src/testing/index.ts",
     "./testing/config": "./src/testing/config.ts"
   },

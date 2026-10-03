@@ -6,11 +6,11 @@
 	skip_install_trust
 }
 
-# Apps run on the host (`pnpm dev`). Until an app exists its port is a placeholder, and the
-# site answers 502 with the hint below.
-#   web        apps/web               3000
-#   realtime   apps/realtime          3001
-#   reference  apps/games/reference   4100
+# Apps run on the host (`pnpm dev`, or `pnpm --filter @chaku/web start` for the production build).
+# While an app is stopped, or before it exists, its site answers 502 with the hint below.
+#   web        apps/web               3000   (CHK-19)
+#   realtime   apps/realtime          3001   (not built yet)
+#   reference  apps/games/reference   4100   (not built yet)
 (app) {
 	reverse_proxy host.docker.internal:{args[0]}
 	handle_errors 502 503 {

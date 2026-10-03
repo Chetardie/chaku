@@ -1,0 +1,23 @@
+{
+  "extends": "@chaku/config/tsconfig/node.json",
+  "compilerOptions": {
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "jsx": "preserve",
+    "allowJs": true,
+    "checkJs": true,
+    // Workspace packages are TypeScript source with .ts extensions on imports (ADR-0011).
+    "allowImportingTsExtensions": true,
+    "plugins": [{ "name": "next" }]
+  },
+  "include": [
+    "*.js",
+    "*.ts",
+    "app/**/*",
+    "src/**/*",
+    "scripts/**/*",
+    "test/**/*",
+    "e2e/**/*",
+    "messages/*.json"
+  ],
+  "exclude": ["node_modules", ".next"]
+}

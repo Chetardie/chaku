@@ -74,6 +74,39 @@ describe('workspace', () => {
     expect(workspace.catalog['drizzle-kit']).toBe(orm);
   });
 
+  it.each([
+    // CHK-19: the web app's libraries, at the majors ADR-0011 fixes.
+    ['next', 16],
+    ['react', 19],
+    ['react-dom', 19],
+    ['@orpc/server', 1],
+    ['@orpc/client', 1],
+    ['@orpc/tanstack-query', 1],
+    ['@tanstack/react-query', 5],
+    ['next-intl', 4],
+    ['zod', 4],
+    ['pino', 10],
+    ['@playwright/test', 1],
+  ])('pins %s to major %i (ADR-0011)', (name, major) => {
+    const workspace = parse(readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')) as {
+      catalog: Record<string, string>;
+    };
+    const version = workspace.catalog[name] ?? '';
+    expect(version).toMatch(new RegExp(`^\\^?${String(major)}\\.\\d+\\.\\d+$`));
+  });
+
+  it('pins oRPC, TanStack Query and Next.js to the versions the web data flow doc was checked against', () => {
+    const workspace = parse(readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')) as {
+      catalog: Record<string, string>;
+    };
+    const doc = readFileSync(path.join(root, 'docs/architecture/web-data-flow.md'), 'utf8');
+    const checked = (library: string) =>
+      new RegExp(`^\\| ${library}[^|]*\\| (\\d+\\.\\d+\\.\\d+) \\|`, 'm').exec(doc)?.[1];
+    expect(workspace.catalog['@orpc/server']).toBe(`^${checked('oRPC') ?? ''}`);
+    expect(workspace.catalog['@tanstack/react-query']).toBe(`^${checked('TanStack Query') ?? ''}`);
+    expect(workspace.catalog['next']).toBe(`^${checked('Next.js') ?? ''}`);
+  });
+
   it('type checks with TypeScript 7', () => {
     // `pnpm test` puts node_modules/.bin on PATH, the same `tsc` that `pnpm typecheck` runs.
     expect(execSync('tsc --version', { encoding: 'utf8' })).toMatch(/^Version 7\./);
