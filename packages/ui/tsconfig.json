@@ -1,0 +1,14 @@
+{
+  "extends": "@chaku/config/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["es2024", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    // Scripts, tests and the Storybook config run in Node.js.
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": true,
+    // The tokens script runs as TypeScript straight in Node.js, which needs the .ts extension on imports.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["*.js", "*.ts", ".storybook/**/*", "src/**/*", "scripts/**/*", "test/**/*"]
+}

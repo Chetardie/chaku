@@ -15,8 +15,8 @@ export default async function HomePage() {
   // error boundary (web data flow doc).
   await queryClient.query(orpc.health.check.queryOptions()).catch(() => undefined);
   return (
-    <main>
-      <h1>Chaku</h1>
+    <main className="mx-auto max-w-2xl p-6">
+      <h1 className="text-3xl font-extrabold">Chaku</h1>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<p>{t('checking')}</p>}>
           <HealthStatus />

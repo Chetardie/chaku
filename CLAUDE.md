@@ -1,7 +1,7 @@
 # Chaku
 
 Invite-only web messenger (PWA) with Games played beside Chats and a public Feed of Posts in Topics. EN and UK interface.
-Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI, the local stack, the database and the web app skeleton exist; no product screens yet.
+Stage: Foundation (spec §6, phase 1). The monorepo, shared tooling, CI, the local stack, the database, the web app skeleton and the design tokens with Storybook exist; no product screens yet.
 
 ## Read before working
 
@@ -50,7 +50,7 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | Command | Does |
 |---|---|
 | `pnpm install` | Install dependencies (pnpm 12, Node 24) |
-| `pnpm lint` | ESLint with type information |
+| `pnpm lint` | ESLint with type information, and Stylelint on CSS |
 | `pnpm typecheck` | `tsc` (TypeScript 7) |
 | `pnpm test` | Vitest. Module tests need Postgres from `pnpm stack`; each test worker gets its own database |
 | `pnpm boundaries` | dependency-cruiser: module boundaries and cycles (ADR-0002, ADR-0003, ADR-0007); rules in `packages/config/dependency-cruiser.js` |
@@ -60,6 +60,8 @@ Run from the repo root. Each runs in every package through Turborepo, which cach
 | `pnpm stack` / `stack:down` / `stack:reset` | Local stack in Docker: Postgres, Redis, SeaweedFS, Mailpit, Caddy on `https://*.localhost`. `reset` wipes data but keeps the trusted certificate |
 | `pnpm stack:check` | Checks the running stack (health, HTTPS, storage CORS, Postgres extensions) and the email and storage adapters against it |
 | `pnpm --filter @chaku/web test:e2e` | Playwright against the web app's production build through `https://chaku.localhost`. Needs `pnpm stack` and `pnpm --filter @chaku/web build` |
+| `pnpm --filter @chaku/ui tokens` | Writes `packages/ui/tokens.css` from the token files; commit both |
+| `pnpm --filter @chaku/ui storybook` / `test:storybook` | Storybook on port 6006 / every story in Chromium with the accessibility checks, in light and dark mode |
 | `pnpm db:migrate` | Applies pending migrations to `DATABASE_URL` |
 | `pnpm db:reset` | Drops every module schema, migrates and loads the fixed seed of fake Members (local only) |
 | `pnpm db:generate` | drizzle-kit writes a migration for schema changes in `packages/modules/*/src/schema.ts` |
@@ -69,10 +71,11 @@ Run one package with a filter: `pnpm turbo run test --filter=@chaku/config`. CI 
 ## Layout
 
 Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,db,adapters,game-sdk,ui,config}`, `docs/`, plus `stack/` (the local stack: Caddyfile, bucket setup, stack checks). Built so far:
-- `apps/web`: Next.js. `app/` routes, `proxy.ts` (CSP nonce), `instrumentation.ts` (env check, server oRPC client, error reports), `src/server/rpc/` (router, context, `/rpc` handler), `src/lib/` (`orpc`, query client), `src/i18n/`, `messages/{en,uk}.json`, `e2e/` (Playwright)
+- `apps/web`: Next.js. `app/` routes, `proxy.ts` (CSP nonce), `instrumentation.ts` (env check, server oRPC client, error reports), `src/server/rpc/` (router, context, `/rpc` handler), `src/lib/` (`orpc`, query client, theme cookie), `src/i18n/`, `app/globals.css` (Tailwind 4 with `@chaku/ui/tokens.css`), `app/fonts.ts` (Nunito, JetBrains Mono), `messages/{en,uk}.json`, `e2e/` (Playwright)
 - `apps/worker`: Graphile Worker jobs (ADR-0008). `src/modules.ts` lists the modules whose jobs it runs; `src/runner.ts` wires them up; bundled with tsdown
 - `packages/adapters`: the logger and vendor adapters, one entry point each (`@chaku/adapters/email`, …)
 - `packages/db`: `@chaku/db` (pool, transactions, `defineJob`/`addJob`/`handle`; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations` plus the `graphile_worker` schema, reset, local env), the test harness `@chaku/db/testing` (`queuedJobs`, `runJob`)
-- `packages/config`, `packages/modules/identity` and `stack`
+- `packages/ui`: design tokens (`src/tokens/`: primitives, semantic roles, `themes/warm.ts`, scales, contrast pairs), the generated `tokens.css`, Storybook (`.storybook/`, `src/stories/`)
+- `packages/config` (also the shared Stylelint config), `packages/modules/identity` and `stack`
 
 The other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).

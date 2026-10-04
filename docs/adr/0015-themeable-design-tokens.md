@@ -12,13 +12,15 @@ The look of Chaku lives in one place, so changing the brand or adding a theme la
 2. **Semantic tokens:** names by role, which components use. shadcn/ui's names are kept so its components work unchanged (`background`, `foreground`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`). Chaku adds its own roles:
    - `chat-background`, `bubble-own`, `bubble-own-foreground`, `bubble-other`, `bubble-other-foreground`
    - `challenge`, `challenge-foreground` (sun, for Game Challenges only)
-   - `presence-online`, `unread`, `mention`
+   - `presence-online`, `unread`, `unread-foreground`, `mention`, `mention-foreground`
    - `participant-1` to `participant-8` (Group Chat names)
-   - `success`, `warning`, `danger`, `info`
-   - `radius-bubble`, `radius-bubble-tail`, `radius-card`, `font-sans`, `font-mono`
-3. **Tailwind mapping:** `@theme inline { --color-bubble-own: var(--bubble-own); … }` turns every semantic token into utilities (`bg-bubble-own`, `text-muted-foreground`).
+   - `success`, `warning`, `danger`, `info`, each with a `-foreground`
+   - `radius-bubble`, `radius-bubble-tail`, `radius-card`, `radius-pill`, `font-sans`, `font-mono`
 
-**A theme is one file** that sets every semantic token for a brand in each mode: `themes/warm.ts` exports `light` and `dark`. A new brand is a new file; a new mode (for example high contrast) is a new key. A type check makes every theme define every semantic token.
+   _(Amended in CHK-36: every fill that carries text got a `-foreground` partner, and `radius-pill` joined the shape roles.)_
+3. **Tailwind mapping:** `@theme inline { --color-bubble-own: var(--bubble-own); … }` turns every semantic token into utilities (`bg-bubble-own`, `text-muted-foreground`). The shape roles don't change with the mode, so they are Tailwind theme variables themselves (`rounded-bubble`, `font-sans`), next to the spacing, type and z-index scales that replace Tailwind's defaults _(amended in CHK-36)_.
+
+**A theme is one file** that sets every semantic token for a brand in each mode: `themes/warm.ts` exports `warm`, with the colour roles under `modes.light` and `modes.dark` and the shape roles once under `shape` _(amended in CHK-36; this replaced "exports `light` and `dark`")_. A new brand is a new file; a new mode (for example high contrast) is a new key. A type check makes every theme define every semantic token.
 
 **The source is TypeScript, the output is CSS.** A small script in `packages/ui` turns the token files into `tokens.css`, which is committed so Tailwind and Storybook read it with no build step. A test fails if `tokens.css` is out of date. TypeScript is the source because the same values are needed in places CSS variables can't reach:
 - emails (`react-email` inlines resolved light values)
@@ -27,7 +29,7 @@ The look of Chaku lives in one place, so changing the brand or adding a theme la
 - the Figma library (semantic tokens as variables with light and dark modes)
 - the contrast test below
 
-**Choosing a theme.** `tokens.css` puts the light values on `:root`, the dark values under `@media (prefers-color-scheme: dark)` for `:root:not([data-theme="light"])`, and again under `[data-theme="dark"]`. The Member's choice (light, dark or system) is stored per device in a cookie. The server sets `data-theme` on `<html>`, or nothing for system, so the first paint is right without a script. The setting lives in Settings → Language and theme.
+**Choosing a theme.** `tokens.css` puts the light values on `:root`, the dark values under `@media (prefers-color-scheme: dark)` for `:root:not([data-theme="light"])`, and again under `[data-theme="dark"]`. The light values also sit under `[data-theme="light"]`, so `data-theme` on any element forces a mode inside it, which the Storybook Tokens page uses to show both modes side by side _(amended in CHK-36)_. The Member's choice (light, dark or system) is stored per device in a cookie. The server sets `data-theme` on `<html>`, or nothing for system, so the first paint is right without a script. The setting lives in Settings → Language and theme.
 
 **Rules, checked in CI:**
 - **No colours outside the token files.** `tokens.css` starts with `@theme { --color-*: initial; }`, so Tailwind's default palette (`bg-orange-500`) doesn't exist. A Stylelint rule (`declaration-strict-value` for colour properties) and an ESLint `no-restricted-syntax` rule reject hex, `rgb()` and `oklch()` literals in app and component code.

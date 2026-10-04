@@ -84,7 +84,7 @@ export default {
     // Packages' own node_modules folders aren't crawled; npm packages stay in the graph as leaves,
     // so a rule can name one (graphile-worker-only-in-the-worker).
     exclude: {
-      path: String.raw`(^|/)(dist|\.next|\.turbo|coverage)/|^(apps|packages)/.*node_modules/`,
+      path: String.raw`(^|/)(dist|\.next|\.turbo|coverage|storybook-static)/|^(apps|packages)/.*node_modules/`,
     },
     // Type-only imports cross boundaries too.
     tsPreCompilationDeps: true,

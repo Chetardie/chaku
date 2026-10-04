@@ -83,9 +83,21 @@ Module tests run against the stack's Postgres, never database mocks (D19), so st
 
 The environment is checked with Zod when the server starts ([`apps/web/src/env.ts`](../../apps/web/src/env.ts)). A missing or wrong variable stops it with the variable's name. Locally the values come from `.env`, then `.env.example`; deployed, the platform sets them.
 
-The interface language follows the `NEXT_LOCALE` cookie (`en` or `uk`), then the browser's languages, then English. URLs have no language prefix.
+The interface language follows the `NEXT_LOCALE` cookie (`en` or `uk`), then the browser's languages, then English. URLs have no language prefix. The mode follows the `theme` cookie (`light` or `dark`), otherwise the system setting; to try dark mode before Settings has a switch, set the cookie in the browser's developer tools.
 
 Email, storage, push, analytics, error reports and bot checks go through [`@chaku/adapters`](../../packages/adapters/README.md). Until phase 4 they are all local: email lands in Mailpit, files in SeaweedFS, and the rest is logged or does nothing (D55).
+
+## Design tokens and Storybook
+
+Colours, fonts, radii, spacing, the type scale and z-index layers live in [`packages/ui/src/tokens`](../../packages/ui/src/tokens) (ADR-0015). Components use them as Tailwind utilities (`bg-bubble-own`, `text-muted-foreground`, `rounded-bubble`, `z-dialog`); lint rejects colour literals and `dark:` classes anywhere else.
+
+| Command | Does |
+|---|---|
+| `pnpm --filter @chaku/ui tokens` | Writes `packages/ui/tokens.css` from the token files. Run it after changing them and commit both; a test fails while the CSS is stale. |
+| `pnpm --filter @chaku/ui storybook` | Storybook at <http://localhost:6006>. The toolbar switches theme and mode; Foundations → Tokens shows every role in light and dark. |
+| `pnpm --filter @chaku/ui test:storybook` | Renders every story in Chromium with the accessibility checks, once in light and once in dark mode, as CI does. The first time, run `pnpm --filter @chaku/ui exec playwright install chromium`. |
+
+The contrast test (part of `pnpm test`) checks every listed foreground and background pair in every mode of every theme. When a component puts one role on another, add the pair to [`contrast.ts`](../../packages/ui/src/tokens/contrast.ts).
 
 ## Worker
 

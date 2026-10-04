@@ -1,0 +1,11 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    // Storybook's static build; CI runs it, then the stories' accessibility checks (CHK-36).
+    "build-storybook": {
+      "dependsOn": ["transit"],
+      "outputs": ["storybook-static/**"]
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@chaku/ui",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens": "./src/tokens/index.ts",
+    "./tokens.css": "./tokens.css"
+  },
+  "scripts": {
+    "lint": "eslint . && stylelint --allow-empty-input \"**/*.css\"",
+    "typecheck": "tsc",
+    "test": "vitest run --project unit",
+    "test:storybook": "vitest run --project storybook-light --project storybook-dark",
+    "tokens": "node scripts/tokens.ts",
+    "storybook": "storybook dev --port 6006 --no-open",
+    "build-storybook": "storybook build"
+  },
+  "devDependencies": {
+    "@chaku/config": "workspace:*",
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
+    "@storybook/react-vite": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@typescript/native": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "eslint": "catalog:",
+    "playwright": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "stylelint": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

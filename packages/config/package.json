@@ -7,7 +7,8 @@
     "./prettier": "./prettier.js",
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./tsconfig/node.json": "./tsconfig/node.json",
-    "./dependency-cruiser": "./dependency-cruiser.js"
+    "./dependency-cruiser": "./dependency-cruiser.js",
+    "./stylelint": "./stylelint.js"
   },
   "scripts": {
     "lint": "eslint .",
@@ -21,6 +22,7 @@
     "eslint-plugin-jsx-a11y-x": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "globals": "catalog:",
+    "stylelint-declaration-strict-value": "catalog:",
     "typescript-eslint": "catalog:"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "dependency-cruiser": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
+    "stylelint": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yaml": "catalog:"

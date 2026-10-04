@@ -1,0 +1,13 @@
+/* Tailwind 4 with Chaku's tokens in place of its defaults (ADR-0015). Colours, fonts, sizes and
+   radii come from @chaku/ui; change them there, never here. */
+@import 'tailwindcss';
+@import '@chaku/ui/tokens.css';
+
+/* Class names used by @chaku/ui's components. */
+@source '../../../packages/ui/src';
+
+@layer base {
+  body {
+    @apply bg-background font-sans text-base text-foreground;
+  }
+}

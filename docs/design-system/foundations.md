@@ -9,7 +9,7 @@ Warm is the first theme, not a fixed look. Every colour, font and shape reaches 
 | Layer | Example | Who uses it |
 |---|---|---|
 | Primitive | `coral-600 = #C8461B` | theme files only |
-| Semantic role | `bubble-own = coral-600` (light), `bubble-own = coral-400` (dark) | components, through Tailwind utilities |
+| Semantic role | `bubble-own = coral-600` (light), `bubble-own = coral-700` (dark) | components, through Tailwind utilities |
 | Utility | `bg-bubble-own` | components |
 
 - **Change the look:** edit `packages/ui/src/tokens/themes/warm.ts`, or add a new theme file and make it the default. No component changes.
@@ -62,9 +62,43 @@ Warm dark, not black-grey.
 | `text-muted` | `#B8A598` | 7.6:1 on `bg` |
 | `accent` | `#FF8A5C` (lighter coral, dark text on it) | `#1C1512` on it 7.8:1 |
 
+### Decided in the tokens work (CHK-36)
+
+The full 50–950 scales, and every semantic role's value in both modes, are in [`packages/ui/src/tokens`](../../packages/ui/src/tokens) and on Storybook's Foundations → Tokens page. The seeds above keep their exact values in the scales, with one merge: dark `surface` (`#2A201B`) became `ink-900` (`#2B1D14`), the light text colour, so one step serves both.
+
+- **Chat background (screen map, design note 1):** light `chat-background` is `#F6EBDF` (`cream-100`), deeper than the page, so white bubbles stand out. Dark mode uses the page background.
+- **Own bubbles in dark mode (design note 2):** `bubble-own` is `#A8472A` (`coral-700`) with `#FFF4EC` text, 5.4:1. Bright coral stays on `primary`, unread badges and focus rings.
+- **Foreground partners:** every fill that carries text has a `-foreground` role: `unread-foreground`, `mention-foreground`, and one per status colour. `radius-pill` joins the shape roles.
+
 ### Participant name colors
 
-Group Chats color each Participant's name from a fixed set of 6–8 hues, picked by Member ID. The tokens ticket defines this set so every hue passes AA in both themes.
+Group Chats color each Participant's name from a fixed set of 8 hues, picked by Member ID. Each hue is at least 4.5:1 on `chat-background`, `card` and `background` in its mode. Warm and cool hues alternate, and their lightness varies, so neighbours differ for people with red-green or blue-yellow colour blindness too; 8 hues can't all be told apart that way, which is why a name never relies on colour alone. None of them is a status colour.
+
+| Role | Light | Lowest contrast | Dark | Lowest contrast |
+|---|---|---|---|---|
+| `participant-1` rose | `#882A34` | 7.4:1 | `#FFC3C4` | 10.8:1 |
+| `participant-2` teal | `#007374` | 4.8:1 | `#A2E8E7` | 11.8:1 |
+| `participant-3` amber | `#793E00` | 7.1:1 | `#F8B477` | 9.1:1 |
+| `participant-4` blue | `#18518A` | 6.9:1 | `#8FC9FF` | 9.3:1 |
+| `participant-5` green | `#175F2A` | 6.6:1 | `#92D89B` | 9.7:1 |
+| `participant-6` plum | `#924273` | 5.5:1 | `#F8A7D4` | 8.9:1 |
+| `participant-7` olive | `#6C6606` | 5.0:1 | `#E0DDA1` | 11.7:1 |
+| `participant-8` violet | `#563D8D` | 7.3:1 | `#B59AFE` | 7.0:1 |
+
+The violet seed `#7C3AED` is brighter than every other hue at the same lightness, so the set uses a calmer violet.
+
+### Status colors
+
+`success`, `warning`, `danger` and `info` work as text on `background` and `card` (form errors, "Saved"), and as fills under their `-foreground` (white in light mode, `ink-950` in dark). Warning is amber, not sun: sun yellow means a Game Challenge. `destructive` (shadcn's name) is `danger`.
+
+| Role | Light | As text, lowest | Dark | As text, lowest |
+|---|---|---|---|---|
+| `success` | `#247638` | 4.8:1 | `#74C381` | 7.7:1 |
+| `warning` | `#935000` | 5.3:1 | `#E59B56` | 7.1:1 |
+| `danger` | `#A43944` | 5.5:1 | `#FB868C` | 6.9:1 |
+| `info` | `#2565A7` | 5.1:1 | `#72B2F9` | 7.3:1 |
+
+Success and danger have the same lightness, so status always comes with an icon or a word, never colour alone.
 
 ## Typography
 
@@ -93,10 +127,8 @@ Group Chats color each Participant's name from a fixed set of 6–8 hues, picked
 
 ## Still to define
 
-These go in the tokens and Storybook work (CHK-36):
-- full color scales, and the values of every semantic role in ADR-0015 (including success, warning, danger, info) in both modes
-- the two colour tweaks proposed in the [screen map](screens.md#design-notes-on-the-warm-direction): a deeper `chat-background` in light mode, and a deeper `bubble-own` in dark mode
-- spacing scale (4px base), type scale, z-index layers
+The tokens work (CHK-36) defined the color scales, every semantic role in both modes, the two screen-map colour tweaks, the spacing scale (4px base), the type scale (12–30px, body 16px so iOS doesn't zoom into inputs) and the z-index layers. Still open:
+- one shadow level for floating things (menus, toasts, the Mini Player) as a token
 - logo and app icon (PWA icons, Open Graph image)
 - illustrations for empty states and onboarding
 - the Figma library, generated from the tokens

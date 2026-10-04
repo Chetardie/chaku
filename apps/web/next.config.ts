@@ -24,7 +24,7 @@ const config: NextConfig = {
   // The repo's CLAUDE.md already points agents at Next.js's bundled docs; don't write more files.
   agentRules: false,
   // Workspace packages are TypeScript source (ADR-0011).
-  transpilePackages: ['@chaku/adapters', '@chaku/db'],
+  transpilePackages: ['@chaku/adapters', '@chaku/db', '@chaku/ui'],
   // pino loads parts of itself at runtime; bundling breaks that.
   serverExternalPackages: ['pino', 'pino-pretty'],
   turbopack: {
