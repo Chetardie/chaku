@@ -35,7 +35,8 @@ describe('client on the server', () => {
 
   it('calls the router client that instrumentation.ts registered', async () => {
     const check = vi.fn(() => Promise.resolve({ status: 'ok' as const }));
-    globalThis.$client = { health: { check } };
+    // Only the procedure this test calls.
+    globalThis.$client = { health: { check } } as unknown as typeof globalThis.$client;
     await expect(client.health.check()).resolves.toEqual({ status: 'ok' });
     expect(check).toHaveBeenCalledOnce();
   });

@@ -13,10 +13,11 @@ The package holds no data and imports no module. `apps/web`, `apps/worker` and `
 | `@chaku/adapters/analytics` | `Analytics` | `createNoopAnalytics()`. Events and their properties are a closed, typed set, so no content fits in them (D19) |
 | `@chaku/adapters/errors` | `ErrorReporter` | `createLogErrorReporter()`: logs the error. `scrubErrorContext()` strips request bodies, cookies and query strings (D9) |
 | `@chaku/adapters/bot-check` | `BotCheck` | `createPassingBotCheck()`: always passes (D44) |
+| `@chaku/adapters/rate-limit` | `RateLimiter` | `createRedisRateLimiter()`: `rate-limiter-flexible` on Redis, falling back to memory while Redis is down; `createMemoryRateLimiter()` for unit tests. The limits are the calling module's config (D56) |
 
 `errors`, `analytics` and `bot-check` import nothing from Node.js, so browser code can use them too.
 
 ## Tests
 
 - `pnpm test`: unit tests, no services needed.
-- `pnpm check`: the email and storage adapters against the running stack (`pnpm stack`). CI runs it in the `stack` job.
+- `pnpm check`: the email, storage and rate-limit adapters against the running stack (`pnpm stack`). CI runs it in the `stack` job.

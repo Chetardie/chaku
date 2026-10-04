@@ -16,7 +16,7 @@ export {
   authMethods,
   createAuth,
 } from './auth/auth.ts';
-export { type LoginErrorCode, loginErrorCodes } from './auth/errors.ts';
+export { isBanActive, type LoginErrorCode, loginErrorCodes } from './auth/errors.ts';
 export { type LoginLimits, loginLimits } from './auth/limits.ts';
 export { botCheckHeader, deletionCancelledCookie } from './auth/login-plugin.ts';
 export { deviceCookieName } from './auth/devices.ts';

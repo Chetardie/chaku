@@ -277,7 +277,7 @@ Devices a Member has logged in from, for the new-device email alert (D21). The d
 | `id` | `uuid` | PK, default `uuidv7()` |
 | `member_id` | `uuid` | FK → `identity.members.id`, on delete cascade |
 | `device_hash` | `bytea` | SHA-256 of the device cookie |
-| `label` | `text` | "Firefox on Windows", shown in the alert and on the sessions page |
+| `label` | `text` | "Firefox · Windows", read the same in both languages; `''` when the User-Agent names neither. Shown in the alert and on the sessions page |
 | `first_seen_at` | `timestamptz` | |
 | `last_seen_at` | `timestamptz` | |
 

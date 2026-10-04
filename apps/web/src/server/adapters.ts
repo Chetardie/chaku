@@ -6,6 +6,7 @@ import { createSmtpEmail, type EmailSender } from '@chaku/adapters/email';
 import { createLogErrorReporter, type ErrorReporter } from '@chaku/adapters/errors';
 import { createLogger, type Logger } from '@chaku/adapters/log';
 import { createLogPush, type PushSender } from '@chaku/adapters/push';
+import { createRedisRateLimiter, type RateLimiter } from '@chaku/adapters/rate-limit';
 import { createS3Storage, type Storage } from '@chaku/adapters/storage';
 
 import { serverEnv } from '../env.ts';
@@ -18,6 +19,7 @@ export interface Adapters {
   analytics: Analytics;
   errors: ErrorReporter;
   botCheck: BotCheck;
+  rateLimiter: RateLimiter;
 }
 
 function createAdapters(): Adapters {
@@ -37,10 +39,11 @@ function createAdapters(): Adapters {
     analytics: createNoopAnalytics(),
     errors: createLogErrorReporter(log),
     botCheck: createPassingBotCheck(),
+    rateLimiter: createRedisRateLimiter({ url: env.REDIS_URL }),
   };
 }
 
-// Kept on globalThis so development reloads don't open new SMTP and S3 clients each time.
+// Kept on globalThis so development reloads don't open new SMTP, S3 and Redis clients each time.
 const store = globalThis as { chakuAdapters?: Adapters };
 
 export function adapters(): Adapters {

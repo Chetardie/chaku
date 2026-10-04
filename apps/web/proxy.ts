@@ -1,9 +1,11 @@
 // Runs before every page request: a fresh CSP nonce (D35). Next.js reads the nonce from the request's
-// Content-Security-Policy header and puts it on its own scripts and styles.
+// Content-Security-Policy header and puts it on its own scripts and styles. It also passes the
+// page's path on, so `requireMemberPage()` can send the login page back to it.
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { serverEnv } from './src/env.ts';
 import { contentSecurityPolicy, createNonce } from './src/server/csp.ts';
+import { pathHeader } from './src/server/path-header.ts';
 
 export function proxy(request: NextRequest): NextResponse {
   const nonce = createNonce();
@@ -12,6 +14,8 @@ export function proxy(request: NextRequest): NextResponse {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);
   requestHeaders.set('Content-Security-Policy', policy);
+  // Set here, never taken from the browser.
+  requestHeaders.set(pathHeader, request.nextUrl.pathname + request.nextUrl.search);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set('Content-Security-Policy', policy);

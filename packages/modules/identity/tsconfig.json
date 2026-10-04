@@ -6,5 +6,5 @@
     // Scripts run as TypeScript straight in Node.js, which needs the .ts extension on imports.
     "allowImportingTsExtensions": true
   },
-  "include": ["*.js", "*.ts", "src/**/*.ts", "test/**/*.ts"]
+  "include": ["*.js", "*.ts", "src/**/*.ts", "test/**/*.ts", "live/**/*.ts"]
 }

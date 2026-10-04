@@ -130,7 +130,9 @@ export function createRedisRateLimiter(options: RedisRateLimiterOptions): RateLi
       });
     },
     async () => {
-      await client.quit().catch(() => client.disconnect());
+      await client.quit().catch(() => {
+        client.disconnect();
+      });
     },
   );
 }

@@ -29,19 +29,26 @@ export function signupClosed(): APIError {
   });
 }
 
+/** The Member is banned, or suspended until after `now` (D37). */
+export function isBanActive(
+  member: { banned: boolean; banExpires: Date | null | undefined },
+  now = new Date(),
+): boolean {
+  return member.banned && (member.banExpires == null || member.banExpires > now);
+}
+
 /** A ban or a suspension still running at `now`, or `null` when the Member may log in. */
 export function banError(
   member: { banned: boolean; banExpires: Date | null },
   now = new Date(),
 ): APIError | null {
-  if (!member.banned) return null;
+  if (!isBanActive(member, now)) return null;
   if (member.banExpires === null) {
     return new APIError('FORBIDDEN', {
       code: loginErrorCodes.MEMBER_BANNED,
       message: 'This account is banned.',
     });
   }
-  if (member.banExpires <= now) return null;
   return new APIError('FORBIDDEN', {
     code: loginErrorCodes.MEMBER_SUSPENDED,
     message: 'This account is suspended.',

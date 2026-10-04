@@ -54,6 +54,46 @@ describe('parseServerEnv', () => {
     );
   });
 
+  it('starts without Google keys: Google login is then off (ADR-0010)', () => {
+    const env = parseServerEnv({ ...example, GOOGLE_CLIENT_ID: '', GOOGLE_CLIENT_SECRET: '' });
+    expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
+    expect(env.GOOGLE_CLIENT_SECRET).toBeUndefined();
+    const exit = vi.fn<(code: number) => never>();
+    checkEnvironment(
+      { ...example, GOOGLE_CLIENT_ID: undefined, GOOGLE_CLIENT_SECRET: undefined },
+      exit,
+      () => {},
+    );
+    expect(exit).not.toHaveBeenCalled();
+  });
+
+  it('takes the Google keys together, never one alone', () => {
+    const both = parseServerEnv({
+      ...example,
+      GOOGLE_CLIENT_ID: 'id',
+      GOOGLE_CLIENT_SECRET: secret,
+    });
+    expect(both.GOOGLE_CLIENT_ID).toBe('id');
+    expect(() => parseServerEnv({ ...example, GOOGLE_CLIENT_ID: 'id' })).toThrow(
+      /GOOGLE_CLIENT_SECRET is not set/,
+    );
+    expect(() => parseServerEnv({ ...example, GOOGLE_CLIENT_SECRET: secret })).toThrow(
+      /GOOGLE_CLIENT_ID is not set/,
+    );
+  });
+
+  it('needs a Better Auth secret of at least 32 characters, and never shows it', () => {
+    const short = 'too-short-1f3a';
+    let message = '';
+    try {
+      parseServerEnv({ ...example, BETTER_AUTH_SECRET: short });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).toContain('BETTER_AUTH_SECRET is invalid');
+    expect(message).not.toContain(short);
+  });
+
   it('takes realtime origins only over WebSockets', () => {
     expect(() =>
       parseServerEnv({ ...example, REALTIME_URL: 'https://rt.chaku.localhost' }),
