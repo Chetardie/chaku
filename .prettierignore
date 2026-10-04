@@ -5,3 +5,6 @@ pnpm-lock.yaml
 
 # Written by drizzle-kit; a migration that has run must stay byte for byte the same.
 packages/db/migrations/
+
+# Written by packages/ui/scripts/tokens.ts; the stale-file test compares it byte for byte.
+packages/ui/tokens.css

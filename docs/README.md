@@ -55,7 +55,7 @@ Docs change in the same PR as the behaviour, decision or process they describe. 
 ### Design system
 | Doc | Status |
 |---|---|
-| [Foundations](design-system/foundations.md): Warm direction, theming (ADR-0015) | Warm direction; token scales next |
+| [Foundations](design-system/foundations.md): Warm direction, theming (ADR-0015) | current: Warm theme in `packages/ui` tokens (CHK-36) |
 | [Screen map](design-system/screens.md): every v1 screen, its data, open gaps; [mockups](design-system/screen-map.html) | draft; gaps G1–G7 to decide |
 | [Voice and tone](design-system/voice-and-tone.md) | current |
 | Design workflow: Figma structure, handoff, Code Connect | Design System project |

@@ -87,6 +87,11 @@ describe('workspace', () => {
     ['zod', 4],
     ['pino', 10],
     ['@playwright/test', 1],
+    // CHK-36: Tailwind 4 and Storybook 10 (ADR-0011).
+    ['tailwindcss', 4],
+    ['storybook', 10],
+    ['@storybook/react-vite', 10],
+    ['vitest', 5],
   ])('pins %s to major %i (ADR-0011)', (name, major) => {
     const workspace = parse(readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')) as {
       catalog: Record<string, string>;

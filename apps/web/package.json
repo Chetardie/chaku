@@ -6,7 +6,7 @@
     "dev": "next dev --port 3000",
     "build": "next build && node scripts/standalone.ts",
     "start": "node --env-file=../../.env.example --env-file-if-exists=../../.env .next/standalone/apps/web/server.js",
-    "lint": "eslint .",
+    "lint": "eslint . && stylelint --allow-empty-input \"**/*.css\"",
     "typecheck": "tsc",
     "test": "vitest run",
     "test:e2e": "playwright test"
@@ -14,6 +14,7 @@
   "dependencies": {
     "@chaku/adapters": "workspace:*",
     "@chaku/db": "workspace:*",
+    "@chaku/ui": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "catalog:",
@@ -29,6 +30,7 @@
     "@axe-core/playwright": "catalog:",
     "@chaku/config": "workspace:*",
     "@playwright/test": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -36,6 +38,9 @@
     "babel-plugin-react-compiler": "catalog:",
     "eslint": "catalog:",
     "happy-dom": "catalog:",
+    "postcss": "catalog:",
+    "stylelint": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

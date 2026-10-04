@@ -261,11 +261,11 @@ No table change.
 
 What laying out real screens showed about the [foundations](foundations.md). The mockups have a switch to compare notes 1 and 2.
 
-1. **White bubbles barely separate from the cream background.** White on `#FFF7EF` is about 1.05:1. Proposed: a slightly deeper `chat-background` for the Message list (`#F6EBDF`); muted text on it is still 4.9:1.
-2. **Own bubbles in dark mode are very loud.** A Chat full of `#FF8A5C` bubbles is a wall of bright coral at night. Proposed: a deeper `bubble-own` in dark mode only (`#A8472A` with `#FFF4EC` text, 5.4:1), keeping the bright coral for buttons and badges.
-3. **Sun yellow works as the Game Challenge signal. Keep it for that.** Warnings use a separate semantic colour (`warning`, ADR-0015).
+1. **White bubbles barely separate from the cream background.** White on `#FFF7EF` is about 1.05:1. **Decided (CHK-36):** a slightly deeper `chat-background` for the Message list (`#F6EBDF`); muted text on it is still 4.9:1.
+2. **Own bubbles in dark mode are very loud.** A Chat full of `#FF8A5C` bubbles is a wall of bright coral at night. **Decided (CHK-36):** a deeper `bubble-own` in dark mode only (`#A8472A` with `#FFF4EC` text, 5.4:1), keeping the bright coral for buttons and badges.
+3. **Sun yellow works as the Game Challenge signal. Keep it for that.** Warnings use a separate semantic colour (`warning`, ADR-0015), amber since CHK-36.
 4. **Coral does a lot of jobs on chat screens:** own bubbles, Send, unread badges, links, the selected tab. It reads clearly today. If it gets noisy, unread badges move to ink first.
 5. **The shapes make it Chaku.** Cream with coral is a common palette. Nunito's rounded letters, the bubble tail, pill controls and soft group avatars set it apart, so lean on those rather than adding colour.
 6. **Check the phone tab bar in Ukrainian.** "Сповіщення" is the longest of five labels at 360px. Options: a shorter UK label, or an icon-only bell with a screen-reader label. Decide in the Storybook check of both languages. (The mockups say "Alerts" to fit, but voice-and-tone says Notification.)
 
-All six are inputs to the tokens ticket (CHK-36). None of them changes a token yet.
+All six were inputs to the tokens ticket (CHK-36). Notes 1–3 are now tokens ([foundations](foundations.md#decided-in-the-tokens-work-chk-36)); notes 4–5 guide component work, and note 6 is decided with the tab bar component.

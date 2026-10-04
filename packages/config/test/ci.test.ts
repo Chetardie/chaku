@@ -60,6 +60,16 @@ describe('CI workflow', () => {
     expect(ciText).toMatch(/docker:\/\/ghcr\.io\/gitleaks\/gitleaks:/);
   });
 
+  it('builds Storybook and fails on an accessibility problem in any story, in both modes (CHK-36)', () => {
+    expect(ciText).toContain('turbo run build-storybook --filter=@chaku/ui');
+    expect(ciText).toContain('pnpm --filter @chaku/ui test:storybook');
+    const ui = JSON.parse(readFileSync(path.join(root, 'packages/ui/package.json'), 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    expect(ui.scripts['test:storybook']).toContain('storybook-light');
+    expect(ui.scripts['test:storybook']).toContain('storybook-dark');
+  });
+
   it('runs the tests against the same Postgres as the local stack (D19, CHK-17)', () => {
     const compose = parse(readFileSync(path.join(root, 'docker-compose.yml'), 'utf8')) as {
       services: { postgres: { image: string; environment: Record<string, string> } };

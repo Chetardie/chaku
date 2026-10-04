@@ -1,0 +1,11 @@
+/* The same Tailwind setup as apps/web/app/globals.css: Chaku's tokens in place of the defaults. */
+@import 'tailwindcss';
+@import '../tokens.css';
+
+@source '../src';
+
+@layer base {
+  body {
+    @apply bg-background font-sans text-base text-foreground;
+  }
+}
