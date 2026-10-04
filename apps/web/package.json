@@ -14,6 +14,7 @@
   "dependencies": {
     "@chaku/adapters": "workspace:*",
     "@chaku/db": "workspace:*",
+    "@chaku/identity": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "catalog:",

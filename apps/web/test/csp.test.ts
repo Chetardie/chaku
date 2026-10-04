@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { describe, expect, it } from 'vitest';
 
 import { proxy } from '../proxy.ts';
+import { pathHeader } from '../src/server/path-header.ts';
 import { contentSecurityPolicy, type CspEnv } from '../src/server/csp.ts';
 
 const env: CspEnv = {
@@ -90,5 +91,14 @@ describe('proxy', () => {
     const policy = response.headers.get('Content-Security-Policy');
     expect(response.headers.get('x-middleware-request-content-security-policy')).toBe(policy);
     expect(response.headers.get('x-middleware-request-x-nonce')).toBe(nonceOf(policy));
+  });
+
+  it('passes the page path on for requireMemberPage, whatever the browser sent', () => {
+    const response = proxy(
+      new NextRequest('https://chaku.localhost/chats/1?tab=media', {
+        headers: { [pathHeader]: '//evil.example' },
+      }),
+    );
+    expect(response.headers.get(`x-middleware-request-${pathHeader}`)).toBe('/chats/1?tab=media');
   });
 });

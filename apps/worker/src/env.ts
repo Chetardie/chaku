@@ -9,6 +9,9 @@ export const workerEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   LOG_LEVEL: z.enum(logLevels).default('info'),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+  /** Alert emails (new device, email change) go out from jobs (D21, D37). */
+  SMTP_URL: z.url({ protocol: /^smtps?$/ }),
+  EMAIL_FROM: z.string().min(3),
   /** Jobs this process runs at once. The beta runs one worker process. */
   WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(5),
 });

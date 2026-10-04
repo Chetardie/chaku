@@ -168,14 +168,16 @@ describe('the worker', () => {
 });
 
 describe('registered modules', () => {
+  const registered = modules({ email: { send: () => Promise.resolve() } });
+
   it("put identity's cron item from its public entry into the crontab", () => {
-    expect(buildCronItems(modules)).toMatchObject([
+    expect(buildCronItems(registered)).toMatchObject([
       { task: deleteExpiredSessions.name, identifier: deleteExpiredSessions.name },
     ]);
   });
 
   it('carry IDs and small values only in every payload', () => {
-    for (const module of modules) {
+    for (const module of registered) {
       for (const { job } of module.handlers) expect(payloadProblems(job.payload)).toEqual([]);
     }
   });

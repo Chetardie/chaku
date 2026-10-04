@@ -1,5 +1,6 @@
 // apps/worker: runs Graphile Worker jobs (ADR-0008). SIGTERM or SIGINT stops taking jobs, waits for
 // the running ones, closes the pool and exits 0; a second signal stops at once.
+import { createSmtpEmail } from '@chaku/adapters/email';
 import { createLogger } from '@chaku/adapters/log';
 import { closeDatabase, createDatabase } from '@chaku/db';
 
@@ -24,7 +25,13 @@ const db = createDatabase(env.DATABASE_URL, {
     log.error({ err: error }, 'Postgres connection error');
   },
 });
-const runner = await startWorker({ db, log, modules, concurrency: env.WORKER_CONCURRENCY });
+const email = createSmtpEmail({ url: env.SMTP_URL, from: env.EMAIL_FROM });
+const runner = await startWorker({
+  db,
+  log,
+  modules: modules({ email }),
+  concurrency: env.WORKER_CONCURRENCY,
+});
 log.info({ concurrency: env.WORKER_CONCURRENCY }, 'Worker started');
 
 let stopping = false;

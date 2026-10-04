@@ -73,6 +73,7 @@ Spec §5.6: `apps/{web,realtime,worker,games/*}`, `packages/{modules/*,content,d
 - `apps/worker`: Graphile Worker jobs (ADR-0008). `src/modules.ts` lists the modules whose jobs it runs; `src/runner.ts` wires them up; bundled with tsdown
 - `packages/adapters`: the logger and vendor adapters, one entry point each (`@chaku/adapters/email`, …)
 - `packages/db`: `@chaku/db` (pool, transactions, `defineJob`/`addJob`/`handle`; apps bundle it), `@chaku/db/migrate` (migrations in `packages/db/migrations` plus the `graphile_worker` schema, reset, local env), the test harness `@chaku/db/testing` (`queuedJobs`, `runJob`)
-- `packages/config`, `packages/modules/identity` and `stack`
+- `packages/modules/identity`: Members and login. `createAuth` (Better Auth on identity's tables, email codes and links, passkeys, Google), sessions, alert jobs; tests in `test/` (Postgres) and `live/` (Mailpit, run by `pnpm stack:check`). Its source runs straight in Node.js (seed, worker in development), so no JSX: emails use `createElement`
+- `packages/config` and `stack`
 
 The other folders hold a README until their ticket arrives. New packages are named `@chaku/<name>`, take versions from the catalog, and extend `@chaku/config/tsconfig/base.json` (or `node.json`).

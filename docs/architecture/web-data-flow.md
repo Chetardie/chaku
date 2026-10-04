@@ -30,7 +30,9 @@ oRPC 2 is in beta (`2.0.0-beta`); ADR-0011 stays on 1 until it is stable.
 | File in `apps/web` | Job |
 |---|---|
 | `src/server/rpc/router.ts` | The router: one namespace per module (`chat`, `feed`, `identity`, `games`, `notifications`, `moderation`, `media`), plus `sync`. Each procedure validates input with Zod, runs the auth middleware and calls the module's public entry point. Business logic stays in the modules (ADR-0003). |
-| `src/server/rpc/context.ts` | Base context `{ headers }`. Middleware `withSession` reads the Better Auth session from the headers; `requireMember` and `requireAdmin` (a passkey session, D47) build on it. |
+| `src/server/rpc/context.ts` | Base context `{ headers }`. Middleware `withSession` reads the Better Auth session from the headers; `requireMember` (else `UNAUTHORIZED`) and `requireAdmin` (role `admin` and a passkey session, else `FORBIDDEN`, D47) build on it, and `memberProcedure` and `adminProcedure` start from them. _(CHK-20: the session is read in `src/server/session.ts`, wrapped in React `cache()` keyed by the cookie header; a banned Member's session reads as none.)_ |
+| `src/server/session.ts`, `src/server/require-member-page.ts` | `getSession(headers)` for middleware and Server Components; `requireMemberPage()` redirects to `/login?next=…`, with the path from the `x-chaku-path` header `proxy.ts` sets (CHK-20). |
+| `app/api/auth/[...all]/route.ts` | Better Auth's endpoints, from the identity module's `createAuth` (ADR-0004, CHK-20). |
 | `app/rpc/[[...rest]]/route.ts` | `RPCHandler` for browser calls, with CSRF protection and an error interceptor that logs the procedure path and error code, never the input (D9). |
 | `src/lib/orpc.server.ts` | Registers the server-side router client on `globalThis`. `instrumentation.ts` calls it once when the server starts. |
 | `src/lib/orpc.ts` | Exports `client` and `orpc`. Never imports `orpc.server.ts`. |

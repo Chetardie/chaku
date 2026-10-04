@@ -2,7 +2,7 @@
 
 The whole app runs on your machine with one command and no cloud accounts (D23, ADR-0006). Docker runs the services; Caddy serves every app over HTTPS on its own `.localhost` site, so cookies, CSP, service workers and passkeys behave as in production.
 
-Logging in as a seed Member (CHK-20), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them. The web app is described under [Web app](#web-app).
+The login screens (CHK-41), `pnpm stack:prod` and `pnpm dev:tunnel` arrive with later Foundation tickets; this guide grows with them. The web app is described under [Web app](#web-app).
 
 ## What runs
 
@@ -37,7 +37,7 @@ Until an app exists or while it is stopped, its site answers 502 with a hint. Th
 | `pnpm stack` | Starts everything and waits until every service is healthy. Then it creates the buckets with their CORS rules, writes Caddy's root certificate to `.data/caddy-root.crt` and prints the URLs. Safe to run again at any time. |
 | `pnpm stack:down` | Stops the stack and keeps its data. |
 | `pnpm stack:reset` | Stops the stack and deletes its data: the database and stored files. It keeps Caddy's certificate authority, so you don't have to trust it again. |
-| `pnpm stack:check` | Checks the running stack: every service healthy, trusted HTTPS on every site, pre-signed uploads with CORS, Postgres extensions, and the email and storage adapters against Mailpit and SeaweedFS. CI runs it on a fresh machine for every PR. |
+| `pnpm stack:check` | Checks the running stack: every service healthy, trusted HTTPS on every site, pre-signed uploads with CORS, Postgres extensions, the email, storage and rate-limit adapters against Mailpit, SeaweedFS and Redis, and email login end to end through Mailpit. CI runs it on a fresh machine for every PR. |
 
 `pnpm stack` reads `.env` if you have one, and takes everything else from [`.env.example`](../../.env.example). You only need a `.env` to change something.
 
@@ -65,6 +65,14 @@ The seed has fake Members only, with `example.com` addresses, never real people 
 | `daryna@example.com` | Member | Bohdan |
 
 Daryna has one open Invite. Its code is `seed-open-invite`, for trying signup once Invites have a page (CHK-21).
+
+### Logging in
+
+Every seed Member logs in by email (ADR-0010): the code and the link arrive in Mailpit at <https://mail.chaku.localhost>. Until the login screens arrive (CHK-41), log in through Better Auth's API at `https://chaku.localhost/api/auth`: `POST /email-otp/send-verification-otp` with `{ "email": "alice@example.com", "type": "sign-in" }`, then `POST /sign-in/email-otp` with `{ "email", "otp" }` sets the session cookie. Codes last 10 minutes, and an address gets 3 codes per 10 minutes (D56); limits are counted in Redis.
+
+Signups are closed until Invites arrive (CHK-21): an address that belongs to no Member gets a code, but logging in with it answers `SIGNUP_CLOSED`.
+
+Google login is optional locally. Create a development OAuth client in Google Cloud with the redirect URI `https://chaku.localhost/api/auth/callback/google`, and set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in your `.env`. With either missing, Google login is off. Passkeys work on `chaku.localhost` (`PASSKEY_RP_ID`) once the certificate is trusted.
 
 ### Tests
 

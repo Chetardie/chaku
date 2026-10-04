@@ -9,6 +9,7 @@
     "./errors": "./src/errors.ts",
     "./log": "./src/log.ts",
     "./push": "./src/push.ts",
+    "./rate-limit": "./src/rate-limit.ts",
     "./storage": "./src/storage.ts"
   },
   "scripts": {
@@ -20,9 +21,11 @@
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
     "@aws-sdk/s3-request-presigner": "catalog:",
+    "ioredis": "catalog:",
     "nodemailer": "catalog:",
     "pino": "catalog:",
-    "pino-pretty": "catalog:"
+    "pino-pretty": "catalog:",
+    "rate-limiter-flexible": "catalog:"
   },
   "devDependencies": {
     "@chaku/config": "workspace:*",
